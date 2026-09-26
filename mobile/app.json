@@ -1,0 +1,50 @@
+{
+  "expo": {
+    "name": "찐맛",
+    "slug": "jjinmat",
+    "scheme": "jjinmat",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "backgroundColor": "#FFFFFF"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "plugins": [
+      "expo-router",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "찐맛이 내 주변 진짜 맛집을 추천할 수 있도록 위치 정보를 사용해요.",
+          "locationWhenInUsePermission": "찐맛이 내 주변 진짜 맛집을 추천할 수 있도록 위치 정보를 사용해요."
+        }
+      ]
+    ],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.jjinmat.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "찐맛이 내 주변 진짜 맛집을 추천할 수 있도록 위치 정보를 사용해요.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "찐맛이 내 주변 진짜 맛집을 추천할 수 있도록 위치 정보를 사용해요."
+      }
+    },
+    "android": {
+      "package": "com.jjinmat.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ]
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "extra": {
+      "router": {}
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "name": "jjinmat-mobile",
+  "version": "1.0.0",
+  "main": "expo-router/entry",
+  "private": true,
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "expo": "~57.0.25",
+    "expo-status-bar": "~57.0.1",
+    "expo-router": "~57.0.23",
+    "expo-location": "~57.0.20",
+    "expo-constants": "~57.0.19",
+    "expo-linking": "~57.0.9",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-native": "0.86.3",
+    "react-native-safe-area-context": "5.10.0",
+    "react-native-screens": "4.28.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@types/react": "~19.2.2",
+    "babel-preset-expo": "~57.0.13",
+    "typescript": "~6.0.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
