@@ -7,6 +7,7 @@ SIGMA = (4.5 - 2.5) / Φ⁻¹(0.97) ≈ 1.063 → 상위 3% 가 4.5 이상.
 """
 from __future__ import annotations
 
+from bisect import bisect_left
 from statistics import NormalDist
 from typing import Sequence
 
@@ -46,10 +47,13 @@ def strict_map(values: Sequence[float]) -> list[float]:
     return [star_from_quantile(p) for p in quantiles(values)]
 
 
-def top_percent(value: float, population: Sequence[float]) -> int:
-    """'이 지역 상위 N%' 의 N (1~100). 자신보다 높은 값 수 기준."""
-    n = len(population)
-    if n == 0:
-        return 100
-    higher = sum(1 for v in population if v > value)
-    return max(1, min(100, int(-(-(higher + 1) * 100 // n))))
+def top_percents(values: Sequence[float]) -> list[int]:
+    """각 값의 '이 지역 상위 N%' 의 N (1~100), O(n log n).
+    동점은 동점 묶음의 가장 낮은 순위로 계산 → 근거 없이 모두 같은 점수일 때 "상위 1%" 과장 방지."""
+    n = len(values)
+    asc = sorted(values)
+    out = []
+    for v in values:
+        rank = n - bisect_left(asc, v)  # 자신 이상인 값 수 = 동점 포함 최저 순위
+        out.append(max(1, min(100, -(-rank * 100 // n))))
+    return out

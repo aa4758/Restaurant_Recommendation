@@ -82,6 +82,20 @@ CREATE TABLE IF NOT EXISTS restaurant_signals (
     source TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_signals_restaurant ON restaurant_signals(restaurant_id, kind);
+-- 점수 배치 결과 (app/service.py rebuild_scores). 영업 중인 가게만, 시군구 단위로 재계산
+CREATE TABLE IF NOT EXISTS scores (
+    restaurant_id TEXT PRIMARY KEY REFERENCES restaurants(id),
+    prior_star REAL NOT NULL,
+    user_mean REAL,
+    n INTEGER NOT NULL,
+    star REAL NOT NULL,
+    percentile INTEGER NOT NULL,
+    gov_visits INTEGER NOT NULL,
+    gov_source TEXT,
+    gov_bonus REAL NOT NULL,
+    ad_penalty REAL,                   -- NULL = 광고 리뷰 통계 없음
+    computed_at TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS review_stats (
     restaurant_id TEXT PRIMARY KEY REFERENCES restaurants(id),
     ext_rating REAL,

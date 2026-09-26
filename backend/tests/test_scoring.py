@@ -35,10 +35,12 @@ def test_strict_map_ties_equal():
     assert len(set(strict.strict_map([1, 1, 1]))) == 1
 
 
-def test_top_percent():
-    pop = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    assert strict.top_percent(10, pop) == 10
-    assert strict.top_percent(1, pop) == 100
+def test_top_percents():
+    pcts = strict.top_percents([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    assert pcts[9] == 10 and pcts[0] == 100
+    assert strict.top_percents([3, 3]) == [100, 100]  # 동점은 묶음의 최저 순위
+    assert strict.top_percents([5, 3, 3]) == [34, 100, 100]
+    assert strict.top_percents([]) == []
 
 
 def test_bayes_half_at_k():

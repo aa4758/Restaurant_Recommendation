@@ -2,6 +2,7 @@ import sqlite3
 
 from app.ingest.load_seed import load
 from app.ingest.sbiz import SbizStoresCSVAdapter, map_genre
+from app.service import candidates_near, rebuild_scores
 
 HEADER = "상가업소번호,상호명,지점명,상권업종대분류명,상권업종중분류명,상권업종소분류명,시도명,시군구명,시군구코드,지번주소,도로명주소,층정보,경도,위도"
 ROWS = [
@@ -25,6 +26,8 @@ def test_map_genre():
     assert map_genre("한식", "돼지고기 구이/찜") == "고기/구이"
     assert map_genre("서양식", "") == "양식"
     assert map_genre("기타 간이", "버거") == "양식"
+    assert map_genre("기타 간이", "치킨") == "치킨"
+    assert map_genre("주점", "요리 주점") == "주점"
     assert map_genre("기타 외국식", "") == "기타"
 
 
@@ -51,3 +54,18 @@ def test_real_load_upserts_and_keeps_reviews(tmp_path):
     assert c.execute("SELECT COUNT(*) FROM restaurants").fetchone()[0] == 3
     assert c.execute("SELECT kakao_place_id FROM restaurants WHERE id='SA1'").fetchone()[0] == "k1"
     assert c.execute("SELECT COUNT(*) FROM user_reviews").fetchone()[0] == 1
+
+
+def test_scores_by_region_and_closed_excluded(tmp_path):
+    db = tmp_path / "t.db"
+    load(db, [SbizStoresCSVAdapter(_csv(tmp_path))], reset=False)
+    c = sqlite3.connect(db)
+    c.row_factory = sqlite3.Row
+    sc = {r[0]: r for r in c.execute("SELECT restaurant_id, star, percentile FROM scores")}
+    assert set(sc) == {"SA1", "SA2", "SA3"}
+    assert sc["SA2"]["percentile"] == 100 and sc["SA2"]["star"] == 2.5  # 해운대구 단독 지역
+    assert [x.id for x in candidates_near(c, 35.16, 129.16, 500)] == ["SA2"]  # 반경 밖 서울 가게 제외
+    c.execute("UPDATE restaurants SET status='closed' WHERE id='SA1'")
+    rebuild_scores(c, "11140")
+    assert {r[0] for r in c.execute("SELECT restaurant_id FROM scores")} == {"SA2", "SA3"}
+    assert [x.id for x in candidates_near(c, 37.56, 126.97, 3000)] == ["SA3"]

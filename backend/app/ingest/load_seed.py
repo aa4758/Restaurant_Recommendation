@@ -10,6 +10,7 @@ import sqlite3
 from pathlib import Path
 
 from app.db import BACKEND_DIR, connect, db_path, init_schema
+from app.service import rebuild_scores
 
 from .base import SourceAdapter
 from .csv_adapters import GovExpenseCSVAdapter, RestaurantsCSVAdapter, ReviewStatsCSVAdapter
@@ -98,6 +99,7 @@ def load(db: Path | str | None = None, adapters: list[SourceAdapter] | None = No
         counts[ad.name] = n
         print(f"[ok]   {ad.name}: {n}건")
     conn.commit()
+    print(f"[ok]   scores: {rebuild_scores(conn)}건 계산")
     conn.close()
     return counts
 

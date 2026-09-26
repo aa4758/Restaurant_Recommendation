@@ -165,7 +165,9 @@ def make_reasons(s: Scored, q: Query) -> list[str]:
         line3 = f"공공기관 업무추진비 기록 {c.gov_visits}회{src}"
     elif c.review_count > 0:
         line3 = f"찐맛 자체 리뷰 {c.review_count}개 반영"
-    elif c.ad_penalty is not None and c.ad_penalty <= 0:
+    elif c.ad_penalty is None:
+        line3 = "아직 평가 근거가 적어요 · 첫 리뷰를 남겨주세요"
+    elif c.ad_penalty <= 0:
         line3 = "광고·체험단 리뷰 비율 낮음"
     else:
         line3 = "외부 평점 기반 사전 점수(자체 리뷰 축적 전)"
