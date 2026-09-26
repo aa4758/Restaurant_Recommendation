@@ -22,7 +22,8 @@ claude
 | 2-A 백엔드·엔진 | ✅ 완료(pytest 15개 통과) | — |
 | 3 모바일 | ✅ 5개 화면 완료(tsc·android 번들 통과, 실기기 미확인) | 실기기/에뮬레이터 연동 확인 |
 | 4 QA | ✅ 완료(high 0건, `docs/qa/report.md`) | —|
-| 5 운영 / 6 배포 / 7 실데이터 | ⏳ 미착수 | `docs/02_roadmap.md` 참고 |
+| 5 운영·배포 준비 | ✅ 완료(Dockerfile·CI·eas.json·`ops/runbook.md`, Docker 빌드는 CI에서 첫 검증) | eas.json API URL 교체 |
+| 6 배포 / 7 실데이터 | 👤 사용자 조치 필요 | `docs/02_roadmap.md` 하단 준비물 |
 
 ### 2-A 백엔드 — 작성됨(미검증)
 `backend/app/`: main.py, schemas.py, db.py, service.py, constants.py, scoring/{prior,strict,bayes,recommend}.py, ingest/{base,csv_adapters,kakao,load_seed}.py, `backend/data/seed/*.csv`
