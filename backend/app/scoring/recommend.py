@@ -68,7 +68,7 @@ class Query:
 @dataclass
 class Scored:
     cand: Candidate
-    distance_m: float
+    distance_m: float | None
     rank_score: float
     reasons: list[str] = field(default_factory=list)
 
@@ -141,7 +141,6 @@ def rotate_ties(items: list[Scored], day: date, band: float = TIE_BAND) -> list[
 
 def make_reasons(s: Scored, q: Query) -> list[str]:
     c = s.cand
-    walk = max(1, round(s.distance_m / WALK_M_PER_MIN))
     line1 = f"엄격 별점 {c.star:.1f} · 이 지역 상위 {c.percentile}%"
     fit = []
     if q.genre and c.genre in q.genre:
@@ -155,8 +154,12 @@ def make_reasons(s: Scored, q: Query) -> list[str]:
         fit.append("음주 가능")
     elif q.alcohol == "no" and not c.alcohol:
         fit.append("비주류 매장")
-    fit_txt = " · ".join(fit) if fit else f"{c.genre} · {c.price_band}"
-    line2 = f"도보 약 {walk}분({int(round(s.distance_m))}m) · {fit_txt}"
+    if s.distance_m is None:  # 위치 미지정(상세 조회)
+        line2 = " · ".join([c.genre, c.price_band] + (["/".join(c.moods)] if c.moods else []))
+    else:
+        walk = max(1, round(s.distance_m / WALK_M_PER_MIN))
+        fit_txt = " · ".join(fit) if fit else f"{c.genre} · {c.price_band}"
+        line2 = f"도보 약 {walk}분({int(round(s.distance_m))}m) · {fit_txt}"
     if c.gov_visits > 0:
         src = f"({c.gov_source})" if c.gov_source else ""
         line3 = f"공공기관 업무추진비 기록 {c.gov_visits}회{src}"
