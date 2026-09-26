@@ -76,6 +76,7 @@ export default function WriteReviewScreen() {
         placeholder="어땠는지 짧게 남겨주세요"
         placeholderTextColor={t.colors.textDisabled}
         multiline
+        maxLength={1000}
         style={[t.typography.body, { minHeight: 100, color: t.colors.textPrimary, borderColor: t.colors.border, borderWidth: 1, borderRadius: t.radius.md, padding: t.spacing.md, textAlignVertical: 'top' }]}
       />
       {error ? <InlineErrorBanner message="리뷰 등록에 실패했어요. 다시 시도해 주세요." /> : null}

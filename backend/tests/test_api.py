@@ -53,6 +53,9 @@ def test_detail_review_report(client):
     assert r.status_code == 201 and r.json()["final_star"] > before
     assert client.post("/restaurants/R001/reviews", json={"stars": 3.3}).status_code == 422
     assert client.post("/restaurants/R001/report", json={"field": "price", "message": "x"}).status_code == 202
+    assert client.post("/restaurants/R001/reviews", json={"stars": 4, "text": "a" * 1001}).status_code == 422
+    assert client.post("/restaurants/R001/reviews", json={"stars": 4, "tags": ["t"] * 11}).status_code == 422
+    assert client.post("/restaurants/R001/report", json={"field": "price", "message": "a" * 1001}).status_code == 422
     assert client.get("/restaurants/NOPE").status_code == 404
     assert client.post("/restaurants/NOPE/reviews", json={"stars": 3}).status_code == 404
 

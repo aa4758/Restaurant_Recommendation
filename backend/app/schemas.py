@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Literal, Optional
+from typing import Annotated, Literal, Optional
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -55,8 +55,8 @@ class RestaurantDetail(Item):
 
 class ReviewIn(BaseModel):
     stars: float = Field(ge=0.5, le=5)
-    text: str = ""
-    tags: list[str] = []
+    text: str = Field(default="", max_length=1000)
+    tags: list[Annotated[str, Field(max_length=20)]] = Field(default=[], max_length=10)
 
     @field_validator("stars")
     @classmethod
@@ -72,5 +72,5 @@ class ReviewOut(BaseModel):
 
 
 class ReportIn(BaseModel):
-    field: str = Field(min_length=1)
-    message: str = ""
+    field: str = Field(min_length=1, max_length=50)
+    message: str = Field(default="", max_length=1000)
