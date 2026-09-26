@@ -48,7 +48,7 @@ class Candidate:
     review_count: int = 0
     gov_visits: int = 0
     gov_source: str | None = None
-    ad_penalty: float = 0.0
+    ad_penalty: float | None = None  # None = 광고 리뷰 통계 없음
     updated_at: str = ""
     extra: dict = field(default_factory=dict)
 
@@ -165,7 +165,7 @@ def make_reasons(s: Scored, q: Query) -> list[str]:
         line3 = f"공공기관 업무추진비 기록 {c.gov_visits}회{src}"
     elif c.review_count > 0:
         line3 = f"찐맛 자체 리뷰 {c.review_count}개 반영"
-    elif c.ad_penalty <= 0:
+    elif c.ad_penalty is not None and c.ad_penalty <= 0:
         line3 = "광고·체험단 리뷰 비율 낮음"
     else:
         line3 = "외부 평점 기반 사전 점수(자체 리뷰 축적 전)"

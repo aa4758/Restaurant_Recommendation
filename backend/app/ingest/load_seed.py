@@ -1,4 +1,8 @@
-"""시드 CSV → SQLite 적재.  사용: python -m app.ingest.load_seed [--db PATH] [--seed-dir DIR]"""
+"""CSV → SQLite 적재.
+
+    python -m app.ingest.load_seed                 # 가상 시드 (DB 삭제 후 재생성)
+    python -m app.ingest.load_seed --source real   # data/raw/ 실데이터 upsert (기존 DB·리뷰 유지)
+"""
 from __future__ import annotations
 
 import argparse
@@ -10,8 +14,10 @@ from app.db import BACKEND_DIR, connect, db_path, init_schema
 from .base import SourceAdapter
 from .csv_adapters import GovExpenseCSVAdapter, RestaurantsCSVAdapter, ReviewStatsCSVAdapter
 from .kakao import KakaoLocalAdapter
+from .sbiz import SbizStoresCSVAdapter
 
 SEED_DIR = BACKEND_DIR / "data" / "seed"
+RAW_DIR = BACKEND_DIR / "data" / "raw"
 
 
 def default_adapters(seed_dir: Path = SEED_DIR) -> list[SourceAdapter]:
@@ -23,13 +29,21 @@ def default_adapters(seed_dir: Path = SEED_DIR) -> list[SourceAdapter]:
     ]
 
 
+def real_adapters(raw_dir: Path = RAW_DIR) -> list[SourceAdapter]:
+    return [SbizStoresCSVAdapter(p) for p in sorted((raw_dir / "sbiz").glob("*.csv"))]
+
+
 def _load_restaurants(conn: sqlite3.Connection, recs: list[dict]) -> int:
+    """id 기준 upsert: 레코드에 있는 컬럼만 갱신 → 다른 소스가 채운 컬럼·연결된 리뷰 보존."""
+    if not recs:
+        return 0
+    cols = list(recs[0])
+    updates = ",".join(f"{c}=excluded.{c}" for c in cols if c != "id")
     conn.executemany(
-        "INSERT OR REPLACE INTO restaurants(id,name,genre,price_band,moods,alcohol,lat,lng,address,updated_at)"
-        " VALUES(?,?,?,?,?,?,?,?,?,?)",
+        f"INSERT INTO restaurants({','.join(cols)}) VALUES({','.join('?' * len(cols))})"
+        f" ON CONFLICT(id) DO UPDATE SET {updates}",
         [
-            (r["id"], r["name"], r["genre"], r["price_band"], "|".join(r["moods"]), int(r["alcohol"]),
-             r["lat"], r["lng"], r.get("address"), r.get("updated_at"))
+            tuple("|".join(r[c]) if c == "moods" else r[c] for c in cols)
             for r in recs
         ],
     )
@@ -92,8 +106,15 @@ def main() -> None:
     ap = argparse.ArgumentParser(description="시드 데이터 적재")
     ap.add_argument("--db", default=None, help="SQLite 경로 (기본: JJINMAT_DB 또는 data/jjinmat.db)")
     ap.add_argument("--seed-dir", default=str(SEED_DIR))
+    ap.add_argument("--source", choices=["sample", "real"], default="sample")
     args = ap.parse_args()
-    load(args.db, default_adapters(Path(args.seed_dir)))
+    if args.source == "real":
+        adapters = real_adapters()
+        if not adapters:
+            print(f"적재할 파일 없음: {RAW_DIR / 'sbiz'} 에 상가정보 CSV를 넣으세요")
+        load(args.db, adapters, reset=False)
+    else:
+        load(args.db, default_adapters(Path(args.seed_dir)))
     print(f"DB: {args.db or db_path()}")
 
 

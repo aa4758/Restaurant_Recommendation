@@ -4,6 +4,7 @@ from __future__ import annotations
 import sqlite3
 from dataclasses import dataclass
 
+from app.constants import PRICE_UNKNOWN
 from app.scoring import bayes, prior, strict
 from app.scoring.recommend import Candidate
 
@@ -37,7 +38,7 @@ def _user_reviews(conn: sqlite3.Connection) -> dict[str, list[float]]:
 def load_scored(conn: sqlite3.Connection) -> dict[str, Scored]:
     rows = conn.execute(
         "SELECT r.*, s.ext_rating, s.ad_ratio, s.ad_conf FROM restaurants r"
-        " LEFT JOIN review_stats s ON s.restaurant_id = r.id ORDER BY r.id"
+        " LEFT JOIN review_stats s ON s.restaurant_id = r.id WHERE r.status = 'open' ORDER BY r.id"
     ).fetchall()
     if not rows:
         return {}
@@ -68,7 +69,7 @@ def load_scored(conn: sqlite3.Connection) -> dict[str, Scored]:
             id=r["id"],
             name=r["name"],
             genre=r["genre"],
-            price_band=r["price_band"],
+            price_band=r["price_band"] or PRICE_UNKNOWN,
             moods=[m for m in (r["moods"] or "").split("|") if m],
             alcohol=bool(r["alcohol"]),
             lat=r["lat"],
@@ -78,7 +79,7 @@ def load_scored(conn: sqlite3.Connection) -> dict[str, Scored]:
             review_count=len(stars),
             gov_visits=visits,
             gov_source=src,
-            ad_penalty=p.ad_penalty,
+            ad_penalty=p.ad_penalty if r["ad_ratio"] is not None else None,
             updated_at=r["updated_at"] or "",
         )
         out[r["id"]] = Scored(
