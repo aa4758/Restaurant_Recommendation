@@ -90,7 +90,7 @@ export interface CreateReviewRequest {
 }
 
 export interface CreateReviewResponse {
-  id: string;
+  id: number;
   final_star: number;
 }
 
@@ -136,7 +136,7 @@ async function request<T>(
     let message = `요청이 실패했어요. (${response.status})`;
     try {
       const body = await response.json();
-      if (typeof body?.message === 'string') message = body.message;
+      if (typeof body?.detail === 'string') message = body.detail; // FastAPI 에러 형식
     } catch {
       // 응답 바디가 JSON이 아닐 수 있음 — 기본 메시지 사용
     }
