@@ -1,8 +1,10 @@
-"""CSV 어댑터 3종. '#' 로 시작하는 줄은 주석(가상 데이터 표기 등)으로 무시."""
+"""CSV 어댑터 5종. '#' 로 시작하는 줄은 주석(가상 데이터 표기 등)으로 무시."""
 from __future__ import annotations
 
 import csv
 from pathlib import Path
+
+from app.scoring.prior import MICHELIN_KINDS, SIGNAL_KINDS
 
 from .base import Record, SourceAdapter
 
@@ -56,6 +58,7 @@ class RestaurantsCSVAdapter(_CSVAdapter):
                     "lng": float(r["lng"]),
                     "address": r.get("address") or None,
                     "updated_at": r.get("updated_at") or None,
+                    "opened_at": r.get("opened_at") or None,
                 }
             )
         return out
@@ -107,4 +110,57 @@ class GovExpenseCSVAdapter(_CSVAdapter):
             rec["amount"] = _int(rec["amount"])
             rec["base_year"] = _int(rec["base_year"])
             out.append(rec)
+        return out
+
+
+class RestaurantSignalsCSVAdapter(_CSVAdapter):
+    """공공 신호(restaurant_id 확정분): 위생등급·지정업소·가이드 선정·백년가게·착한가격·행정처분. kind = prior.SIGNAL_KINDS"""
+
+    kind = "restaurant_signals"
+    name = "restaurant_signals_csv"
+    KINDS = SIGNAL_KINDS
+
+    def __init__(self, path: Path | str, allow_michelin: bool = False):
+        super().__init__(path)
+        self.allow_michelin = allow_michelin  # 미슐랭(michelin_*)은 법무 확인 전이라 기본 제외
+
+    def fetch(self) -> list[Record]:
+        out = []
+        for r in read_csv(self.path):
+            if r.get("kind") not in self.KINDS:
+                continue
+            if r.get("kind") in MICHELIN_KINDS and not self.allow_michelin:
+                continue
+            rec: Record = {k: r.get(k) or None for k in ("restaurant_id", "kind", "value", "detail", "base_date", "source")}
+            rec["_allow_michelin"] = self.allow_michelin
+            out.append(rec)
+        return out
+
+
+class DesignationListCSVAdapter(_CSVAdapter):
+    """공공 선정·지정 목록(범용): name,address,lat,lng,kind,base_date,source (lat/lng 선택).
+
+    restaurant_id 가 없으므로 app.ingest.matcher 로 가게 매칭 후 restaurant_signals 에 적재
+    (python -m app.ingest.load_designations <csv>). 원본 행은 매칭 실패 출력용으로 `_raw` 에 보존.
+    """
+
+    kind = "designation_list"
+    name = "designation_list_csv"
+    COLUMNS = ("name", "address", "lat", "lng", "kind", "base_date", "source")
+
+    def fetch(self) -> list[Record]:
+        out = []
+        for r in read_csv(self.path):
+            out.append(
+                {
+                    "name": r.get("name", ""),
+                    "address": r.get("address") or None,
+                    "lat": _float(r.get("lat")),
+                    "lng": _float(r.get("lng")),
+                    "kind": r.get("kind", ""),
+                    "base_date": r.get("base_date") or None,
+                    "source": r.get("source") or None,
+                    "_raw": r,
+                }
+            )
         return out

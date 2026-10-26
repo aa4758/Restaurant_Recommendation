@@ -71,7 +71,9 @@ CREATE TABLE IF NOT EXISTS opening_hours (
     updated_at TEXT,
     PRIMARY KEY (restaurant_id, weekday)
 );
--- 공공 신호: hygiene_grade | sanction | model_restaurant | good_price | safe_restaurant | century_store
+-- 공공 신호: hygiene_grade | sanction | model_restaurant | safe_restaurant | origin_label_excellent (지정업소)
+--   | century_store (업력 보정) | good_price (점수 무관, 가성비 태그)
+--   | taste_of_seoul | seoul_future_heritage | local_food | michelin_* (외부 평판 가이드) — app/scoring/prior.py SIGNAL_KINDS
 CREATE TABLE IF NOT EXISTS restaurant_signals (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     restaurant_id TEXT NOT NULL REFERENCES restaurants(id),
@@ -82,6 +84,7 @@ CREATE TABLE IF NOT EXISTS restaurant_signals (
     source TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_signals_restaurant ON restaurant_signals(restaurant_id, kind);
+-- value: hygiene_grade = 매우우수|우수|좋음, 그 외 자유기술. base_date: 지정일·처분일(YYYY-MM-DD)
 -- 점수 배치 결과 (app/service.py rebuild_scores). 영업 중인 가게만, 시군구 단위로 재계산
 CREATE TABLE IF NOT EXISTS scores (
     restaurant_id TEXT PRIMARY KEY REFERENCES restaurants(id),
@@ -94,11 +97,13 @@ CREATE TABLE IF NOT EXISTS scores (
     gov_source TEXT,
     gov_bonus REAL NOT NULL,
     ad_penalty REAL,                   -- NULL = 광고 리뷰 통계 없음
+    components TEXT,                   -- JSON: 점수 모델 v2.1 구성요소 7개(가중 기여분, 감점은 음수)
+    evidence TEXT,                     -- low | mid | high
     computed_at TEXT NOT NULL
 );
 CREATE TABLE IF NOT EXISTS review_stats (
     restaurant_id TEXT PRIMARY KEY REFERENCES restaurants(id),
-    ext_rating REAL,
+    ext_rating REAL,                   -- 제휴 평점(1~5), NULL = 없음 → 외부 평판(reputation)에서 제외, 가이드도 없으면 중립 0.4
     ext_review_count INTEGER,
     ad_ratio REAL NOT NULL DEFAULT 0,
     ad_conf REAL NOT NULL DEFAULT 0,
@@ -151,6 +156,57 @@ def connect(path: Path | str | None = None) -> sqlite3.Connection:
     return conn
 
 
+# 기존 DB 호환: CREATE TABLE IF NOT EXISTS 는 컬럼을 추가하지 않으므로 없으면 ALTER
+MIGRATIONS = {
+    "scores": (("components", "TEXT"), ("evidence", "TEXT")),
+}
+
+
+def _migrate(conn: sqlite3.Connection) -> set[str]:
+    """없는 컬럼을 ALTER 로 추가. 반환: 컬럼이 추가된 테이블."""
+    changed: set[str] = set()
+    for table, cols in MIGRATIONS.items():
+        have = {r[1] for r in conn.execute(f"PRAGMA table_info({table})")}
+        for name, typ in cols:
+            if name not in have:
+                conn.execute(f"ALTER TABLE {table} ADD COLUMN {name} {typ}")
+                changed.add(table)
+    return changed
+
+
+def _dedupe_signals(conn: sqlite3.Connection) -> None:
+    """기존 DB 의 restaurant_signals 중복(재적재 누적) 정리 후 UNIQUE 인덱스 생성."""
+    if conn.execute("SELECT 1 FROM sqlite_master WHERE name = 'uq_signals'").fetchone():
+        return
+    conn.execute(
+        "DELETE FROM restaurant_signals WHERE id NOT IN (SELECT MIN(id) FROM restaurant_signals"
+        " GROUP BY restaurant_id, kind, IFNULL(value, ''), IFNULL(base_date, ''))"
+    )
+    conn.execute(
+        "CREATE UNIQUE INDEX IF NOT EXISTS uq_signals ON restaurant_signals"
+        "(restaurant_id, kind, IFNULL(value, ''), IFNULL(base_date, ''))"  # NULL 도 같은 값으로 취급
+    )
+
+
+# PRAGMA user_version: 마이그레이션 완료 기록. 1 = v2.1(partner→reputation 키 재계산 완료)
+SCHEMA_VERSION = 1
+
+
 def init_schema(conn: sqlite3.Connection) -> None:
     conn.executescript(SCHEMA)
+    changed = _migrate(conn)  # PRAGMA table_info 만(저렴) — 누락 컬럼 보강
+    _dedupe_signals(conn)
     conn.commit()
+    done = conn.execute("PRAGMA user_version").fetchone()[0] >= SCHEMA_VERSION
+    # scores 에 v2 컬럼을 막 추가했다면 기존 행은 NULL → 즉시 재계산(근거 부족 오표시 방지)
+    # v2 → v2.1: components 에 구 키 partner 가 남아 있으면 재계산(reputation 키로 갱신).
+    #   이 전체 스캔은 user_version 기록 전(최초 1회)에만 수행.
+    stale = not done and conn.execute(
+        "SELECT 1 FROM scores WHERE components LIKE '%\"partner\"%' LIMIT 1").fetchone()
+    if stale or ("scores" in changed and conn.execute("SELECT 1 FROM scores LIMIT 1").fetchone()):
+        from app.service import rebuild_scores  # 순환 import 회피
+
+        rebuild_scores(conn)
+    if not done:
+        conn.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
+        conn.commit()

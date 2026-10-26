@@ -8,7 +8,7 @@ Record = dict[str, Any]
 
 
 class SourceAdapter(ABC):
-    #: 적재 대상 종류: "restaurants" | "review_stats" | "gov_expense"
+    #: 적재 대상 종류: "restaurants" | "review_stats" | "gov_expense" | "restaurant_signals"
     kind: str = ""
     name: str = ""
 

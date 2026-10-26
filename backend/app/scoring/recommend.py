@@ -50,6 +50,12 @@ class Candidate:
     gov_source: str | None = None
     ad_penalty: float | None = None  # None = 광고 리뷰 통계 없음
     updated_at: str = ""
+    tenure_years: int | None = None  # 인허가일 기준 영업연수
+    hygiene_grade: str | None = None  # 매우우수 | 우수 | 좋음
+    designations: list[str] = field(default_factory=list)  # 표시명 (예: 모범음식점)
+    guides: list[str] = field(default_factory=list)  # 가이드 선정 문구, 점수 높은 순 (예: 서울미식 100선 선정(2025))
+    century_store: bool = False  # 백년가게 지정
+    evidence: str | None = None  # low | mid | high (None = 미계산)
     extra: dict = field(default_factory=dict)
 
 
@@ -139,6 +145,23 @@ def rotate_ties(items: list[Scored], day: date, band: float = TIE_BAND) -> list[
     return out
 
 
+LOW_EVIDENCE_TEXT = "근거 부족: 리뷰가 쌓이면 정확해져요"
+
+
+def public_facts(c: Candidate) -> list[str]:
+    """기타 공공 신호 근거 문구: 백년가게 / 업력 / 위생등급 / 지정업소 (값이 있는 것만)."""
+    out = []
+    if c.century_store:
+        out.append("백년가게 지정")
+    if c.tenure_years and c.tenure_years >= 1:
+        out.append(f"업력 {c.tenure_years}년")
+    if c.hygiene_grade:
+        out.append(f"위생등급 {c.hygiene_grade}")
+    if c.designations:
+        out.append("·".join(c.designations) + " 지정")
+    return out
+
+
 def make_reasons(s: Scored, q: Query) -> list[str]:
     c = s.cand
     line1 = f"엄격 별점 {c.star:.1f} · 이 지역 상위 {c.percentile}%"
@@ -160,9 +183,18 @@ def make_reasons(s: Scored, q: Query) -> list[str]:
         walk = max(1, round(s.distance_m / WALK_M_PER_MIN))
         fit_txt = " · ".join(fit) if fit else f"{c.genre} · {c.price_band}"
         line2 = f"도보 약 {walk}분({int(round(s.distance_m))}m) · {fit_txt}"
+    facts = public_facts(c)
+    # 우선순위: 가이드 선정 > 업무추진비 > 기타 공공 신호 (최대 2개 항목)
+    primary = c.guides[:1]
     if c.gov_visits > 0:
         src = f"({c.gov_source})" if c.gov_source else ""
-        line3 = f"공공기관 업무추진비 기록 {c.gov_visits}회{src}"
+        primary.append(f"공공기관 업무추진비 기록 {c.gov_visits}회{src}")
+    if primary:
+        line3 = " · ".join((primary + facts)[:2])
+    elif facts:
+        line3 = " · ".join(facts)
+    elif c.evidence == "low" and c.review_count <= 0:  # 자체 리뷰가 있으면 리뷰 수 문구 우선
+        line3 = LOW_EVIDENCE_TEXT
     elif c.review_count > 0:
         line3 = f"찐맛 자체 리뷰 {c.review_count}개 반영"
     elif c.ad_penalty is None:
@@ -170,7 +202,7 @@ def make_reasons(s: Scored, q: Query) -> list[str]:
     elif c.ad_penalty <= 0:
         line3 = "광고·체험단 리뷰 비율 낮음"
     else:
-        line3 = "외부 평점 기반 사전 점수(자체 리뷰 축적 전)"
+        line3 = "공공 신호 기반 사전 점수(자체 리뷰 축적 전)"
     return [line1, line2, line3]
 
 

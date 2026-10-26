@@ -40,6 +40,17 @@ class RecommendResponse(BaseModel):
     relaxed: list[str]
 
 
+class ScoreComponents(BaseModel):
+    """점수 모델 v2.1 구성요소별 prior_raw 기여분(가중 적용, 감점은 음수). reputation = 외부 평판."""
+    tenure: float
+    gov: float
+    hygiene: float
+    designation: float
+    reputation: float
+    sanction: float
+    ad: float
+
+
 class ScoreBreakdown(BaseModel):
     prior_star: float
     user_mean: Optional[float]
@@ -47,6 +58,8 @@ class ScoreBreakdown(BaseModel):
     k: int
     gov_bonus: float
     ad_penalty: float
+    components: Optional[ScoreComponents] = None  # NULL(재계산 전) → null
+    evidence: Optional[Literal["low", "mid", "high"]] = None
 
 
 class RestaurantDetail(Item):

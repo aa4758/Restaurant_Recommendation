@@ -2,7 +2,7 @@
 import React, { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, Text, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { api, RestaurantDetail } from '../../src/api/client';
+import { api, RestaurantDetail, ScoreComponents } from '../../src/api/client';
 import { Button } from '../../src/components/Button';
 import { GovBudgetBadge, InlineErrorBanner, PercentileBadge, ReasonList, StarRatingBadge } from '../../src/components/ui';
 import { useTheme } from '../../src/theme';
@@ -17,6 +17,45 @@ function Bar({ label, value, color }: { label: string; value: number; color: str
       <View style={{ height: 8, backgroundColor: t.colors.surfaceAlt, borderRadius: t.radius.pill }}>
         <View style={{ height: 8, width: `${(value / 5) * 100}%`, backgroundColor: color, borderRadius: t.radius.pill }} />
       </View>
+    </View>
+  );
+}
+
+const COMPONENT_ROWS: { key: keyof ScoreComponents; label: string }[] = [
+  { key: 'tenure', label: '업력(영업 연수·백년가게 보정)' },
+  { key: 'gov', label: '공공기관 업무추진비 기록' },
+  { key: 'hygiene', label: '위생등급' },
+  { key: 'designation', label: '지정업소(모범·안심·원산지표시 우수)' },
+  { key: 'reputation', label: '외부 평판' },
+  { key: 'sanction', label: '행정처분(최근 3년)' },
+  { key: 'ad', label: '광고성 리뷰' },
+];
+
+function ComponentRow({ label, value }: { label: string; value: number }) {
+  const t = useTheme();
+  const color = value < 0 ? t.colors.danger : value > 0 ? t.colors.textPrimary : t.colors.textDisabled;
+  const sign = value > 0 ? '+' : value < 0 ? '−' : '';
+  return (
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: t.spacing.sm }}>
+      <Text style={[t.typography.caption, { color: t.colors.textSecondary, flexShrink: 1 }]}>{label}</Text>
+      <Text style={[t.typography.caption, { color }]}>{`${sign}${Math.abs(value).toFixed(2)}`}</Text>
+    </View>
+  );
+}
+
+function LowEvidenceBadge() {
+  const t = useTheme();
+  return (
+    <View
+      style={{
+        alignSelf: 'flex-start',
+        backgroundColor: t.colors.surfaceAlt,
+        borderRadius: t.radius.pill,
+        paddingHorizontal: t.spacing.sm,
+        paddingVertical: t.spacing.xxs,
+      }}
+    >
+      <Text style={[t.typography.caption, { color: t.colors.warning }]}>근거 부족 · 리뷰가 쌓이면 정확해져요</Text>
     </View>
   );
 }
@@ -56,12 +95,24 @@ export default function RestaurantDetailScreen() {
 
       <View style={{ backgroundColor: t.colors.surface, borderRadius: t.radius.lg, padding: t.spacing.lg, gap: t.spacing.sm }}>
         <Text style={[t.typography.heading, { color: t.colors.textPrimary }]}>이 점수는 어떻게 나왔을까요?</Text>
+        {b.evidence === 'low' ? <LowEvidenceBadge /> : null}
         <Bar label="사전 점수" value={b.prior_star} color={t.colors.accent} />
         {b.user_mean != null ? <Bar label="방문자 리뷰 평균" value={b.user_mean} color={t.colors.success} /> : null}
         <Bar label="최종 점수" value={d.star} color={t.colors.primary} />
         {text(`사전 점수 ${b.prior_star}점 × ${b.k}건 + 방문자 리뷰 ${b.user_mean ?? '-'}점 × ${b.n}건`)}
-        {b.gov_bonus > 0 ? text(`공공기관 업무추진비 기록 반영: +${b.gov_bonus}`) : null}
-        {b.ad_penalty > 0 ? text(`광고성 리뷰 감점: -${b.ad_penalty}`) : null}
+        {b.components ? (
+          <View style={{ gap: t.spacing.xxs }}>
+            {text('사전 점수 구성')}
+            {COMPONENT_ROWS.map((row) => (
+              <ComponentRow key={row.key} label={row.label} value={b.components![row.key]} />
+            ))}
+          </View>
+        ) : (
+          <>
+            {b.gov_bonus > 0 ? text(`공공기관 업무추진비 기록 반영: +${b.gov_bonus}`) : null}
+            {b.ad_penalty > 0 ? text(`광고성 리뷰 감점: -${b.ad_penalty}`) : null}
+          </>
+        )}
         <GovBudgetBadge visits={d.gov_visits} source={d.gov_source} />
       </View>
 

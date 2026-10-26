@@ -10,10 +10,16 @@ import sqlite3
 from pathlib import Path
 
 from app.db import BACKEND_DIR, connect, db_path, init_schema
+from app.scoring.prior import MICHELIN_KINDS
 from app.service import rebuild_scores
 
 from .base import SourceAdapter
-from .csv_adapters import GovExpenseCSVAdapter, RestaurantsCSVAdapter, ReviewStatsCSVAdapter
+from .csv_adapters import (
+    GovExpenseCSVAdapter,
+    RestaurantSignalsCSVAdapter,
+    RestaurantsCSVAdapter,
+    ReviewStatsCSVAdapter,
+)
 from .kakao import KakaoLocalAdapter
 from .sbiz import SbizStoresCSVAdapter
 
@@ -27,6 +33,7 @@ def default_adapters(seed_dir: Path = SEED_DIR) -> list[SourceAdapter]:
         KakaoLocalAdapter(),  # KAKAO_REST_KEY 없으면 skip
         ReviewStatsCSVAdapter(seed_dir / "review_stats.csv"),
         GovExpenseCSVAdapter(seed_dir / "gov_expense.csv"),
+        RestaurantSignalsCSVAdapter(seed_dir / "restaurant_signals.csv"),
     ]
 
 
@@ -81,7 +88,30 @@ def _load_gov(conn: sqlite3.Connection, recs: list[dict]) -> int:
     return len(rows)
 
 
-LOADERS = {"restaurants": _load_restaurants, "review_stats": _load_review_stats, "gov_expense": _load_gov}
+def _load_signals(conn: sqlite3.Connection, recs: list[dict]) -> int:
+    ids = {row[0] for row in conn.execute("SELECT id FROM restaurants")}
+    rows = [
+        (r["restaurant_id"], r["kind"], r.get("value"), r.get("detail"), r.get("base_date"), r.get("source"))
+        for r in recs
+        if r.get("restaurant_id") in ids  # 매칭 실패 레코드는 버림
+        # 미슐랭은 법무 확인 전 → 어댑터에서 명시 허용(allow_michelin=True)한 레코드만
+        and (r.get("kind") not in MICHELIN_KINDS or r.get("_allow_michelin") is True)
+    ]
+    conn.executemany(
+        # UNIQUE(restaurant_id,kind,value,base_date) → 재적재 시 중복 무시
+        "INSERT OR IGNORE INTO restaurant_signals(restaurant_id,kind,value,detail,base_date,source)"
+        " VALUES(?,?,?,?,?,?)",
+        rows,
+    )
+    return len(rows)
+
+
+LOADERS = {
+    "restaurants": _load_restaurants,
+    "review_stats": _load_review_stats,
+    "gov_expense": _load_gov,
+    "restaurant_signals": _load_signals,
+}
 
 
 def load(db: Path | str | None = None, adapters: list[SourceAdapter] | None = None, reset: bool = True) -> dict[str, int]:

@@ -45,6 +45,44 @@ def test_seed_star_distribution(client):
     assert abs(sum(stars) / len(stars) - 2.5) < 0.15
 
 
+def test_detail_breakdown_v2_keys(client):
+    keys = {"prior_star", "user_mean", "n", "k", "gov_bonus", "ad_penalty", "components", "evidence"}
+    comp_keys = {"tenure", "gov", "hygiene", "designation", "reputation", "sanction", "ad"}
+    evidences = set()
+    for i in range(1, 49):
+        b = client.get(f"/restaurants/R{i:03d}").json()["score_breakdown"]
+        assert keys <= set(b) and set(b["components"]) == comp_keys
+        assert b["evidence"] in {"low", "mid", "high"}
+        assert b["components"]["sanction"] <= 0 and b["components"]["ad"] <= 0
+        assert abs(b["components"]["gov"] - b["gov_bonus"]) < 1e-3
+        evidences.add(b["evidence"])
+    assert evidences == {"low", "mid", "high"}  # 시드에 근거 수준 분포가 있음
+
+
+def test_existing_db_gets_new_score_columns(tmp_path):
+    import sqlite3
+    from app import db as dbm
+    p = tmp_path / "old.db"
+    c = sqlite3.connect(p)
+    c.execute("CREATE TABLE scores (restaurant_id TEXT PRIMARY KEY, prior_star REAL NOT NULL, user_mean REAL,"
+              " n INTEGER NOT NULL, star REAL NOT NULL, percentile INTEGER NOT NULL, gov_visits INTEGER NOT NULL,"
+              " gov_source TEXT, gov_bonus REAL NOT NULL, ad_penalty REAL, computed_at TEXT NOT NULL)")
+    c.commit(); c.close()
+    conn = dbm.connect(p)
+    dbm.init_schema(conn)
+    dbm.init_schema(conn)  # 멱등
+    cols = {r[1] for r in conn.execute("PRAGMA table_info(scores)")}
+    assert {"components", "evidence"} <= cols
+
+
+def test_own_review_ad_keywords_trigger_penalty(client):
+    before = client.get("/restaurants/R005").json()["score_breakdown"]
+    for _ in range(12):
+        client.post("/restaurants/R005/reviews", json={"stars": 3, "text": "체험단으로 제공받아 작성", "tags": []})
+    after = client.get("/restaurants/R005").json()["score_breakdown"]
+    assert after["ad_penalty"] > before["ad_penalty"] and after["components"]["ad"] < 0
+
+
 def test_detail_review_report(client):
     d = client.get("/restaurants/R001").json()
     assert d["distance_m"] is None and d["score_breakdown"]["k"] == 20
