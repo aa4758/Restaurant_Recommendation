@@ -133,6 +133,16 @@ CREATE TABLE IF NOT EXISTS user_reviews (
 );
 CREATE INDEX IF NOT EXISTS idx_reviews_restaurant ON user_reviews(restaurant_id);
 CREATE INDEX IF NOT EXISTS idx_gov_restaurant ON gov_expense(restaurant_id);
+-- 좋아요/싫어요 (개인화 전용, 점수·순위 미사용). 기기·가게당 1행 upsert, value none = 삭제
+CREATE TABLE IF NOT EXISTS reactions (
+    device_id TEXT NOT NULL,           -- 기기 ID (로그인 전, 외부 비공개)
+    restaurant_id TEXT NOT NULL REFERENCES restaurants(id),
+    value TEXT NOT NULL CHECK (value IN ('like', 'dislike')),
+    reason TEXT,                       -- dislike 일 때만: far | price | not_into | visited
+    updated_at TEXT NOT NULL,
+    PRIMARY KEY (device_id, restaurant_id)
+);
+CREATE INDEX IF NOT EXISTS idx_reviews_restaurant_created ON user_reviews(restaurant_id, created_at, id);
 CREATE TABLE IF NOT EXISTS reports (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     restaurant_id TEXT NOT NULL REFERENCES restaurants(id),

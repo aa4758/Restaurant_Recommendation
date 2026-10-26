@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Annotated, Literal, Optional
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 class RecommendRequest(BaseModel):
@@ -14,6 +14,7 @@ class RecommendRequest(BaseModel):
     mood: Optional[list[str]] = None
     alcohol: Literal["any", "yes", "no"] = "any"
     limit: int = Field(default=3, ge=1, le=5)
+    exclude_ids: list[Annotated[str, Field(max_length=64)]] = Field(default=[], max_length=200)  # 싫어요 숨김
 
 
 class Item(BaseModel):
@@ -33,6 +34,7 @@ class Item(BaseModel):
     gov_source: Optional[str] = None
     reasons: list[str]
     updated_at: str
+    evidence: Optional[Literal["low", "mid", "high"]] = None  # scores.evidence (재계산 전 null)
 
 
 class RecommendResponse(BaseModel):
@@ -87,3 +89,31 @@ class ReviewOut(BaseModel):
 class ReportIn(BaseModel):
     field: str = Field(min_length=1, max_length=50)
     message: str = Field(default="", max_length=1000)
+
+
+class ReviewItem(BaseModel):
+    id: int
+    stars: float
+    text: str
+    tags: list[str]
+    created_at: str
+    ad_disclosed: bool
+
+
+class ReviewPage(BaseModel):
+    items: list[ReviewItem]
+    next_cursor: Optional[str] = None
+
+
+class ReactionIn(BaseModel):
+    """기기·가게당 1행. 공개 점수·순위에 반영하지 않음(개인화 전용)."""
+    device_id: str = Field(min_length=8, max_length=64, pattern=r"^[A-Za-z0-9_-]+$")
+    restaurant_id: str = Field(min_length=1, max_length=64)
+    value: Literal["like", "dislike", "none"]
+    reason: Optional[Literal["far", "price", "not_into", "visited"]] = None
+
+    @model_validator(mode="after")
+    def reason_only_for_dislike(self) -> "ReactionIn":
+        if self.reason is not None and self.value != "dislike":
+            raise ValueError("reason is only allowed when value is dislike")
+        return self
