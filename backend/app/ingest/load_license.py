@@ -191,6 +191,29 @@ def _sigungu_code(regions: dict, addr: str | None) -> tuple[str | None, str | No
     return sido, gu, region_name_key(short, gu)
 
 
+def fix_regions(conn: sqlite3.Connection) -> dict:
+    """지역 없음·이름 키 가게의 시도/시군구/지역 키를 주소에서 다시 계산(재적재 없이). 점수는 바뀐 지역만 재계산."""
+    region_codes = _region_map(conn)
+    rows = conn.execute(
+        f"SELECT id, address, address_jibun, sigungu_code FROM restaurants"
+        f" WHERE sigungu_code IS NULL OR sigungu_code LIKE '{NAME_KEY_PREFIX}%'"
+    ).fetchall()
+    regions: set = set()
+    fixed = 0
+    for rid, road, jibun, old in rows:
+        sido, gu, code = _sigungu_code(region_codes, road or jibun)
+        if code != old:
+            conn.execute("UPDATE restaurants SET sido=?, sigungu=?, sigungu_code=? WHERE id=?", (sido, gu, code, rid))
+            regions.update((old, code))
+            fixed += 1
+    regions |= reconcile_region_keys(conn)
+    for reg in regions:
+        rebuild_scores(conn, reg)
+    conn.commit()
+    left = conn.execute("SELECT COUNT(*) FROM restaurants WHERE sigungu_code IS NULL").fetchone()[0]
+    return {"checked": len(rows), "fixed": fixed, "regions": len(regions), "still_none": left}
+
+
 def _write_unmatched(out_dir: Path, rows: list[tuple[dict, str]]) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     p = out_dir / UNMATCHED_FILE
@@ -450,7 +473,8 @@ def _print_check(results: list[dict]) -> None:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="인허가(일반·휴게음식점) CSV 적재(가게 매칭)")
-    ap.add_argument("csv", nargs="+")
+    ap.add_argument("csv", nargs="*")
+    ap.add_argument("--fix-regions", action="store_true", help="지역 없음 가게의 지역 키를 주소로 다시 계산(재적재 없음)")
     ap.add_argument("--crs", default=DEFAULT_CRS, help=f"원본 좌표계 (기본 {DEFAULT_CRS}, 후보 {', '.join(CANDIDATE_CRS)})")
     ap.add_argument("--calibrate", action="store_true", help="후보 CRS 별 매칭 표본 거리 중앙값만 보고(적재 안 함)")
     ap.add_argument("--dry-run", action="store_true", help="DB 변경 없이 통계만")
@@ -460,6 +484,15 @@ def main() -> None:
     ap.add_argument("--db", default=None, help="SQLite 경로 (기본: JJINMAT_DB 또는 data/jjinmat.db)")
     ap.add_argument("--out-dir", default=str(OUT_DIR))
     args = ap.parse_args()
+    if args.fix_regions:
+        conn = connect(args.db or db_path())
+        init_schema(conn)
+        r = fix_regions(conn)
+        print(f"[ok]   점검 {r['checked']:,}곳, 지역 수정 {r['fixed']:,}곳, 재계산 지역 {r['regions']}곳, 남은 지역 없음 {r['still_none']:,}곳")
+        conn.close()
+        return
+    if not args.csv:
+        ap.error("CSV 경로가 필요합니다 (--fix-regions 제외)")
     if args.check:
         _print_check(check_files(args.csv, args.crs, args.license_type))
         return

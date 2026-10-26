@@ -284,3 +284,19 @@ def test_dry_run_keeps_caller_uncommitted_change(tmp_path, no_rebuild):
     assert conn.in_transaction  # 호출자 트랜잭션은 커밋·롤백되지 않고 유지
     conn.rollback()
     assert _q(conn, "SELECT phone FROM restaurants WHERE id='S1'")[0] is None
+
+
+# --- 회귀: 2026 전남광주통합특별시 주소에서 지역 없음 ---------------------------------------
+def test_merged_sido_gets_region_and_fix_regions(tmp_path, no_rebuild):
+    from app.ingest.matcher import _sido
+
+    assert _sido("전남광주통합특별시") == _sido("광주광역시") == _sido("전라남도") == "전남광주"
+    assert ll._sigungu_code({}, "전남광주통합특별시 서구 시청로50번길 21-4, 다보빌딩 5층 (치평동)")[2] == "N:전남광주 서구"
+    assert ll._sigungu_code({}, "전남광주통합특별시 보성군 회천면 녹차로 619")[2] == "N:전남광주 보성군"
+    conn = make_db(tmp_path)
+    conn.execute("INSERT INTO restaurants(id,name,genre,lat,lng,address,sigungu_code) VALUES"
+                 "('L1','광주집','한식',35.15,126.85,'전남광주통합특별시 서구 하남대로 696, 1층 (동천동)',NULL)")
+    r = ll.fix_regions(conn)
+    assert r["fixed"] == 1 and r["still_none"] == 0
+    assert _q(conn, "SELECT sido, sigungu, sigungu_code FROM restaurants WHERE id='L1'") == (
+        "전남광주통합특별시", "서구", "N:전남광주 서구")
