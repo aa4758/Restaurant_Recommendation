@@ -1,4 +1,4 @@
-# 업무추진비 수집기 설정 — 코드에 상수로 박지 말고 여기서 읽는다.
+﻿# 업무추진비 수집기 설정 — 코드에 상수로 박지 말고 여기서 읽는다.
 period:
   start: "2024-11-01"
   end: "2026-10-31"
@@ -7,12 +7,12 @@ pilot:
   per_type: 3          # 유형별 파일럿 기관 수 (총 10~15곳)
 
 http:
-  min_interval_sec: 2.0     # 같은 도메인 요청 간격(최소)
+  min_interval_sec: 3.0     # 같은 도메인 요청 간격(최소, 01 결정 ≥3초)
   max_concurrency_per_domain: 1
   timeout_sec: 30
   retries: 4                # 지수 백오프
   # 연락처는 반드시 실제 값으로 바꿀 것 (9. 크롤링 윤리)
-  user_agent: "JJINMAT-ExpenseCollector/0.1 (+contact: CHANGE_ME@example.com)"
+  user_agent: "JJINMAT-ExpenseCollector/0.1 (+contact: groovechoi0119@gmail.com)"
   respect_robots: true
 
 paths:
@@ -30,4 +30,5 @@ parse:
 # 찐맛(JJINMAT) 백엔드로 넘길 export (CLAUDE.md 13절)
 jjinmat_export:
   path: data/output/gov_expense_for_jjinmat.csv
-  categories: [restaurant]  # cafe 포함 여부는 기획 결정 후
+  categories: [restaurant]  # D-2: 카페 제외(2026-10-26 승인)
+
