@@ -12,6 +12,7 @@ from __future__ import annotations
 import csv
 import math
 from datetime import date
+from collections.abc import Iterator
 from functools import lru_cache
 from pathlib import Path
 
@@ -50,7 +51,9 @@ _KOREA_BOUNDS = (32.5, 39.5, 123.5, 132.5)  # lat_min, lat_max, lng_min, lng_max
 
 # 추천 대상이 아닌 업태(카페·디저트 등). 업태구분명 공백 제거 후 정확히 일치할 때 제외('라이브카페'는 주점이라 유지)
 EXCLUDE_BIZ_TYPES = ("커피숍", "까페", "카페", "다방", "제과점영업", "아이스크림", "떡카페", "전통찻집", "키즈카페",
-                     "편의점", "철도역구내", "과자점")
+                     "편의점", "철도역구내", "과자점",
+                     # 비고정 영업(고정 매장 아님 → 추천 불가)
+                     "출장조리", "이동조리", "푸드트럭", "이동판매", "이동음식점")
 # 업태 키워드 → 앱 장르(순서 중요). '호프/통닭' 은 상호에 치킨·통닭이 있으면 치킨, 아니면 주점
 _CHICKEN_NAME = ("치킨", "통닭", "닭강정")
 BIZ_GENRE = (
@@ -133,8 +136,11 @@ class LicenseCSVAdapter(SourceAdapter):
         return self.path.exists()
 
     def fetch(self) -> list[Record]:
+        return list(self.iter_records())
+
+    def iter_records(self) -> Iterator[Record]:
+        """행 단위 스트리밍(전국 CSV 를 메모리에 올리지 않음). pii_dropped·missing_columns 는 헤더를 읽은 뒤 채워짐."""
         today = date.today().isoformat()
-        out: list[Record] = []
         with _open(self.path) as f:
             reader = csv.DictReader(f)
             header = [(h or "").strip().lstrip("﻿") for h in (reader.fieldnames or [])]
@@ -149,7 +155,7 @@ class LicenseCSVAdapter(SourceAdapter):
                 x, y = _float(g("x")), _float(g("y"))
                 ll = tm_to_wgs84(x, y, self.crs)
                 area = _float(g("area"))
-                out.append(
+                yield (
                     {
                         "license_id": lid,
                         "license_type": g("license_type") or None,
@@ -172,4 +178,3 @@ class LicenseCSVAdapter(SourceAdapter):
                         "updated_at": today,
                     }
                 )
-        return out

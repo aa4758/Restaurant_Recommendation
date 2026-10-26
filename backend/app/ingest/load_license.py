@@ -18,6 +18,7 @@ import csv
 import re
 import sqlite3
 import statistics
+from collections.abc import Iterable, Iterator
 from pathlib import Path
 
 from app.db import BACKEND_DIR, connect, db_path, init_schema
@@ -41,48 +42,66 @@ UNMATCHED_FILE = "unmatched_license.csv"
 UNMATCHED_COLUMNS = ("license_id", "license_type", "name", "biz_type", "status_raw", "opened_at", "closed_at",
                      "address_road", "address_jibun", "x", "y", "reason")
 CALIBRATE_SAMPLE = 200
+CALIBRATE_MIN_N = 30  # 이보다 적으면 calibrate 결과 경고
+
+
+def iter_records(paths, crs: str = DEFAULT_CRS, pii: list[str] | None = None) -> Iterator[dict]:
+    """파일들을 행 단위로 스트리밍. pii 목록이 주어지면 파일별 폐기 PII 헤더를 채움."""
+    for p in paths:
+        ad = LicenseCSVAdapter(p, crs)
+        yield from ad.iter_records()
+        if pii is not None:
+            pii.extend(f"{Path(p).name}:{h}" for h in ad.pii_dropped)
 
 
 def read_records(paths, crs: str = DEFAULT_CRS) -> tuple[list[dict], list[str]]:
-    recs, pii = [], []
-    for p in paths:
-        ad = LicenseCSVAdapter(p, crs)
-        recs.extend(ad.fetch())
-        pii.extend(f"{Path(p).name}:{h}" for h in ad.pii_dropped)
+    pii: list[str] = []
+    recs = list(iter_records(paths, crs, pii))
     return recs, pii
 
 
 # --- calibrate ---------------------------------------------------------------
-def calibrate(conn: sqlite3.Connection, recs: list[dict], candidates=CANDIDATE_CRS,
+def calibrate(conn: sqlite3.Connection, recs: Iterable[dict], candidates=CANDIDATE_CRS,
               sample: int = CALIBRATE_SAMPLE) -> dict:
-    """반환: {"n": 표본 수, "medians": {crs: 중앙값 m}, "best": crs | None}."""
+    """반환: {"n": 표본 수, "medians": {crs: 중앙값 m}, "best": crs | None, "warning": str | None}.
+
+    모든 후보 CRS 로 변환이 성공한 쌍만 표본(같은 표본으로 비교). n < CALIBRATE_MIN_N 이면 warning.
+    """
     index = RestaurantIndex(conn)
-    pairs = []
+    pairs = []  # [(rest, {crs: (lat, lng)})]
     for r in recs:
         if not (r["x"] and r["y"] and r["address_road"]) or is_excluded(r["biz_type"]):
             continue
         hits = [c for c in index.name_candidates(r["name"]) if addresses_match(r["address_road"], c.address)]
-        if len(hits) == 1:
-            pairs.append((r["x"], r["y"], hits[0]))
-            if len(pairs) >= sample:
-                break
+        if len(hits) != 1:
+            continue
+        lls = {crs: tm_to_wgs84(r["x"], r["y"], crs) for crs in candidates}
+        if any(v is None for v in lls.values()):
+            continue
+        pairs.append((hits[0], lls))
+        if len(pairs) >= sample:
+            break
     medians = {}
-    for crs in candidates:
-        ds = []
-        for x, y, rest in pairs:
-            ll = tm_to_wgs84(x, y, crs)
-            if ll:
-                ds.append(haversine_m(ll[0], ll[1], rest.lat, rest.lng))
-        if ds:
-            medians[crs] = round(statistics.median(ds), 1)
+    if pairs:
+        for crs in candidates:
+            medians[crs] = round(statistics.median(
+                haversine_m(lls[crs][0], lls[crs][1], rest.lat, rest.lng) for rest, lls in pairs), 1)
     best = min(medians, key=medians.get) if medians else None
-    return {"n": len(pairs), "medians": medians, "best": best}
+    warning = None
+    if 0 < len(pairs) < CALIBRATE_MIN_N:
+        warning = f"표본 {len(pairs)}건 < {CALIBRATE_MIN_N} — 결과 신뢰도 낮음"
+    return {"n": len(pairs), "medians": medians, "best": best, "warning": warning}
 
 
 # --- 적재 ----------------------------------------------------------------------
 def _priority(r: dict) -> tuple:
-    """같은 가게 다중 인허가 중 반영할 1건: 영업 중 > 최신 인허가일자 > 최신 갱신일 > 관리번호."""
-    return (r["status"] == "open", r["opened_at"] or "", r["data_updated"] or "", r["license_id"])
+    """같은 가게 다중 인허가 중 반영할 1건: 영업 중 > (영업 중이면) 일반 > 휴게 > 최신 인허가일자 > 최신 갱신일 > 관리번호.
+
+    영업 중 일반·휴게가 공존하면 일반이 이김 → best 가 영업 중 휴게면 영업 중 인허가는 모두 휴게.
+    """
+    is_open = r["status"] == "open"
+    return (is_open, is_open and r["license_type"] != REST_TYPE, r["opened_at"] or "", r["data_updated"] or "",
+            r["license_id"])
 
 
 def _region_map(conn: sqlite3.Connection) -> dict[tuple[str, str], str]:
@@ -119,9 +138,14 @@ def _sigungu_code(regions: dict, addr: str | None) -> tuple[str | None, str | No
         return sido, None, None
     parts = gu.split()
     for key in ("".join(parts), parts[-1]):
-        code = regions.get((short or "", key))
-        if code is None and not short:
-            code = next((c for (s, g), c in regions.items() if g == key), None)
+        if short:
+            code = regions.get((short, key)) or regions.get(("", key))
+        else:
+            # 시도 없는 주소: 같은 시군구명이 여러 시도에 있으면(예: 중구) 특정 불가 → None
+            codes = {c for (s, g), c in regions.items() if g == key}
+            if len(codes) > 1:
+                return sido, gu, None
+            code = next(iter(codes), None)
         if code:
             return sido, gu, code
     return sido, gu, None
@@ -139,33 +163,56 @@ def _write_unmatched(out_dir: Path, rows: list[tuple[dict, str]]) -> Path:
     return p
 
 
+def _ensure_columns(conn: sqlite3.Connection) -> None:
+    """alcohol_src: 'license' = 휴게음식점 인허가로 alcohol=0 을 강제한 값(휴게→일반 전환 시 NULL 로 복원 판별용)."""
+    cols = {r[1] for r in conn.execute("PRAGMA table_info(restaurants)")}
+    if "alcohol_src" not in cols:
+        conn.execute("ALTER TABLE restaurants ADD COLUMN alcohol_src TEXT")
+
+
+def _keep_best(d: dict, key, r: dict) -> None:
+    """그룹별 best 행과 행 수만 유지(전국 규모 메모리 상수화)."""
+    cur = d.get(key)
+    if cur is None:
+        d[key] = [r, 1]
+    else:
+        cur[1] += 1
+        if _priority(r) > _priority(cur[0]):
+            cur[0] = r
+
+
 def load_license(conn: sqlite3.Connection, csv_paths, crs: str = DEFAULT_CRS, out_dir: Path | str = OUT_DIR,
                  dry_run: bool = False) -> dict:
     if isinstance(csv_paths, (str, Path)):
         csv_paths = [csv_paths]
-    recs, pii = read_records(csv_paths, crs)
+    pii: list[str] = []
     index = RestaurantIndex(conn)
     by_license = {r[0]: r[1] for r in conn.execute(
         "SELECT license_id, id FROM restaurants WHERE license_id IS NOT NULL")}
-    info = {r[0]: {"status": r[1], "sigungu_code": r[2]}
-            for r in conn.execute("SELECT id, status, sigungu_code FROM restaurants")}
+    info = {r[0]: {"status": r[1], "sigungu_code": r[2], "license_id": r[3], "opened_at": r[4]}
+            for r in conn.execute("SELECT id, status, sigungu_code, license_id, opened_at FROM restaurants")}
 
-    stats = {"total": len(recs), "excluded": 0, "matched": 0, "updated": 0, "new": 0, "closed_applied": 0,
-             "reopened": 0, "ignored_closed": 0, "duplicate": 0, "unmatched": 0}
-    groups: dict[str, list[dict]] = {}
-    new_groups: dict[tuple, list[dict]] = {}
+    stats = {"total": 0, "excluded": 0, "matched": 0, "updated": 0, "new": 0, "closed_applied": 0,
+             "reopened": 0, "ignored_closed": 0, "stale_ignored": 0, "duplicate": 0, "unmatched": 0}
+    groups: dict[str, list] = {}       # 가게 id → [best 행, 행 수]
+    new_groups: dict[tuple, list] = {}  # (상호, 도로명키|좌표) → [best 행, 행 수]
     unmatched: list[tuple[dict, str]] = []
-    for r in recs:
-        if is_excluded(r["biz_type"]):
+    for r in iter_records(csv_paths, crs, pii):
+        stats["total"] += 1
+        excluded = is_excluded(r["biz_type"])
+        if excluded:
             stats["excluded"] += 1
-            continue
+            r["_excluded"] = True  # 기존 가게 상태·폐업 반영에만 사용, 신규 생성·미매칭 보고 안 함
         rid = by_license.get(r["license_id"])
+        reason = "관리번호 일치"
         if rid is None:
             rest, reason = index.match(r["name"], r["address_road"] or r["address_jibun"], r["lat"], r["lng"])
             rid = rest.id if rest else None
         if rid is not None:
-            groups.setdefault(rid, []).append(r)
+            _keep_best(groups, rid, r)
             stats["matched"] += 1
+            continue
+        if excluded:
             continue
         if r["status"] != "open":
             stats["ignored_closed"] += 1
@@ -176,48 +223,99 @@ def load_license(conn: sqlite3.Connection, csv_paths, crs: str = DEFAULT_CRS, ou
         else:
             road = normalize_road_address(r["address_road"])
             key = (normalize_name(r["name"]), road or (round(r["lat"], 4), round(r["lng"], 4)))
-            new_groups.setdefault(key, []).append(r)
+            _keep_best(new_groups, key, r)
 
+    conn.execute("SAVEPOINT load_license")
+    try:
+        _ensure_columns(conn)
+        regions = _apply(conn, groups, new_groups, info, stats)
+    except BaseException:
+        conn.execute("ROLLBACK TO load_license")
+        conn.execute("RELEASE load_license")
+        raise
+    stats["unmatched"] = len(unmatched)
+
+    if dry_run:
+        conn.execute("ROLLBACK TO load_license")  # 이 함수의 변경만 되돌림(호출자 트랜잭션 보존)
+        conn.execute("RELEASE load_license")
+    else:
+        conn.execute("RELEASE load_license")
+        conn.commit()
+        for reg in regions:
+            rebuild_scores(conn, reg)
+    out = Path(out_dir)
+    if unmatched:
+        path = _write_unmatched(out, unmatched)
+    else:
+        path = None
+        (out / UNMATCHED_FILE).unlink(missing_ok=True)  # 지난 실행의 오래된 미매칭 목록 제거
+    return {**stats, "regions": regions, "unmatched_file": path, "pii_dropped": pii, "dry_run": dry_run}
+
+
+def _apply(conn: sqlite3.Connection, groups: dict, new_groups: dict, info: dict, stats: dict) -> set:
     regions: set = set()
-    for rid, rs in groups.items():
-        best = max(rs, key=_priority)
+    for rid, (best, _n) in groups.items():
         cur = info[rid]
         closed = best["status"] == "closed"
+        if (closed and cur["status"] == "open" and cur["license_id"] and best["license_id"] != cur["license_id"]
+                and cur["opened_at"] and not (best["opened_at"] and best["opened_at"] >= cur["opened_at"])):
+            # 이미 영업 중 인허가가 붙은 가게에, 그보다 오래된 다른 관리번호의 폐업 행(이전 실행·다른 파일) → 무시
+            stats["stale_ignored"] += 1
+            continue
         if closed and cur["status"] == "open":
             stats["closed_applied"] += 1
         if not closed and cur["status"] == "closed":
             stats["reopened"] += 1
-        # 다른 가게가 같은 관리번호를 갖고 있으면 해제(UNIQUE 충돌 방지 — 재매칭 결과 우선)
-        conn.execute("UPDATE restaurants SET license_id=NULL WHERE license_id=? AND id<>?", (best["license_id"], rid))
-        conn.execute(
-            "UPDATE restaurants SET license_id=?, opened_at=?, license_type=?, status=?, closed_at=?, area_m2=?,"
-            " phone=CASE WHEN phone IS NULL OR TRIM(phone)='' THEN ? ELSE phone END,"
-            " alcohol=CASE WHEN ?=1 THEN 0 ELSE alcohol END, updated_at=? WHERE id=?",
-            (best["license_id"], best["opened_at"], best["license_type"], best["status"],
-             (best["closed_at"] or best["data_updated"] or best["updated_at"]) if closed else None,
-             best["area_m2"], best["phone"], 1 if best["license_type"] == REST_TYPE else 0, best["updated_at"], rid),
-        )
+        closed_at = (best["closed_at"] or best["data_updated"]) if closed else None  # 적재일은 쓰지 않음(멱등)
+        if best.get("_excluded"):
+            # 제외 업태 행: 기존 가게의 영업 상태·폐업만 반영
+            conn.execute(
+                "UPDATE restaurants SET status=?, closed_at=CASE WHEN ?='closed' THEN COALESCE(closed_at, ?) END,"
+                " updated_at=? WHERE id=?",
+                (best["status"], best["status"], closed_at, best["updated_at"], rid),
+            )
+        else:
+            is_open = not closed
+            force_zero = 1 if is_open and best["license_type"] == REST_TYPE else 0  # 영업 중 인허가가 모두 휴게
+            restore = 1 if is_open and best["license_type"] and best["license_type"] != REST_TYPE else 0
+            # 다른 가게가 같은 관리번호를 갖고 있으면 해제(UNIQUE 충돌 방지 — 재매칭 결과 우선)
+            conn.execute("UPDATE restaurants SET license_id=NULL WHERE license_id=? AND id<>?",
+                         (best["license_id"], rid))
+            conn.execute(
+                "UPDATE restaurants SET license_id=?, opened_at=COALESCE(?, opened_at), license_type=?, status=?,"
+                " closed_at=CASE WHEN ?='closed' THEN COALESCE(closed_at, ?) END, area_m2=COALESCE(?, area_m2),"
+                " phone=CASE WHEN phone IS NULL OR TRIM(phone)='' THEN ? ELSE phone END,"
+                " alcohol=CASE WHEN ?=1 THEN 0"
+                "  WHEN ?=1 AND alcohol_src='license' AND alcohol=0 THEN NULL ELSE alcohol END,"
+                " alcohol_src=CASE WHEN ?=1 THEN 'license' WHEN ?=1 AND alcohol_src='license' THEN NULL"
+                "  ELSE alcohol_src END,"
+                " updated_at=? WHERE id=?",
+                (best["license_id"], best["opened_at"], best["license_type"], best["status"], best["status"],
+                 closed_at, best["area_m2"], best["phone"], force_zero, restore, force_zero, restore,
+                 best["updated_at"], rid),
+            )
         stats["updated"] += 1
         regions.add(cur["sigungu_code"])
 
     region_codes = _region_map(conn)
     new_rows = []
-    for rs in new_groups.values():
-        best = max(rs, key=_priority)
-        stats["duplicate"] += len(rs) - 1
+    for best, n in new_groups.values():
+        stats["duplicate"] += n - 1
         addr = best["address_road"] or best["address_jibun"]
         sido, gu, code = _sigungu_code(region_codes, addr)
         genre = map_genre(best["biz_type"], best["name"])
-        alcohol = 0 if best["license_type"] == REST_TYPE else (1 if genre == "주점" else None)
+        rest = best["license_type"] == REST_TYPE
+        alcohol = 0 if rest else (1 if genre == "주점" else None)
         new_rows.append((
-            f"L{best['license_id']}", best["name"], genre, best["biz_type"], alcohol, best["lat"], best["lng"], addr,
-            best["address_jibun"], sido, gu, code, best["phone"], "open", best["opened_at"], best["license_type"],
-            best["area_m2"], best["license_id"], best["source"], best["updated_at"],
+            f"L{best['license_id']}", best["name"], genre, best["biz_type"], alcohol, "license" if rest else None,
+            best["lat"], best["lng"], addr, best["address_jibun"], sido, gu, code, best["phone"], "open",
+            best["opened_at"], best["license_type"], best["area_m2"], best["license_id"], best["source"],
+            best["updated_at"],
         ))
         regions.add(code)
-    cols = ("id", "name", "genre", "genre_detail", "alcohol", "lat", "lng", "address", "address_jibun", "sido",
-            "sigungu", "sigungu_code", "phone", "status", "opened_at", "license_type", "area_m2", "license_id",
-            "source", "updated_at")
+    cols = ("id", "name", "genre", "genre_detail", "alcohol", "alcohol_src", "lat", "lng", "address",
+            "address_jibun", "sido", "sigungu", "sigungu_code", "phone", "status", "opened_at", "license_type",
+            "area_m2", "license_id", "source", "updated_at")
     for row in new_rows:
         conn.execute("UPDATE restaurants SET license_id=NULL WHERE license_id=? AND id<>?", (row[-3], row[0]))
     conn.executemany(
@@ -226,16 +324,7 @@ def load_license(conn: sqlite3.Connection, csv_paths, crs: str = DEFAULT_CRS, ou
         new_rows,
     )
     stats["new"] = len(new_rows)
-    stats["unmatched"] = len(unmatched)
-
-    if dry_run:
-        conn.rollback()
-    else:
-        conn.commit()
-        for reg in regions:
-            rebuild_scores(conn, reg)
-    path = _write_unmatched(Path(out_dir), unmatched) if unmatched else None
-    return {**stats, "regions": regions, "unmatched_file": path, "pii_dropped": pii, "dry_run": dry_run}
+    return regions
 
 
 def main() -> None:
@@ -250,9 +339,10 @@ def main() -> None:
     conn = connect(args.db or db_path())
     init_schema(conn)
     if args.calibrate:
-        recs, _ = read_records(args.csv, args.crs)
-        res = calibrate(conn, recs)
-        print(f"[info] 표본 {res['n']}건 (상호+도로명주소 단일 매칭)")
+        res = calibrate(conn, iter_records(args.csv, args.crs))
+        print(f"[info] 표본 {res['n']}건 (상호+도로명주소 단일 매칭, 모든 후보 CRS 변환 성공)")
+        if res["warning"]:
+            print(f"[warn] {res['warning']}")
         for crs, m in sorted(res["medians"].items(), key=lambda kv: kv[1]):
             print(f"       {crs}: 거리 중앙값 {m} m")
         if res["best"]:
@@ -265,7 +355,7 @@ def main() -> None:
     tag = "[dry]" if res["dry_run"] else "[ok] "
     print(f"{tag} 전체 {res['total']}건: 매칭 {res['matched']}건(가게 {res['updated']}곳 갱신), 신규 {res['new']}곳,"
           f" 폐업 반영 {res['closed_applied']}곳, 재개업 {res['reopened']}곳, 업태 제외 {res['excluded']}건,"
-          f" 미매칭 폐업 무시 {res['ignored_closed']}건, 중복 {res['duplicate']}건, 미매칭 {res['unmatched']}건")
+          f" 미매칭 폐업 무시 {res['ignored_closed']}건, 오래된 폐업 무시 {res['stale_ignored']}건, 중복 {res['duplicate']}건, 미매칭 {res['unmatched']}건")
     if not res["dry_run"]:
         print(f"[ok]   재계산 시군구 {len(res['regions'])}곳")
     for h in res["pii_dropped"]:

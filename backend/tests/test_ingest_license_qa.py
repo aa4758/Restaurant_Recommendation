@@ -92,7 +92,7 @@ def test_reopen_after_closed_in_db(tmp_path, no_rebuild):
     assert _q(conn, "SELECT status, closed_at, license_id FROM restaurants WHERE id='S1'") == ("open", None, "N1")
 
 
-@pytest.mark.xfail(strict=True, reason="별도 실행(일반/휴게 파일 따로)에서 다른 관리번호의 옛 폐업 행이 영업 중 가게를 closed 로 덮음")
+
 def test_stale_closed_license_in_later_run_does_not_close(tmp_path, no_rebuild):
     conn = make_db(tmp_path)
     road, xy = "서울특별시 중구 세종대로 110", tm(37.5665, 126.9780)
@@ -104,7 +104,7 @@ def test_stale_closed_license_in_later_run_does_not_close(tmp_path, no_rebuild):
 
 
 # --- 휴게 → alcohol 0 ------------------------------------------------------------------
-@pytest.mark.xfail(strict=True, reason="일반·휴게 두 인허가가 모두 영업 중이면 최신 인허가(휴게)가 이겨 일반음식점 alcohol·license_type 을 덮음")
+
 def test_rest_license_does_not_override_open_general(tmp_path, no_rebuild):
     conn = make_db(tmp_path)  # S2 동네호프 alcohol=1
     road, xy = "서울특별시 중구 을지로 100", tm(37.5660, 126.9900)
@@ -127,7 +127,7 @@ def test_rest_closed_does_not_touch_general_store_alcohol_when_general_open(tmp_
 
 
 # --- 업태 제외가 폐업 반영을 막음 -------------------------------------------------------------
-@pytest.mark.xfail(strict=True, reason="제외 업태(까페 등) 행은 매칭 전 버려져, 이미 있는 가게의 폐업이 반영되지 않음")
+
 def test_excluded_biz_type_closure_still_applied_to_existing_store(tmp_path, no_rebuild):
     conn = make_db(tmp_path)
     _load(conn, tmp_path, [row("C1", "일반음식점", "할매국밥", "까페", "20150101", status="폐업", closed="20240101",
@@ -136,7 +136,7 @@ def test_excluded_biz_type_closure_still_applied_to_existing_store(tmp_path, no_
 
 
 # --- 멱등 -------------------------------------------------------------------------
-@pytest.mark.xfail(strict=True, reason="폐업일자·갱신일자가 없으면 closed_at=적재일 → 재적재마다 값이 바뀜(비멱등)")
+
 def test_closed_at_idempotent_without_dates(tmp_path, no_rebuild, monkeypatch):
     import datetime as dt
 
@@ -204,7 +204,7 @@ def test_closed_store_removed_from_scores(tmp_path):
 
 
 # --- 성능 ----------------------------------------------------------------------------
-@pytest.mark.xfail(strict=True, reason="matcher: 같은 상호(프랜차이즈) 후보마다 주소 정규화 반복 → O(행×후보) 이차 비용")
+
 def test_matcher_common_name_scales():
     conn = sqlite3.connect(":memory:")
     init_schema(conn)

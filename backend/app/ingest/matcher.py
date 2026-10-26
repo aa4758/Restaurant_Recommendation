@@ -130,7 +130,11 @@ def normalize_road_address(addr: str | None) -> tuple[str, str, str, str] | None
 
 
 def addresses_match(a: str | None, b: str | None) -> bool:
-    ka, kb = normalize_road_address(a), normalize_road_address(b)
+    return road_keys_match(normalize_road_address(a), normalize_road_address(b))
+
+
+def road_keys_match(ka: tuple | None, kb: tuple | None) -> bool:
+    """정규화된 도로명 키 비교(시도는 한쪽이 없으면 무시, 시군구 필수)."""
     if not ka or not kb:
         return False
     if ka[0] and kb[0] and ka[0] != kb[0]:
@@ -148,38 +152,70 @@ class _Rest:
     sigungu_code: str | None
     status: str
     forms: frozenset
+    addr_key: tuple | None = None  # normalize_road_address(address) 캐시
+
+
+_CAND_CACHE_MIN = 8  # 후보가 이만큼 이상인 상호(프랜차이즈)만 후보 목록 캐시
 
 
 class RestaurantIndex:
-    """상호(지점 제외) 키 → 가게 목록 (전국 규모에서도 행당 상수 조회)."""
+    """상호(지점 제외) 키 → 가게 목록 + (상호, 시군구, 도로명, 건물번호) → 가게 목록.
+
+    후보 주소 정규화는 적재 시 1회(_Rest.addr_key) → 주소 일치는 dict O(1) 조회(프랜차이즈도 행당 상수).
+    """
 
     def __init__(self, conn: sqlite3.Connection):
         self.by_base: dict[str, list[_Rest]] = {}
+        self.by_road: dict[tuple, list[_Rest]] = {}
+        self._cands: dict[str, tuple[list[_Rest], list[_Rest], frozenset]] = {}
         for r in conn.execute(
             "SELECT id, name, branch, address, lat, lng, sigungu_code, status FROM restaurants"
         ):
             forms = frozenset(name_forms(r[1], r[2]))
-            rest = _Rest(r[0], r[1], r[3], r[4], r[5], r[6], r[7] or "open", forms)
+            key = normalize_road_address(r[3])
+            rest = _Rest(r[0], r[1], r[3], r[4], r[5], r[6], r[7] or "open", forms, key)
             for base in {b for b, _ in forms}:
                 self.by_base.setdefault(base, []).append(rest)
+                if key and key[1]:
+                    self.by_road.setdefault((base, *key[1:]), []).append(rest)
 
     def name_candidates(self, name: str) -> list[_Rest]:
+        return self._candidates(name)[0]
+
+    def _candidates(self, name: str) -> tuple[list[_Rest], list[_Rest], frozenset]:
+        """(후보, pool = open 우선 후보, pool id 집합). 대형 후보 목록은 상호별 캐시."""
+        hit = self._cands.get(name)
+        if hit is not None:
+            return hit
         forms = name_forms(name)
         seen: dict[str, _Rest] = {}
         for base in {b for b, _ in forms}:
             for r in self.by_base.get(base, []):
                 if r.id not in seen and _forms_compatible(forms, r.forms):
                     seen[r.id] = r
-        return list(seen.values())
+        cands = list(seen.values())
+        pool = [r for r in cands if r.status == "open"] or cands
+        out = (cands, pool, frozenset(r.id for r in pool))
+        if len(cands) >= _CAND_CACHE_MIN:
+            self._cands[name] = out
+        return out
+
+    def _addr_hits(self, name: str, key: tuple | None, pool_ids: frozenset) -> list[_Rest]:
+        if not key or not key[1]:
+            return []
+        hits: dict[str, _Rest] = {}
+        for base in {b for b, _ in name_forms(name)}:
+            for r in self.by_road.get((base, *key[1:]), ()):
+                if r.id in pool_ids and road_keys_match(key, r.addr_key):
+                    hits[r.id] = r
+        return list(hits.values())
 
     def match(self, name: str, address: str | None, lat: float | None, lng: float | None) -> tuple[_Rest | None, str]:
         """반환: (가게 | None, 사유). open 우선, 주소 일치 우선(복수면 ambiguous), 다음은 50m 이내 최근접."""
-        cands = self.name_candidates(name)
+        cands, pool, pool_ids = self._candidates(name)
         if not cands:
             return None, "상호 불일치"
-        opened = [r for r in cands if r.status == "open"]
-        pool = opened or cands
-        by_addr = [r for r in pool if addresses_match(address, r.address)]
+        by_addr = self._addr_hits(name, normalize_road_address(address), pool_ids)
         if len(by_addr) > 1:
             return None, "ambiguous"
         if by_addr:
