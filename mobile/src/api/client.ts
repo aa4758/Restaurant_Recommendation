@@ -69,6 +69,8 @@ export interface RestaurantItem {
   evidence?: Evidence | null;
   /** 서버가 내려주면 공유 문구에 사용 */
   address?: string | null;
+  /** 항목별 미충족(완화된) 조건. 서버 미구현 시 undefined */
+  relaxed?: string[];
 }
 
 export interface RecommendResponse {
@@ -110,6 +112,8 @@ export interface CreateReviewRequest {
   stars: number; // 0.5 ~ 5, 0.5 단위
   text: string;
   tags: string[];
+  /** 작성 기기 (8~64자 [A-Za-z0-9-_]), 선택 */
+  device_id?: string;
 }
 
 export interface CreateReviewResponse {

@@ -73,23 +73,31 @@ export function ReviewSheet({
   const [error, setError] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const busy = useRef(false);
+  const token = useRef(0); // 요청 토큰: 재오픈/언마운트/가게 변경 시 증가 → 이전 응답 무시
 
   const load = useCallback(
     async (next: string | null, reset: boolean) => {
-      if (busy.current) return;
+      if (reset) {
+        token.current += 1;
+        busy.current = false;
+      } else if (busy.current) return;
+      const tok = token.current;
       busy.current = true;
       setLoading(true);
       setError(false);
       try {
         const res = await api.listReviews(restaurantId, next);
+        if (tok !== token.current) return;
         setItems((prev) => (reset ? res.items : [...prev, ...res.items]));
         setCursor(res.next_cursor ?? null);
         setLoaded(true);
       } catch {
-        setError(true);
+        if (tok === token.current) setError(true);
       } finally {
-        busy.current = false;
-        setLoading(false);
+        if (tok === token.current) {
+          busy.current = false;
+          setLoading(false);
+        }
       }
     },
     [restaurantId],
@@ -101,6 +109,10 @@ export function ReviewSheet({
     setCursor(null);
     setLoaded(false);
     load(null, true);
+    return () => {
+      token.current += 1; // 닫힘/가게 변경/언마운트 시 진행 중 응답 무효화
+      busy.current = false;
+    };
   }, [visible, load]);
 
   const total = loaded && !cursor ? items.length : Math.max(reviewCount, items.length);

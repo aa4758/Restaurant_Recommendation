@@ -23,6 +23,13 @@ python -m pytest -q                      # 테스트
   매칭 가게에 폐업·인허가일자(업력)·일반/휴게(휴게 = 주류 불가)·면적을 반영, 미매칭 영업 중 가게는 신규(`L{관리번호}`)로 추가,
   영향 시군구 점수 자동 재계산. 모호·좌표 없음 미매칭은 `data/out/unmatched_license.csv`(수기 검토). 재적재 멱등.
   헤더가 바뀌면 `app/ingest/license.py` 의 `COL` 만 수정.
+  - 반영 규칙: 같은 가게 다중 인허가는 영업 중 > 일반 > 휴게 > 최신 인허가일자 순 1건. alcohol=0 강제는 영업 중
+    인허가가 모두 휴게일 때만(`alcohol_src='license'` 로 표시, 일반으로 바뀌면 NULL 복원). 이미 영업 중 인허가가 붙은
+    가게에 그보다 오래된 다른 관리번호의 폐업 행은 무시. opened_at·area_m2 는 새 값이 없으면 기존 유지,
+    closed_at = 기존 → 폐업일자 → 데이터갱신일자(없으면 NULL).
+  - 제외 업태(카페·디저트·출장조리·이동조리·푸드트럭 등)는 신규 생성만 막고, 이미 매칭된 가게의 영업 상태·폐업은 반영.
+  - `--calibrate` 표본 30건 미만이면 경고. 미매칭 0건이면 기존 `unmatched_license.csv` 삭제.
+    `--dry-run` 은 SAVEPOINT 로 이 적재의 변경만 롤백.
 - DB 경로: `JJINMAT_DB` (기본 `data/jjinmat.db`)
 - 카카오 로컬 API: `KAKAO_REST_KEY` 설정 시에만 적재(미설정 시 skip)
 - API 계약·점수 모델: `docs/01_planning_decision.md`

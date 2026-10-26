@@ -92,7 +92,6 @@ def test_reopen_after_closed_in_db(tmp_path, no_rebuild):
     assert _q(conn, "SELECT status, closed_at, license_id FROM restaurants WHERE id='S1'") == ("open", None, "N1")
 
 
-
 def test_stale_closed_license_in_later_run_does_not_close(tmp_path, no_rebuild):
     conn = make_db(tmp_path)
     road, xy = "서울특별시 중구 세종대로 110", tm(37.5665, 126.9780)
@@ -104,7 +103,6 @@ def test_stale_closed_license_in_later_run_does_not_close(tmp_path, no_rebuild):
 
 
 # --- 휴게 → alcohol 0 ------------------------------------------------------------------
-
 def test_rest_license_does_not_override_open_general(tmp_path, no_rebuild):
     conn = make_db(tmp_path)  # S2 동네호프 alcohol=1
     road, xy = "서울특별시 중구 을지로 100", tm(37.5660, 126.9900)
@@ -127,7 +125,6 @@ def test_rest_closed_does_not_touch_general_store_alcohol_when_general_open(tmp_
 
 
 # --- 업태 제외가 폐업 반영을 막음 -------------------------------------------------------------
-
 def test_excluded_biz_type_closure_still_applied_to_existing_store(tmp_path, no_rebuild):
     conn = make_db(tmp_path)
     _load(conn, tmp_path, [row("C1", "일반음식점", "할매국밥", "까페", "20150101", status="폐업", closed="20240101",
@@ -136,7 +133,6 @@ def test_excluded_biz_type_closure_still_applied_to_existing_store(tmp_path, no_
 
 
 # --- 멱등 -------------------------------------------------------------------------
-
 def test_closed_at_idempotent_without_dates(tmp_path, no_rebuild, monkeypatch):
     import datetime as dt
 
@@ -204,7 +200,6 @@ def test_closed_store_removed_from_scores(tmp_path):
 
 
 # --- 성능 ----------------------------------------------------------------------------
-
 def test_matcher_common_name_scales():
     conn = sqlite3.connect(":memory:")
     init_schema(conn)
@@ -217,3 +212,60 @@ def test_matcher_common_name_scales():
     for i in range(k):
         idx.match("김밥천국", f"서울특별시 중구 테스트로 {i}", None, None)
     assert time.perf_counter() - t < 1.0
+
+
+# --- 회귀: M2 alcohol 유래(alcohol_src) ----------------------------------------------------
+def test_rest_then_general_restores_license_alcohol(tmp_path, no_rebuild):
+    conn = make_db(tmp_path)
+    conn.execute("UPDATE restaurants SET alcohol=NULL WHERE id='S3'")
+    conn.commit()
+    road, xy = "서울특별시 중구 명동길 10", tm(37.5630, 126.9850)
+    _load(conn, tmp_path, [row("R3", "휴게음식점", "분식왕", "분식", "20180101", road=road, xy=xy)], "a.csv")
+    assert _q(conn, "SELECT alcohol, alcohol_src, license_type FROM restaurants WHERE id='S3'") == (
+        0, "license", "휴게음식점")
+    _load(conn, tmp_path, [row("G3", "일반음식점", "분식왕", "분식", "20220101", road=road, xy=xy)], "b.csv")
+    assert _q(conn, "SELECT alcohol, alcohol_src, license_type FROM restaurants WHERE id='S3'") == (
+        None, None, "일반음식점")
+
+
+def test_general_keeps_alcohol_zero_from_other_source(tmp_path, no_rebuild):
+    conn = make_db(tmp_path)
+    _load(conn, tmp_path, [], "empty.csv")  # alcohol_src 컬럼 생성
+    conn.execute("UPDATE restaurants SET alcohol=0, alcohol_src=NULL, license_type='휴게음식점' WHERE id='S3'")
+    conn.commit()
+    _load(conn, tmp_path, [row("G3", "일반음식점", "분식왕", "분식", "20220101", road="서울특별시 중구 명동길 10",
+                               xy=tm(37.5630, 126.9850))])
+    assert _q(conn, "SELECT alcohol, alcohol_src, license_type FROM restaurants WHERE id='S3'") == (
+        0, None, "일반음식점")
+
+
+# --- 회귀: L5 시도 없는 모호 시군구 ---------------------------------------------------------
+def test_sigungu_code_ambiguous_without_sido():
+    regions = {("서울", "중구"): "11140", ("부산", "중구"): "26110"}
+    assert ll._sigungu_code(regions, "중구 세종대로 1") == (None, "중구", None)
+    assert ll._sigungu_code({("서울", "중구"): "11140"}, "중구 세종대로 1") == (None, "중구", "11140")
+    assert ll._sigungu_code(regions, "부산광역시 중구 중앙대로 1") == ("부산광역시", "중구", "26110")
+
+
+# --- 회귀: L7 미매칭 파일 정리·dry-run SAVEPOINT ----------------------------------------------
+def test_unmatched_file_removed_when_none(tmp_path, no_rebuild):
+    conn = make_db(tmp_path)
+    res = _load(conn, tmp_path, [row("X1", "일반음식점", "좌표없는집", "한식", "20200101",
+                                     road="서울특별시 중구 남대문로 60", xy=("0", "0"))], "a.csv")
+    f = tmp_path / "out" / ll.UNMATCHED_FILE
+    assert res["unmatched"] == 1 and f.exists()
+    res = _load(conn, tmp_path, [row("A1", "일반음식점", "할매국밥", "한식", "19950301",
+                                     road="서울특별시 중구 세종대로 110", xy=tm(37.5665, 126.9780))], "b.csv")
+    assert res["unmatched"] == 0 and res["unmatched_file"] is None and not f.exists()
+
+
+def test_dry_run_keeps_caller_uncommitted_change(tmp_path, no_rebuild):
+    conn = make_db(tmp_path)
+    conn.execute("UPDATE restaurants SET phone='02-777-7777' WHERE id='S1'")  # 호출자 미커밋 변경
+    assert conn.in_transaction
+    _load(conn, tmp_path, fixture_rows(), dry_run=True)
+    assert _q(conn, "SELECT phone, license_id FROM restaurants WHERE id='S1'") == ("02-777-7777", None)
+    assert _q(conn, "SELECT COUNT(*) FROM restaurants")[0] == len(RESTAURANTS)
+    assert conn.in_transaction  # 호출자 트랜잭션은 커밋·롤백되지 않고 유지
+    conn.rollback()
+    assert _q(conn, "SELECT phone FROM restaurants WHERE id='S1'")[0] is None
