@@ -4,13 +4,14 @@ rank_score = final_star + 조건적합도 보너스 - 거리 패널티
 - 조건적합도 보너스: 사용자가 지정한 조건(가격/장르/분위기) 중 충족한 항목당 FIT_BONUS.
   (완화되지 않은 조건은 모두 충족하므로, 완화된 조건을 여전히 만족하는 곳이 우대됨)
 - 거리 패널티: DIST_PENALTY * distance_m / 원래 반경 (반경 끝에서 0.3)
-- 동점대: 선두 점수와 ±TIE_BAND 이내 묶음은 날짜 시드로 일 단위 셔플.
+- 동점대: 선두 점수와 ±TIE_BAND 이내 묶음은 후보별 sha256(날짜|id) 순으로 일 단위 셔플
+  (그룹 구성과 무관 → 보이지 않는 후보를 숨겨도 남은 후보의 상대 순서 불변).
+- 항목별 relaxed: 그 가게가 원래 조건(distance/mood/price/genre) 중 충족 못한 항목.
 """
 from __future__ import annotations
 
 import hashlib
 import math
-import random
 from dataclasses import dataclass, field
 from datetime import date
 from typing import Iterable, Sequence
@@ -78,6 +79,7 @@ class Scored:
     distance_m: float | None
     rank_score: float
     reasons: list[str] = field(default_factory=list)
+    relaxed: list[str] = field(default_factory=list)  # 원래 조건 중 이 가게가 충족 못한 항목(RELAX_ORDER 순)
 
 
 def _alcohol_ok(c: Candidate, alcohol: str) -> bool:
@@ -114,6 +116,20 @@ def _fit_count(c: Candidate, q: Query) -> int:
     return n
 
 
+def unmet(c: Candidate, dist: float, q: Query) -> list[str]:
+    """원래(완화 전) 조건 중 이 가게가 충족 못한 항목. 음주는 완화하지 않으므로 항상 충족."""
+    out = []
+    if dist > q.radius_m:
+        out.append("distance")
+    if q.mood and not set(q.mood) & set(c.moods):
+        out.append("mood")
+    if q.price and c.price_band not in q.price:
+        out.append("price")
+    if q.genre and c.genre not in q.genre:
+        out.append("genre")
+    return out
+
+
 def rank_score(c: Candidate, dist: float, q: Query) -> float:
     return c.star + FIT_BONUS * _fit_count(c, q) - DIST_PENALTY * dist / max(q.radius_m, 1)
 
@@ -138,9 +154,8 @@ def rotate_ties(items: list[Scored], day: date, band: float = TIE_BAND) -> list[
             j += 1
         group = items[i : j + 1]
         if len(group) > 1:
-            key = day.isoformat() + "|" + ",".join(s.cand.id for s in group)
-            seed = int(hashlib.sha256(key.encode()).hexdigest()[:16], 16)
-            random.Random(seed).shuffle(group)
+            d = day.isoformat()
+            group.sort(key=lambda s: (hashlib.sha256(f"{d}|{s.cand.id}".encode()).digest(), s.cand.id))
         out.extend(group)
         i = j + 1
     return out
@@ -228,4 +243,5 @@ def recommend(
     ordered = rotate_ties(scored, day)[:limit]
     for s in ordered:
         s.reasons = make_reasons(s, q)
+        s.relaxed = unmet(s.cand, s.distance_m, q)
     return ordered, relaxed
