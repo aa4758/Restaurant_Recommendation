@@ -8,9 +8,12 @@
 - 원본 공공 파일(모범음식점·안심식당·착한가격업소·백년가게 등): 상호(업소명/상호명/사업장명/업체명/가게명),
   주소(도로명주소/소재지도로명주소/소재지/주소/지번주소/소재지지번주소), 좌표(위도/경도, 없으면 주소 매칭),
   날짜(지정일자/지정일/선정일/인증일/기준일자/데이터기준일자), 인허가번호(관리번호 등, 있으면 우선 매칭).
-  kind 열이 없으면 --kind 로 파일 전체 지정(--kind 가 있으면 kind 열보다 우선). kind = LIST_KINDS 만.
+  kind 열이 없으면 --kind 로 파일 전체 지정. kind 열 값이 있는데 --kind 와 다르면 미매칭 'kind 충돌'
+  (kind 열이 미슐랭 — michelin_* 또는 한글 명칭 — 이면 --kind 와 무관하게 항상 보류). kind = LIST_KINDS 만.
+  날짜: 4자리 연도(선정연도 '2024')는 2024-01-01, 해석 불가 원문은 저장하지 않음(None), 빈 값만 --base-date.
 - 착한가격업소(good_price): 대표메뉴·가격(번호 붙은 대표메뉴1·가격1… 포함)이 있으면 menus 에
-  source='good_price', is_signature=1 로 upsert(가게당 메뉴명 중복 없음).
+  source='good_price', is_signature=1 로 upsert(가게당 메뉴명 중복 없음). 가격은 만·천 단위 환산
+  ('1만2천원'=12000, '8천원'=8000), 범위('7,000~8,000원')는 하한, 100원 미만·해석 불가는 None.
 - CP949/UTF-8 자동. xlsx 미지원(CSV 로 저장 안내).
 
 매칭 실패 행은 수기 검토용 data/out/unmatched_<source>.csv(화이트리스트 컬럼 + reason, PII·전화 없음).
@@ -60,24 +63,66 @@ NUMBERED = {
 }
 
 
-def resolve_kind(raw: str | None, default: str | None) -> str:
-    if default:
-        return default
+KIND_CONFLICT_REASON = "kind 충돌"
+
+
+def _raw_kind(raw: str | None) -> str:
     v = (raw or "").strip()
     if v in LIST_KINDS:
         return v
     return _KIND_BY_LABEL.get(re.sub(r"\s+", "", v), v)
 
 
+def kind_of(raw: str | None, default: str | None) -> tuple[str, str | None]:
+    """(적용 kind, 충돌 사유|None). kind 열 값이 미슐랭이면 항상 그 kind(보류 게이트 우회 방지),
+    kind 열 값이 있고 --kind 와 다르면 'kind 충돌'."""
+    rk = _raw_kind(raw) if (raw or "").strip() else ""
+    if rk in prior.MICHELIN_KINDS:  # 보류 판정이 먼저(load_designations), 허용 시에도 --kind 와 다르면 충돌
+        return rk, (KIND_CONFLICT_REASON if default and default != rk else None)
+    if not default:
+        return rk, None
+    if rk and rk != default:
+        return default, KIND_CONFLICT_REASON
+    return default, None
+
+
+def resolve_kind(raw: str | None, default: str | None) -> str:
+    return kind_of(raw, default)[0]
+
+
+_PRICE_TOKEN = re.compile(r"(\d[\d,]*)\s*(만|천)?")
+
+
 def parse_price(s: str | None) -> int | None:
-    m = re.search(r"\d[\d,]*", s or "")
-    if not m:
+    """'8,000원'·'₩ 8,000'·'8천원'·'1만2천원'·'1만 2,000원' → 원. 범위는 하한. 100 미만·해석 불가 → None."""
+    part = re.split(r"[~∼〜]|(?<=[\d원천만])\s*-\s*(?=\d)", s or "", maxsplit=1)[0]
+    total, end = None, None
+    for m in _PRICE_TOKEN.finditer(part):
+        if end is not None and part[end:m.start()].strip():
+            break  # 인접하지 않은 숫자(다른 정보)는 무시
+        try:
+            n = int(m.group(1).replace(",", ""))
+        except ValueError:
+            return None
+        unit = {"만": 10_000, "천": 1_000}.get(m.group(2) or "", 1)
+        total = (total or 0) + n * unit
+        end = m.end()
+        if unit == 1:
+            break
+    if total is None or total < 100 or total >= 10_000_000:
         return None
-    try:
-        v = int(m.group().replace(",", ""))
-    except ValueError:
-        return None
-    return v if 0 < v < 10_000_000 else None
+    return total
+
+
+def _row_date(raw: str | None, default: str | None) -> str | None:
+    """4자리 연도 → YYYY-01-01, 해석 불가 → None(원문 저장 금지), 빈 값 → default."""
+    v = (raw or "").strip()
+    if not v:
+        return default
+    m = re.fullmatch(r"(\d{4})\s*년?", v)
+    if m and 1900 <= int(m.group(1)) <= 2100:
+        return f"{m.group(1)}-01-01"
+    return sc.iso_date(v)
 
 
 def _menus_of(rec: dict) -> list[tuple[str, int | None]]:
@@ -152,10 +197,9 @@ def load_designations(
         pii.extend(f"{Path(p).name}:{h}" for h in t.pii_dropped)
         for rec in sc.chain(first, it):
             stats["total"] += 1
-            k = resolve_kind(rec.get("kind"), kind)
+            k, conflict = kind_of(rec.get("kind"), kind)
             src = rec.get("source") or source or KIND_LABELS.get(k) or None
-            raw_date = rec.get("base_date") or None
-            d = sc.iso_date(raw_date) or raw_date or base_date  # 해석 불가 원문은 보존, 빈 값만 기본값
+            d = _row_date(rec.get("base_date"), base_date)
             lat, lng = sc.coords(rec)
             addr = sc.pick_address(rec)
 
@@ -173,6 +217,9 @@ def load_designations(
                 continue
             if k in prior.MICHELIN_KINDS and not allow_michelin:
                 miss(MICHELIN_HOLD_REASON)
+                continue
+            if conflict:
+                miss(conflict)
                 continue
             if not rec.get("license_id") and (not rec.get("name") or not (addr or lat is not None)):
                 miss(sc.REASON_MISSING)

@@ -52,21 +52,49 @@ def map_genre(mid: str, detail: str) -> str:
     return MID_GENRE.get(mid, "기타")
 
 
-def detect_encoding(head: bytes) -> str:
-    """앞부분 바이트로 UTF-8(BOM 포함)/CP949 판별. 읽은 범위 끝에서 잘린 멀티바이트 문자는 UTF-8 로 간주."""
+HEAD_BYTES = 65536
+
+
+def detect_encoding(head: bytes, more: bytes | None = None) -> str:
+    """앞부분 바이트로 UTF-8(BOM 포함)/CP949 판별.
+
+    읽은 범위 끝에서 멀티바이트 문자가 잘린 경우(UTF-8 의심):
+    - more(경계 뒤 최대 4바이트)가 주어지면 head+more 로 다시 판별(빈 bytes = 파일 끝 → 잘린 UTF-8 아님 → CP949).
+    - 없으면 잘린 꼬리에 연속 바이트(0x80~0xBF)가 있거나 앞부분에 비ASCII 가 있을 때만 UTF-8.
+      ASCII 뒤 선두바이트 하나만 걸린 경우(CP949 선두바이트 0xC7 등)는 증거가 없어 CP949.
+    """
     try:
         head.decode("utf-8-sig")
         return "utf-8-sig"
     except UnicodeDecodeError as e:
-        if e.start >= len(head) - 3 and e.reason == "unexpected end of data":
+        if not (e.start >= len(head) - 3 and e.reason == "unexpected end of data"):
+            return "cp949"
+        if more is not None:
+            if not more:
+                return "cp949"
+            try:
+                (head + more).decode("utf-8-sig")
+                return "utf-8-sig"
+            except UnicodeDecodeError as e2:
+                if e2.start > e.start and e2.reason == "unexpected end of data":
+                    return "utf-8-sig"  # 다음 문자가 또 잘림 — 경계 문자는 유효
+                return "cp949"
+        tail = head[e.start:]
+        if len(tail) > 1 or not head[:e.start].isascii():
             return "utf-8-sig"
         return "cp949"
 
 
+def read_head(f, n: int = HEAD_BYTES) -> tuple[bytes, bytes]:
+    """앞 n 바이트와 경계 재판별용 뒤 4바이트."""
+    head = f.read(n)
+    return head, f.read(4) if len(head) == n else b""
+
+
 def _open(path: Path):
     with open(path, "rb") as f:
-        head = f.read(65536)
-    enc = detect_encoding(head)
+        head, more = read_head(f)
+    enc = detect_encoding(head, more)
     return open(path, encoding=enc, errors="replace", newline="")
 
 

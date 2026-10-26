@@ -26,7 +26,7 @@ from app.scoring import prior
 
 from .license import PII_COLUMNS, _norm_header
 from .matcher import RestaurantIndex, _sido
-from .sbiz import detect_encoding
+from .sbiz import detect_encoding, read_head
 
 OUT_DIR = BACKEND_DIR / "data" / "out"
 XLSX_HINT = ("xlsx/xls 는 지원하지 않습니다 — 엑셀에서 '다른 이름으로 저장 → CSV UTF-8(쉼표로 분리)(*.csv)'로"
@@ -119,7 +119,7 @@ class Table:
             raise FileNotFoundError(f"파일 없음: {self.path}")
         check_xlsx(self.path)
         with open(self.path, "rb") as f:
-            self.encoding = detect_encoding(f.read(65536))
+            self.encoding = detect_encoding(*read_head(f))
 
     def _open(self):
         return open(self.path, encoding=self.encoding, errors="replace", newline="")
@@ -254,10 +254,12 @@ def new_stats() -> dict:
 
 
 def apply_signals(conn: sqlite3.Connection, rows: list[tuple], menus: list[tuple] | None = None,
-                  dry_run: bool = False, savepoint: str = "load_signals") -> tuple[int, int]:
+                  dry_run: bool = False, savepoint: str = "load_signals", *,
+                  deletes: list[tuple] | None = None) -> tuple:
     """rows: (restaurant_id, kind, value, detail, base_date, source). menus: (restaurant_id, name, price, source, updated_at).
+    deletes: (restaurant_id, kind, value, base_date|None) — 추가 후 삭제(base_date None 이면 value 만 일치).
 
-    반환 (신호 추가 수, 메뉴 upsert 수). dry_run 이면 SAVEPOINT 롤백(호출자 트랜잭션 보존).
+    반환 (신호 추가 수, 메뉴 upsert 수[, 삭제 수 — deletes 를 넘겼을 때]). dry_run 이면 SAVEPOINT 롤백.
     """
     conn.execute(f"SAVEPOINT {savepoint}")
     try:
@@ -267,6 +269,15 @@ def apply_signals(conn: sqlite3.Connection, rows: list[tuple], menus: list[tuple
             " VALUES(?,?,?,?,?,?)", rows)
         inserted = conn.total_changes - before
         n_menu = upsert_menus(conn, menus or [])
+        n_del = 0
+        for rid, kind, value, bd in deletes or ():
+            if bd:
+                cur = conn.execute("DELETE FROM restaurant_signals WHERE restaurant_id=? AND kind=? AND value=?"
+                                   " AND base_date=?", (rid, kind, value, bd))
+            else:
+                cur = conn.execute("DELETE FROM restaurant_signals WHERE restaurant_id=? AND kind=? AND value=?",
+                                   (rid, kind, value))
+            n_del += max(cur.rowcount, 0)
     except BaseException:
         conn.execute(f"ROLLBACK TO {savepoint}")
         conn.execute(f"RELEASE {savepoint}")
@@ -276,7 +287,7 @@ def apply_signals(conn: sqlite3.Connection, rows: list[tuple], menus: list[tuple
     conn.execute(f"RELEASE {savepoint}")
     if not dry_run:
         conn.commit()
-    return inserted, n_menu
+    return (inserted, n_menu, n_del) if deletes is not None else (inserted, n_menu)
 
 
 def _menu_key(name: str) -> str:
@@ -409,6 +420,7 @@ def print_stats(res: dict, label: str) -> None:
           f" 신호 추가 {res['inserted']:,}건, 중복 무시 {res['duplicate']:,}건,"
           f" 미매칭 {res['unmatched'] - res['michelin_held']:,}건, 보류(미슐랭) {res['michelin_held']:,}건"
           + (f", 제외 {res['excluded']:,}건" if res.get("excluded") else "")
+          + (f", 취소 반영 {res['cancel_applied']:,}건" if "cancel_applied" in res else "")
           + (f", 메뉴 upsert {res['menus']:,}건" if res.get("menus") else ""))
     for reason, n in res["unmatched_reasons"].most_common():
         print(f"       미매칭 사유 · {reason}: {n:,}건")

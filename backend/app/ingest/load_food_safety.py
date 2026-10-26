@@ -5,11 +5,15 @@
 
 - hygiene(식약처 음식점 위생등급 지정 현황): 업소명/상호, 소재지/주소, 위생등급/등급/지정등급, 지정일자/지정일.
   등급은 매우우수|우수|좋음 으로 정규화(★★★·★3·별3개·3단계·'매우 우수(★★★)'·AAA 등 흡수, 못 읽으면 미매칭 '등급 불명').
-  지정취소 여부·지정취소일자·지정상태 열이 있으면 취소·해제·만료 행은 제외.
+  지정취소 여부·지정취소일자·지정상태 열이 있으면 취소·해제·만료 행은 적재 제외. 취소 행이 가게에 매칭되면 이전에
+  적재된 같은 가게의 hygiene_grade 신호(등급·지정일 일치, 취소 행에 지정일이 없으면 등급 일치)를 삭제하고 그 시군구를
+  재계산(통계 '취소 반영 N'). 취소일자는 날짜로 해석될 때만, 여부·상태 값은 완전 일치(취소·지정취소·해제·만료·Y·예 …)만
+  취소로 보고 '미'·'아니'·N 등 부정 표기는 먼저 제외. 등급 원문에 취소·해제·만료가 섞이면('우수(지정취소)') 취소 행.
   → kind='hygiene_grade', value=등급, base_date=지정일자. 같은 가게 여러 행이면 점수는 최신 지정일 등급(service).
 - sanction(식품접객업 행정처분): 업소명, 소재지, 처분일자/처분확정일자, 처분내용/처분명/위반내용(→ detail).
-  → kind='sanction', value=처분내용 요약(같은 날 다른 처분 구분용), base_date=처분일자. 처분일자 없는 행은 미매칭.
-  prior 가 기준일 최근 3년(정확히 3년 전 당일 포함) 건당 0.05, 상한 0.15 감점.
+  → kind='sanction', value=처분내용 정규화 요약(공백·괄호·구두점 제거 — '영업정지 7일'·'영업정지(7일)' 같은 값),
+  base_date=처분일자. 처분일자 없는 행은 미매칭.
+  점수는 기준일 최근 3년(정확히 3년 전 당일 포함) 서로 다른 처분일자 수 × 0.05, 상한 0.15 감점(service → prior).
 - 인허가번호(인허가번호/관리번호/허가번호/영업신고번호) 열이 있으면 restaurants.license_id 정확 일치 우선,
   없거나 불일치면 상호 + 주소(50m) 매칭. 방법별 건수 출력.
 - 매칭·통계·미매칭 파일(data/out/unmatched_food_safety_<type>.csv, PII·전화 없음)·--check·--dry-run 은
@@ -57,12 +61,28 @@ ALIASES = {
 
 GRADES = ("매우우수", "우수", "좋음")
 _GRADE_BY_LEVEL = {3: "매우우수", 2: "우수", 1: "좋음"}
-_CANCEL_YES = {"Y", "YES", "예", "O", "1", "TRUE", "T"}
-_CANCEL_WORDS = ("취소", "해제", "만료", "반납", "철회")
+# 여부·상태 값: 공백 제거·대문자화 후 완전 일치만 취소(부분 일치 금지 — '미취소'·'재지정' 오판 방지)
+_CANCEL_EXACT = {"Y", "YES", "예", "O", "1", "TRUE", "T", "취소", "지정취소", "취소됨", "해제", "해제됨", "지정해제", "만료", "만료됨",
+                 "지정만료", "기간만료", "반납", "철회", "지정철회", "취소(해제)"}
+_CANCEL_NEG_WORDS = ("미", "아니")  # '미취소'·'미해제'·'아니오' 등은 우선 제외
+_CANCEL_NEG_EXACT = {"N", "NO", "FALSE", "F", "0", "X"}
+_GRADE_CANCEL_WORDS = ("취소", "해제", "만료")
+
+
+def grade_cancelled(raw: str | None) -> bool:
+    """등급 원문에 취소·해제·만료 표기가 섞였는지('우수(지정취소)')."""
+    return any(w in (raw or "") for w in _GRADE_CANCEL_WORDS)
 
 
 def normalize_grade(raw: str | None) -> str | None:
-    """위생등급 표기 → 매우우수|우수|좋음 | None. 글자 등급 우선, 다음 별 개수·숫자 단계(3=매우우수)."""
+    """위생등급 표기 → 매우우수|우수|좋음 | None. 글자 등급 우선, 다음 별 개수·숫자 단계(3=매우우수).
+    취소·해제·만료 표기가 섞이면 등급이 아님(None — 취소 행으로 처리)."""
+    if grade_cancelled(raw):
+        return None
+    return _grade_core(raw)
+
+
+def _grade_core(raw: str | None) -> str | None:
     s = re.sub(r"\s+", "", raw or "")
     if not s:
         return None
@@ -80,11 +100,26 @@ def normalize_grade(raw: str | None) -> str | None:
     return prior.normalize_hygiene(s)
 
 
+def _flag_cancelled(raw: str | None) -> bool:
+    flag = re.sub(r"\s+", "", raw or "").upper()
+    if not flag or flag in _CANCEL_NEG_EXACT or any(w in flag for w in _CANCEL_NEG_WORDS):
+        return False
+    return flag in _CANCEL_EXACT
+
+
 def is_cancelled(rec: dict) -> bool:
-    flag = (rec.get("cancel_flag") or "").strip()
-    if flag and (flag.upper() in _CANCEL_YES or any(w in flag for w in _CANCEL_WORDS)):
+    """지정취소·해제·만료 행인지. 취소일자는 날짜로 해석될 때만('-'·'0000-00-00' 무시)."""
+    if _flag_cancelled(rec.get("cancel_flag")):
         return True
-    return bool((rec.get("cancel_date") or "").strip())
+    if prior.parse_date(rec.get("cancel_date")) is not None:
+        return True
+    return grade_cancelled(rec.get("grade"))
+
+
+def sanction_value(action: str | None) -> str:
+    """처분내용 정규화 요약: 공백·괄호·구두점 제거(파일마다 표기가 달라도 같은 값)."""
+    v = re.sub(r"[\s\W_]+", "", action or "")
+    return v[:60] or "행정처분"
 
 
 def _short(s: str, n: int) -> str:
@@ -102,9 +137,8 @@ def _signal_of(typ: str, rec: dict) -> tuple[str | None, str | None, str | None,
         return g, None, d, None
     if d is None:
         return None, None, None, "처분일자 없음"
-    action = _short(rec.get("action") or "", 60)
     detail = " / ".join(x for x in (_short(rec.get("action") or "", 200), _short(rec.get("violation") or "", 300)) if x)
-    return action or "행정처분", detail or None, d, None
+    return sanction_value(rec.get("action")), detail or None, d, None
 
 
 def load_food_safety(conn: sqlite3.Connection, csv_paths, typ: str, out_dir: Path | str = OUT_DIR, *,
@@ -117,6 +151,7 @@ def load_food_safety(conn: sqlite3.Connection, csv_paths, typ: str, out_dir: Pat
     stats = sc.new_stats()
     excluded: Counter = Counter()
     rows, regions, unmatched, pii = [], set(), [], []
+    cancels: list[tuple[str, str, str | None]] = []  # (restaurant_id, 등급, 지정일|None) — 이전 적재 신호 삭제
     for p in paths:
         t = sc.Table(p, ALIASES[typ])
         it = t.rows()
@@ -140,15 +175,21 @@ def load_food_safety(conn: sqlite3.Connection, csv_paths, typ: str, out_dir: Pat
                                                    detail=detail or "", base_date=d or rec.get("base_date") or "",
                                                    source=src))
 
+            lat, lng = sc.coords(rec)
+            addr = sc.pick_address(rec)
             if typ == "hygiene" and is_cancelled(rec):
                 stats["excluded"] += 1
                 excluded["지정취소·해제 행"] += 1
+                g = _grade_core(rec.get("grade"))
+                if g and (rec.get("license_id") or (rec.get("name") and (addr or lat is not None))):
+                    rid, _m, _r = matcher.match(rec.get("name", ""), addr, lat, lng, rec.get("license_id"))
+                    if rid is not None:
+                        cancels.append((rid, g, d))
+                        regions.add(matcher.region.get(rid))
                 continue
             if bad:
                 miss(bad)
                 continue
-            lat, lng = sc.coords(rec)
-            addr = sc.pick_address(rec)
             if not rec.get("license_id") and (not rec.get("name") or not (addr or lat is not None)):
                 miss(sc.REASON_MISSING)
                 continue
@@ -161,8 +202,11 @@ def load_food_safety(conn: sqlite3.Connection, csv_paths, typ: str, out_dir: Pat
             head = f"{rec.get('name', '')} | {addr or ''} ({reason})"
             rows.append((rid, kind, value, f"{detail} — {head}" if detail else head, d, src))
             regions.add(matcher.region.get(rid))
-    inserted, _ = sc.apply_signals(conn, rows, None, dry_run, "load_food_safety")
-    stats.update(inserted=inserted, duplicate=len(rows) - inserted)
+    inserted, _, cancelled = sc.apply_signals(conn, rows, None, dry_run, "load_food_safety",
+                                              deletes=[(rid, kind, g, bd) for rid, g, bd in cancels])
+    stats.update(inserted=inserted, duplicate=len(rows) - inserted, cancel_applied=cancelled)
+    if typ == "hygiene":
+        excluded["취소 반영(기존 등급 삭제)"] = cancelled
     if not dry_run:
         sc.rebuild_regions(conn, regions, today)
     path = Path(out_dir) / f"unmatched_food_safety_{typ}.csv"

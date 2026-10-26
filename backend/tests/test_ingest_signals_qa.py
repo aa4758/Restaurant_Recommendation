@@ -120,7 +120,6 @@ def test_hygiene_downgrade_latest_wins(conn, tmp_path):
     assert comp(conn, "S1")["hygiene"] == pytest.approx(0.15 * 0.4)
 
 
-@pytest.mark.xfail(strict=True, reason="지정취소 행은 건너뛰기만 → 이전 적재된 같은 지정 신호가 남아 등급 유지")
 def test_hygiene_cancel_after_previous_load_removes_grade(conn, tmp_path):
     out = tmp_path / "out"
     load_food_safety(conn, write(tmp_path / "h1.csv", HY, [["할매국밥", ADDR1, "매우우수", "2023-01-01", ""]]),
@@ -132,16 +131,15 @@ def test_hygiene_cancel_after_previous_load_removes_grade(conn, tmp_path):
 
 
 @pytest.mark.parametrize("rec", [
-    pytest.param({"cancel_flag": "미취소"}, marks=pytest.mark.xfail(strict=True, reason="'취소' 부분일치 → 미취소도 취소")),
-    pytest.param({"cancel_date": "-"}, marks=pytest.mark.xfail(strict=True, reason="빈값 표기 '-' 를 취소일로 봄")),
-    pytest.param({"cancel_date": "0000-00-00"}, marks=pytest.mark.xfail(strict=True, reason="무효 날짜를 취소일로 봄")),
+    {"cancel_flag": "미취소"},
+    {"cancel_date": "-"},
+    {"cancel_date": "0000-00-00"},
     {"cancel_flag": "정상"}, {"cancel_flag": "N"}, {"cancel_flag": "재지정"},
 ])
 def test_cancel_false_positives(rec):
     assert not is_cancelled(rec)
 
 
-@pytest.mark.xfail(strict=True, reason="등급 열에 취소 표기가 섞이면 등급으로 해석")
 def test_grade_with_cancel_text_not_a_grade():
     assert normalize_grade("우수(지정취소)") is None
 
@@ -160,7 +158,6 @@ def test_sanction_same_disposition_multiple_rows_counted_once(conn, tmp_path):
     assert comp(conn, "S1")["sanction"] == pytest.approx(-0.05)
 
 
-@pytest.mark.xfail(strict=True, reason="value=처분내용 원문 요약 → 파일마다 표기가 다르면 같은 처분이 중복 감점")
 def test_sanction_same_disposition_across_files_not_double_counted(conn, tmp_path):
     out, today = tmp_path / "out", date(2026, 1, 1)
     load_food_safety(conn, write(tmp_path / "a.csv", SA, [["할매국밥", ADDR1, "2025-01-10", "영업정지 7일", ""]]),
@@ -182,9 +179,9 @@ def test_sanction_three_year_boundary(conn, tmp_path, d, counted):
 # --- 착한가격 메뉴 가격 파싱 -------------------------------------------------------------
 @pytest.mark.parametrize("raw,want", [
     ("8,000원", 8000), ("8000", 8000), ("₩ 8,000", 8000), ("7,000~8,000원", 7000), ("", None), ("시가", None),
-    pytest.param("8천원", 8000, marks=pytest.mark.xfail(strict=True, reason="'천' 단위 무시 → 8")),
-    pytest.param("1만2천원", 12000, marks=pytest.mark.xfail(strict=True, reason="'만·천' 단위 무시 → 1")),
-    pytest.param("1만원", 10000, marks=pytest.mark.xfail(strict=True, reason="'만' 단위 무시 → 1")),
+    ("8천원", 8000),
+    ("1만2천원", 12000),
+    ("1만원", 10000),
 ])
 def test_parse_price(raw, want):
     assert parse_price(raw) == want
@@ -211,7 +208,6 @@ def test_michelin_held_by_default_label_and_kind(conn, tmp_path):
     assert res["michelin_held"] == 3 and res["inserted"] == 0
 
 
-@pytest.mark.xfail(strict=True, reason="--kind 가 kind 열을 무조건 덮어씀 → 미슐랭 행이 다른 가이드로 적재(게이트 우회)")
 def test_kind_override_does_not_bypass_michelin_gate(conn, tmp_path):
     src = write(tmp_path / "m.csv", ["업소명", "도로명주소", "kind"], [["할매국밥", ADDR1, "michelin_star"]])
     res = load_designations(conn, src, tmp_path / "out", kind="taste_of_seoul")
@@ -270,7 +266,6 @@ def test_detect_encoding_basic():
     assert detect_encoding(b"") == "utf-8-sig"
 
 
-@pytest.mark.xfail(strict=True, reason="앞 64KB 가 ASCII 이고 CP949 선두바이트(0xC0~)가 경계에 걸리면 UTF-8 로 오판")
 def test_detect_encoding_cp949_char_on_boundary():
     data = b"a" * 65535 + "한".encode("cp949")  # 0xC7 0xD1 — 0xC7 이 마지막 바이트
     assert detect_encoding(data[:65536]) == "cp949"
