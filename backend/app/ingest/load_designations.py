@@ -10,6 +10,8 @@
   날짜(지정일자/지정일/선정일/인증일/기준일자/데이터기준일자), 인허가번호(관리번호 등, 있으면 우선 매칭).
   kind 열이 없으면 --kind 로 파일 전체 지정. kind 열 값이 있는데 --kind 와 다르면 미매칭 'kind 충돌'
   (kind 열이 미슐랭 — michelin_* 또는 한글 명칭 — 이면 --kind 와 무관하게 항상 보류). kind = LIST_KINDS 만.
+  주소·좌표가 없고 시군(시군명) 열만 있으면 상호+시군 매칭(시도 열 또는 --sido 필요): 같은 시군 영업 중 후보
+  정확히 1곳 + 전국 동명 후보 8곳 미만일 때만(signal_common.SignalMatcher.match_city).
   날짜: 4자리 연도(선정연도 '2024')는 2024-01-01, 해석 불가 원문은 저장하지 않음(None), 빈 값만 --base-date.
 - 착한가격업소(good_price): 대표메뉴·가격(번호 붙은 대표메뉴1·가격1… 포함)이 있으면 menus 에
   source='good_price', is_signature=1 로 upsert(가게당 메뉴명 중복 없음). 가격은 만·천 단위 환산
@@ -56,6 +58,9 @@ ALIASES = {
                   "기준일자", "데이터기준일자", "데이터기준일"),
     "menu": ("menu", "대표메뉴", "대표메뉴명", "메뉴", "메뉴명", "대표품목", "품목명", "품목"),
     "price": ("price", "가격", "가격원", "대표메뉴가격", "메뉴가격", "판매가격", "대표가격", "금액"),
+    # 주소·좌표 없는 목록(경기 모범음식점)의 상호+시군 매칭용 — 시도 열이 없으면 --sido
+    "sido": ("sido", "시도", "시도명"),
+    "city": ("city", "시군명", "시군구명", "시군", "시군구"),
 }
 NUMBERED = {
     "menu": re.compile(r"(?:대표메뉴|메뉴|품목)명?(\d+)(?:명)?"),
@@ -173,6 +178,7 @@ def load_designations(
     base_date: str | None = None,
     dry_run: bool = False,
     today: date | None = None,
+    sido: str | None = None,
 ) -> dict:
     """반환: matched, inserted, duplicate, unmatched(보류 포함), unmatched_reasons, michelin_held, by_method,
     menus, unmatched_files, regions, dry_run."""
@@ -221,10 +227,13 @@ def load_designations(
             if conflict:
                 miss(conflict)
                 continue
-            if not rec.get("license_id") and (not rec.get("name") or not (addr or lat is not None)):
+            if not rec.get("license_id") and not addr and lat is None and rec.get("city"):
+                rid, method, reason = matcher.match_city(rec.get("name", ""), rec.get("sido") or sido, rec["city"])
+            elif not rec.get("license_id") and (not rec.get("name") or not (addr or lat is not None)):
                 miss(sc.REASON_MISSING)
                 continue
-            rid, method, reason = matcher.match(rec.get("name", ""), addr, lat, lng, rec.get("license_id"))
+            else:
+                rid, method, reason = matcher.match(rec.get("name", ""), addr, lat, lng, rec.get("license_id"))
             if rid is None:
                 miss(reason)
                 continue
@@ -283,6 +292,7 @@ def main() -> None:
     ap.add_argument("--db", default=None, help="SQLite 경로 (기본: JJINMAT_DB 또는 data/jjinmat.db)")
     ap.add_argument("--out-dir", default=str(OUT_DIR))
     ap.add_argument("--allow-michelin", action="store_true", help="법무 확인 완료 시에만")
+    ap.add_argument("--sido", default=None, help="주소 없는 목록의 시도(파일에 시도 열이 없을 때), 예: 경기")
     args = ap.parse_args()
     if args.base_date:
         try:
@@ -297,7 +307,8 @@ def main() -> None:
     init_schema(conn)
     try:
         res = load_designations(conn, args.csv, args.out_dir, args.allow_michelin, kind=args.kind,
-                                source=args.source, base_date=args.base_date, dry_run=args.dry_run)
+                                source=args.source, base_date=args.base_date, dry_run=args.dry_run,
+                                sido=args.sido)
     except (ValueError, FileNotFoundError) as e:
         conn.close()
         print(f"[err]  {e}")

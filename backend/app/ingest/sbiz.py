@@ -63,6 +63,8 @@ def detect_encoding(head: bytes, more: bytes | None = None) -> str:
     - 없으면 잘린 꼬리에 연속 바이트(0x80~0xBF)가 있거나 앞부분에 비ASCII 가 있을 때만 UTF-8.
       ASCII 뒤 선두바이트 하나만 걸린 경우(CP949 선두바이트 0xC7 등)는 증거가 없어 CP949.
     """
+    if head.startswith(b"\xef\xbb\xbf"):
+        return "utf-8-sig"  # BOM 이 확정 증거(경계 잘림 판별 생략)
     try:
         head.decode("utf-8-sig")
         return "utf-8-sig"

@@ -27,6 +27,29 @@ curl http://localhost:8000/health   # {"status":"ok"}
    이관 후 점수 재계산: `JJINMAT_DB=new.db python -m app.service` (`ad_disclosed` 는 비워 두면 기동 시 자동 백필)
 5. 서버 중지 → `new.db` 를 `/data/jjinmat.db` 로 교체 → 재기동 → `/health`, `/recommend` 확인.
 
+## 별점 근거 지정목록 적재 (모범음식점·원산지·백년가게·착한가격)
+1. 백업: `Copy-Item data\jjinmat.db data\jjinmat_before_signals.db` (실패 시 이 파일로 되돌림).
+2. xls 원본은 CSV 로 변환 후 사용:
+   ```powershell
+   @'
+   import pandas as p; p.read_excel(r"<xls>").to_csv(r"<csv>", index=False, encoding="utf-8-sig")
+   '@ | python -
+   ```
+3. 파일마다 `--check` → `--dry-run` → 적재 순. 경로에 공백이 있으므로 반드시 따옴표.
+4. 2026-10-26 적재 명령(backend 에서, PowerShell):
+   ```powershell
+   python -m app.ingest.load_designations (Get-ChildItem "data\raw\designations\서울시*.csv").FullName --kind model_restaurant --source "서울시 자치구 모범음식점"
+   python -m app.ingest.load_designations "data\raw\designations\원산지표시 우수 음식점_20261026.csv" --kind origin_label_excellent --source "국립수산물품질관리원 원산지표시 우수" --base-date 2026-10-26
+   python -m app.ingest.load_designations "data\raw\designations\소상공인시장진흥공단_전국 백년가게 현황_20220713.csv" --kind century_store --source "중소벤처기업부 백년가게" --base-date 2022-07-13
+   python -m app.ingest.load_designations "data\raw\designations\행정안전부_착한가격업소 현황_20260930.csv" --kind good_price --source "행정안전부 착한가격업소" --base-date 2026-09-30
+   # 경기: 주소 없음 → 상호+시군 유일 매칭(프랜차이즈·동명 복수는 미매칭)
+   python -m app.ingest.load_designations data\raw\designations\경기_모범음식점현황.csv --kind model_restaurant --source "경기도 모범음식점" --sido 경기 --base-date 2026-06-30
+   python -m app.ingest.load_designations data\raw\designations\경기도으뜸맛집현황.csv --kind gyeonggi_best --source "경기도 으뜸맛집"
+   ```
+   결과: 모범 3,941(서울 2,860 + 경기 1,081) / 원산지 193 / 백년 489 / 착한가격 6,939 (+메뉴 13,878) / 경기 으뜸맛집 78. 재적재는 멱등(UNIQUE + INSERT OR IGNORE).
+5. 미매칭 가게는 `data\out\unmatched_<출처>.csv` (PII 없음) — 분기마다 수기 검토.
+6. 목록 갱신 주기: 모범음식점·착한가격 반기, 백년가게는 새 목록 공개 시 교체.
+
 ## 이의제기·정보 오류 신고
 - 사용자 신고는 `reports` 테이블에 쌓임: `sqlite3 /data/jjinmat.db "SELECT * FROM reports ORDER BY created_at DESC LIMIT 50"`
 - 업주 이의제기는 이메일로 접수(MVP). 처리: 사실 확인 → CSV 수정 → 위 "데이터 갱신" 절차.

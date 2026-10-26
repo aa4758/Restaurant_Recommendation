@@ -20,6 +20,7 @@ from app.scoring.recommend import haversine_m
 MATCH_RADIUS_M = 50.0
 _CORP_RE = re.compile(r"\(주\)|㈜|주식회사|\(유\)|유한회사")
 _PAREN_RE = re.compile(r"\([^)]*\)|\[[^\]]*\]")
+_PAREN_BRANCH_RE = re.compile(r"\(\s*([^()\s]{1,6}점)\s*\)")
 _BRANCH_TAIL = re.compile(r"^.{1,6}점$")
 _SIDO_SUFFIX = re.compile(r"(특별자치시|특별자치도|특별시|광역시|자치시|자치도|시|도)$")
 _SIDO_SHORT = {"서울", "부산", "대구", "인천", "광주", "대전", "울산", "세종", "경기", "강원", "충북", "충남",
@@ -43,6 +44,7 @@ def _is_branch(tok: str) -> bool:
 
 def _strip(name: str | None) -> list[str]:
     s = _CORP_RE.sub(" ", name or "")
+    s = _PAREN_BRANCH_RE.sub(r" \1", s)  # '임고집(강남점)' → 지점 토큰으로 살림
     s = _PAREN_RE.sub(" ", s)
     return s.lower().split()
 
@@ -96,7 +98,7 @@ def _sido(tok: str) -> str | None:
     return _SIDO_MERGED.get(base, base) if base in _SIDO_SHORT else None
 
 
-_ROAD_TOK = re.compile(r"[가-힣A-Za-z0-9]*[가-힣A-Za-z](?:대로|로|길)|[가-힣A-Za-z0-9]+(?:대로|로)\d+(?:번)?[가-힣]?길")
+_ROAD_TOK = re.compile(r"[가-힣A-Za-z0-9]*[가-힣A-Za-z][가-힣A-Za-z0-9]*(?:대로|로|길)|[가-힣A-Za-z0-9]+(?:대로|로)\d+(?:번)?[가-힣]?길")
 _SUBROAD_TOK = re.compile(r"\d+(?:번)?[가-힣]?길")
 _BLDG_TOK = re.compile(r"\d+(?:-\d+)?")
 
