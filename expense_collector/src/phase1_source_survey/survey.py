@@ -17,7 +17,7 @@ from bs4 import BeautifulSoup
 
 from src import db
 from src.http_client import HttpClient
-from src.web import anchors, fetch_followed, final_url, robots_blocked
+from src.web import anchors, blocked_reason, fetch_followed, final_url, robots_blocked
 
 META_URL = "https://www.data.go.kr/cmm/cmm/fileDownload.do?atchFileId=FILE_000000003671255&fileDetailSn=1&insertDataPrcus=N"
 META_FILE = "datagokr_meta_15121937.csv"
@@ -30,7 +30,7 @@ SCOPES = [  # 제목 → 공개 범위 (위에서부터 첫 일치)
     (r"단체장|기관장|장·차관", "기관장"),
     (r"임원", "임원"),
 ]
-NAV = re.compile(r"사이트맵|사전정보\s*공[표개]|정보공개")
+NAV = re.compile(r"사이트\s*맵|사전\s*정보\s*공[표개]|정보\s*공개")
 KOGL = re.compile(r"공공누리\s*(?:제\s*)?([1-4])\s*유형|(?:opentype|kogl_?type|img_open_?type)_?0?([1-4])", re.I)
 DATE = re.compile(r"(20\d{2})[.\-/년]\s*(\d{1,2})[.\-/월]\s*(\d{1,2})")
 EXT = re.compile(r"\.(xlsx|xls|csv|pdf|hwpx|hwp|zip|jpg|png)\b", re.I)
@@ -114,10 +114,10 @@ def find_board(client: HttpClient, inst: dict, cache: Path, start: date, end: da
     home = fetch_followed(client, inst["homepage_url"], cache)
     if robots_blocked(home):
         return {"available": "unknown", "url": inst["homepage_url"], "status": "needs_review",
-                "note": "홈페이지 robots 비허용 — 자동 조사 안 함 (등급 C 후보)"}
+                "note": f"홈페이지 접근 불가: {blocked_reason(home)} — 자동 조사 안 함 (등급 C 후보)"}
     queue = expense_links(home)
     if not queue:  # 메뉴에 없으면 사이트맵·사전정보공표에서
-        for _, url in [(t, u) for t, u, _ in anchors(home) if u and NAV.search(t)][:2]:
+        for _, url in [(t, u) for t, u, _ in anchors(home) if u and NAV.search(t)][:3]:
             queue += expense_links(fetch_followed(client, url, cache))
     tried, best = 0, None
     while queue and tried < max_pages:

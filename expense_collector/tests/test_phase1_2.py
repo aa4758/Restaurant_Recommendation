@@ -93,3 +93,11 @@ def test_post_links_prefer_board_path():
             '<a href="/web/u/contents/openDatedetail_b">정보공개 목록 상세 보기</a>'
             '<a href="/web/u/bbs/bbs_125/60543?cp=1">장차관업무추진비 2026년 9월</a>')
     assert post_links(html, "https://u.kr/web/u/bbs/bbs_125")[0] == "https://u.kr/web/u/bbs/bbs_125/60543?cp=1"
+
+
+def test_url_signature_clusters():
+    from src.phase2_board_classify.classify import url_signature
+    a = url_signature("https://a.go.kr/bbs/list.do?bbsId=12&menu=3")
+    b = url_signature("https://b.go.kr/bbs/list.do?menu=9&bbsId=77")
+    assert a == b == "/bbs/list.do?bbsId&menu"
+    assert url_signature("https://x.kr/site/gu/BD_board.list.do?bbsCd=1") != a

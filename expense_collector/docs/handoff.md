@@ -26,7 +26,15 @@ claude                          # docs/prompts.md 의 P0 부터 붙여넣기
 | `src/` 골격 (cli·config·db·http_client) + 테스트 | ✅ P1 |
 | Phase 0 기관 마스터 (`data/institutions.csv`, 미커밋) | ✅ 596곳(기타 110 포함) 중 대상 389 · 제외 207(홈페이지 미확보) |
 | Phase 1·2 파일럿 14곳 | ✅ P2 (2026-10-27) — 결과·문제점은 아래 |
-| Phase 1·2 전체, 3~5 | ⬜ |
+| Phase 1·2 전체 (대상 421곳) | ✅ P3 (2026-10-27) — 아래 「P3 전체 결과」 |
+| Phase 3~5 | ⬜ |
+
+### P3 전체 결과 (2026-10-27, `logs/phase1_full.log`·`phase2_full.log`)
+- Phase 1: 출처 1개 이상 found 190곳(45%) · `foi_candidates.csv` 231곳. DATAGOKR found 18, BOARD found 181.
+- BOARD 미발견 240곳 사유: 링크 못 찾음 104 · robots 규칙 64 · robots.txt 응답 없음 50 · robots.txt HTTP 오류 7 · 기간 내 날짜 없음 11 · 게시판 경로 robots 3 · Crawl-delay 과다 1.
+- Phase 2(181곳): 등급 A 160 · B 11 · C 10 → 수집 가능 171. CMS unknown 72 · board_do 43 · na_ntt 39 · egovframe_bbs 16 · 기타 11.
+- 첨부 형식을 못 읽은 곳 119/181 (어댑터 없는 CMS는 상세 진입 실패) → 형식·공공누리 유형은 어댑터 구현 후 재분류 필요. 읽은 형식: pdf 36 · xlsx 28 · jpg 8 · hwp 6 · hwpx 3 · xls 3.
+- na_ntt 39곳 중 26곳 형식 미확인 → 어댑터 매칭 실패 원인 확인 필요.
 
 ### Phase 0 출처 (2026-10-26)
 - 기관 목록: code.go.kr 기관코드 전체자료(공공데이터포털 15092039 링크) → `data/raw/_phase0/` 캐시. 존폐여부=0, 차수·유형분류로 선별.

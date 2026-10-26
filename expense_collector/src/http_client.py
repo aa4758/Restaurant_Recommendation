@@ -34,6 +34,7 @@ class Robots:
 
     def __init__(self):
         self.allow_all = self.disallow_all = False
+        self.reason = ""  # 전체 비허용일 때 사유(응답 없음·HTTP 오류)
         self.groups: list[tuple[set[str], list[tuple[str, bool]], float | None]] = []
 
     def parse(self, lines) -> None:
@@ -144,12 +145,13 @@ class HttpClient:
                 # 1회만 시도(응답 없는 서버에서 재시도로 수 분 묶이지 않게). 실패 = 전체 비허용
                 r = self._raw("GET", key + "/robots.txt", self.min_interval, retries=0, timeout=20)
                 code = r.status_code
-            except httpx.TransportError:
-                code = 503
+            except httpx.TransportError as e:
+                code, rp.reason = 503, f"robots.txt 응답 없음({type(e).__name__})"
             if code == 404 or code == 410:
                 rp.allow_all = True
             elif code >= 400:
                 rp.disallow_all = True
+                rp.reason = rp.reason or f"robots.txt HTTP {code}"
             else:
                 rp.parse(r.text.splitlines())
             self._robots[key] = rp
@@ -163,6 +165,12 @@ class HttpClient:
             return False  # 사실상 수집 거부(예: Crawl-delay 3600) → 비허용과 같이 취급
         return rp.can_fetch(self.ua_token, url) and rp.can_fetch(ROBOTS_ALSO_CHECK, url)
 
+    def why_blocked(self, url: str) -> str:
+        """비허용 사유: 'robots.txt 응답 없음(...)' / 'robots.txt HTTP 403' / 'Crawl-delay N초' / 'robots 규칙'"""
+        rp = self.robots(url)
+        delay = float(rp.crawl_delay(self.ua_token) or 0)
+        return rp.reason or (f"Crawl-delay {delay:g}초" if delay > MAX_CRAWL_DELAY else "robots 규칙")
+
     def interval_for(self, url: str) -> float:
         delay = self.robots(url).crawl_delay(self.ua_token) if self.respect_robots else None
         return max(self.min_interval, float(delay or 0))
@@ -170,7 +178,7 @@ class HttpClient:
     # --- 공개 ---
     def request(self, method: str, url: str, **kw) -> httpx.Response:
         if not self.allowed(url):
-            raise RobotsDisallowed(url)
+            raise RobotsDisallowed(self.why_blocked(url))
         return self._raw(method, url, self.interval_for(url), **kw)
 
     def get(self, url: str, **kw) -> httpx.Response:

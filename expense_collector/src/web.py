@@ -25,8 +25,8 @@ def fetch_followed(client: HttpClient, url: str, cache: Path, hops: int = 4) -> 
     for _ in range(hops):
         try:
             r = client.get(url)
-        except RobotsDisallowed:
-            pages.append(f"{ROBOTS_MARK} {url} -->")
+        except RobotsDisallowed as e:
+            pages.append(f"{ROBOTS_MARK} {url} | {e} -->")
             break
         pages.append(f"<!-- url: {r.url} -->\n{r.text}")
         m = REDIRECT.search(r.text) if len(r.text) < 20000 else None
@@ -40,6 +40,12 @@ def fetch_followed(client: HttpClient, url: str, cache: Path, hops: int = 4) -> 
 
 def robots_blocked(html: str) -> bool:
     return html.startswith(ROBOTS_MARK)
+
+
+def blocked_reason(html: str) -> str:
+    """'robots.txt 응답 없음(ConnectError)' / 'robots 규칙' 등. 막히지 않았으면 ''."""
+    m = re.match(re.escape(ROBOTS_MARK) + r" \S+ \| (.+?) -->", html)
+    return m.group(1) if m else ("robots 규칙" if robots_blocked(html) else "")
 
 
 def final_url(html: str) -> str | None:

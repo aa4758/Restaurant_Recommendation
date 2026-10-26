@@ -152,3 +152,29 @@ def test_robots_wildcards_and_longest_match():
             c.get(u)
     for u in ["https://u.go.kr/web/unikorea/bbs/1", "https://u.go.kr/pub"]:
         assert c.get(u).status_code == 200
+
+
+def test_block_reasons():
+    from src.web import blocked_reason, fetch_followed
+
+    def down(req):
+        raise httpx.ConnectError("reset")
+    c, _ = client(down)
+    with pytest.raises(RobotsDisallowed, match="응답 없음"):
+        c.get("https://slow.go.kr/x")
+    c2, _ = client(lambda req: httpx.Response(403))
+    with pytest.raises(RobotsDisallowed, match="HTTP 403"):
+        c2.get("https://b.go.kr/x")
+    c3, _ = client(site("User-agent: *\nDisallow: /p\n")[0])
+    with pytest.raises(RobotsDisallowed, match="robots 규칙"):
+        c3.get("https://a.go.kr/p")
+
+
+def test_fetch_followed_records_reason(tmp_path):
+    from src.web import blocked_reason, fetch_followed
+
+    def down(req):
+        raise httpx.ConnectError("reset")
+    c, _ = client(down)
+    html = fetch_followed(c, "https://slow.go.kr/", tmp_path)
+    assert blocked_reason(html).startswith("robots.txt 응답 없음")

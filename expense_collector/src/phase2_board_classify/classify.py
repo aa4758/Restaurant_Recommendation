@@ -225,8 +225,35 @@ def run(cfg: dict, pilot: bool) -> None:
             w.writeheader()
             w.writerows(rows)
         db.finish_run(conn, run_id, "ok", f"{len(rows)} boards")
+        print_summary(rows)
     except Exception as e:
         db.finish_run(conn, run_id, "failed", repr(e))
         raise
     finally:
         client.close()
+
+
+def url_signature(url: str) -> str:
+    """미분류 게시판 묶기용: 호스트 제거, 숫자·긴 ID 를 *, 쿼리는 키만. 예) /site/*/bbs/list.do?bbsId&menu"""
+    p = urlsplit(url)
+    path = re.sub(r"\d+", "*", p.path)
+    path = re.sub(r"/[A-Za-z]{2,}(?:_[A-Za-z0-9*]+)?\*", "/*", path)
+    keys = "&".join(sorted(parse_qs(p.query).keys()))
+    return path + (f"?{keys}" if keys else "")
+
+
+def summarize(rows: list[dict]) -> dict:
+    from collections import Counter
+    fmt = Counter(f for r in rows for f in (r["file_formats"] or "").split(",") if f)
+    unknown = Counter(url_signature(r["board_url"]) for r in rows if r["cms_id"] in ("unknown", None) and r["board_url"])
+    return {"cms": Counter(r["cms_id"] for r in rows), "grade": Counter(r["crawl_grade"] for r in rows),
+            "formats": fmt, "collectable": sum("수집 가능" in (r["note"] or "") for r in rows),
+            "unknown_clusters": unknown}
+
+
+def print_summary(rows: list[dict]) -> None:
+    s = summarize(rows)
+    print(f"게시판 {len(rows)}곳 · 수집 가능 {s['collectable']}곳")
+    for k in ("cms", "grade", "formats"):
+        print(f"  {k}: " + ", ".join(f"{a}={n}" for a, n in s[k].most_common()))
+    print("  미분류 URL 묶음(2곳 이상): " + ", ".join(f"{a}={n}" for a, n in s["unknown_clusters"].most_common() if n > 1))
