@@ -18,6 +18,7 @@ import yaml
 from src import db
 from src.http_client import HttpClient, RobotsDisallowed
 from src.phase1_source_survey.survey import EXT, in_period, kogl_type
+from src.phase3_collect.boards import adapter_for
 from src.web import anchors, fetch_followed, robots_blocked
 
 FINGERPRINTS = Path(__file__).with_name("cms_fingerprints.yaml")
@@ -122,24 +123,43 @@ def classify(client: HttpClient, inst: dict, board_url: str, start: date, end: d
         return r | {"robots_allowed": "no", "crawl_grade": "C", "note": "게시판 robots 비허용"}
     r["robots_allowed"] = "yes"
     r["cms_id"] = cms_of(board_url, html, fps)
-    r["list_pagination"] = pagination(html)
-    dates = in_period(re.sub(r"<[^>]+>", " ", html), start, end)
+    adapter = adapter_for(board_url)
+    if adapter:  # CMS 어댑터가 있으면 게시글 목록·첨부를 정확히 읽는다
+        r["cms_id"] = adapter.ID
+        posts = adapter.list_posts(html, board_url)
+        r["list_pagination"] = f"currPage (마지막 {adapter.last_page(html)}쪽)"
+        dates = [d for p in posts if p["date"] and start <= (d := date.fromisoformat(p["date"])) <= end]
+        targets = [p["url"] for p in posts[:2]]
+    else:
+        r["list_pagination"] = pagination(html)
+        dates = in_period(re.sub(r"<[^>]+>", " ", html), start, end)
+        targets = post_links(html, board_url)
     r["needs_js"] = "no" if dates else "yes"
     r["posts_in_period"] = len(dates)
     login = bool(LOGIN.search(html)) and not dates
-    exts, method, pdfs = attachments(html)
+    exts, method, pdfs = (set(), "", []) if adapter else attachments(html)  # 어댑터면 게시글 첨부만 본다
     lic = kogl_type(html)
-    for p in post_links(html, board_url):
+    for p in targets:
         ph = fetch_followed(client, p, cache)
         if robots_blocked(ph):
             notes.append("게시글 경로 robots 비허용")
             r["robots_allowed"] = "no"
             break
-        e, m, pp = attachments(ph)
+        if adapter:
+            files = adapter.list_attachments(ph, p)
+            blocked = [f["url"] for f in files if not client.allowed(f["url"])]
+            if blocked:
+                notes.append("첨부 경로 robots 비허용")
+                r["robots_allowed"] = "no"
+            e, m, pp = {f["ext"] for f in files}, ("direct" if files else ""), [f["url"] for f in files if f["ext"] == "pdf"]
+        else:
+            e, m, pp = attachments(ph)
         exts |= e
         method = method or m
         pdfs += pp
         lic = lic or kogl_type(ph)
+    if adapter and not lic:
+        notes.append(f"게시글 {len(targets)}건 확인 — 공공누리 표시 없음")
     r["file_formats"] = ",".join(sorted(exts))
     r["download_method"] = method or ("js" if exts else None)  # 첨부 흔적 없으면 미확인(NULL)
     r["license"] = lic
