@@ -34,13 +34,13 @@ XLSX_HINT = ("xlsx/xls 는 지원하지 않습니다 — 엑셀에서 '다른 �
 HEADER_SCAN_ROWS = 10  # 제목 줄 건너뛰기: 이 행 수 안에서 헤더를 찾음
 
 # 공통 필드 별칭(정규화 후 완전 일치, 앞쪽 우선). 영문 고정 컬럼(name,address,...)도 포함 → 기존 CSV 호환
-NAME_ALIASES = ("name", "업소명", "상호명", "상호", "사업장명", "업체명", "가게명", "영업소명", "업소상호명")
+NAME_ALIASES = ("name", "업소명", "상호명", "상호", "사업장명", "업체명", "가게명", "영업소명", "업소상호명", "음식점명")
 ROAD_ALIASES = ("address_road", "도로명주소", "소재지도로명주소", "도로명전체주소", "소재지도로명", "도로명")
-ADDR_ALIASES = ("address", "소재지", "주소", "소재지주소", "소재지전체주소", "업소주소", "영업소주소", "업소소재지")
+ADDR_ALIASES = ("address", "소재지", "주소", "소재지주소", "소재지전체주소", "업소주소", "영업소주소", "업소소재지", "기본주소")
 JIBUN_ALIASES = ("address_jibun", "지번주소", "소재지지번주소", "지번전체주소", "소재지지번", "지번")
-LAT_ALIASES = ("lat", "위도", "latitude", "y좌표값")
-LNG_ALIASES = ("lng", "lon", "경도", "longitude", "x좌표값")
-LICENSE_ALIASES = ("license_id", "인허가번호", "관리번호", "허가번호", "영업신고번호", "인허가관리번호", "영업신고증번호")
+LAT_ALIASES = ("lat", "위도", "latitude", "y좌표값", "wgs84위도")
+LNG_ALIASES = ("lng", "lon", "경도", "longitude", "x좌표값", "wgs84경도")
+LICENSE_ALIASES = ("license_id", "인허가번호", "관리번호", "허가번호", "영업신고번호", "인허가관리번호", "영업신고증번호", "허가(신고)번호")
 SOURCE_ALIASES = ("source", "출처")
 COMMON_ALIASES = {
     "name": NAME_ALIASES,
@@ -221,6 +221,14 @@ def license_key(s: str | None) -> str | None:
     return k or None
 
 
+CITY_MAX_CANDS = 8  # 상호+시군 매칭: 전국 동명 후보가 이 수 이상이면 프랜차이즈로 보고 매칭 안 함
+
+
+def _in_city(addr: str | None, sido: str, city: str) -> bool:
+    toks = (addr or "").split()
+    return bool(toks) and _sido(toks[0]) == sido and city in toks[1:3]
+
+
 class SignalMatcher:
     """인허가번호 정확 일치 → 상호 + 주소/50m(RestaurantIndex). 적재 1회당 1번 구축."""
 
@@ -246,6 +254,22 @@ class SignalMatcher:
         if rest is None:
             return None, None, reason
         return rest.id, "name+address", reason
+
+    def match_city(self, name: str, sido: str | None, city: str | None) -> tuple[str | None, str | None, str]:
+        """주소·좌표 없는 목록(경기 모범음식점) 전용: 같은 시도·시군의 영업 중 후보가 정확히 1곳이고
+        전국 후보가 CITY_MAX_CANDS 미만(프랜차이즈 제외)일 때만 매칭."""
+        sd, city = _sido(sido or ""), (city or "").strip()
+        if not name or not sd or not city:
+            return None, None, REASON_MISSING
+        cands = self.index.name_candidates(name)
+        if not cands:
+            return None, None, "상호 불일치"
+        if len(cands) >= CITY_MAX_CANDS:
+            return None, None, "상호+시군: 동명 후보 많음(프랜차이즈)"
+        hits = [r for r in cands if r.status == "open" and _in_city(r.address, sd, city)]
+        if len(hits) != 1:
+            return None, None, f"상호+시군: 후보 {len(hits)}곳"
+        return hits[0].id, "name+city", "상호+시군 유일"
 
 
 def new_stats() -> dict:
@@ -416,7 +440,8 @@ def print_stats(res: dict, label: str) -> None:
     tag = "[dry]" if res.get("dry_run") else "[ok] "
     m = res["by_method"]
     print(f"{tag} {label} 전체 {res['total']:,}건: 매칭 {res['matched']:,}건"
-          f" (인허가번호 {m.get('license_id', 0):,} / 상호+주소 {m.get('name+address', 0):,}),"
+          f" (인허가번호 {m.get('license_id', 0):,} / 상호+주소 {m.get('name+address', 0):,}"
+          + (f" / 상호+시군 {m['name+city']:,}" if m.get("name+city") else "") + "),"
           f" 신호 추가 {res['inserted']:,}건, 중복 무시 {res['duplicate']:,}건,"
           f" 미매칭 {res['unmatched'] - res['michelin_held']:,}건, 보류(미슐랭) {res['michelin_held']:,}건"
           + (f", 제외 {res['excluded']:,}건" if res.get("excluded") else "")

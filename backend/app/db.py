@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS opening_hours (
 );
 -- 공공 신호: hygiene_grade | sanction | model_restaurant | safe_restaurant | origin_label_excellent (지정업소)
 --   | century_store (업력 보정) | good_price (점수 무관, 가성비 태그)
---   | taste_of_seoul | seoul_future_heritage | local_food | michelin_* (외부 평판 가이드) — app/scoring/prior.py SIGNAL_KINDS
+--   | taste_of_seoul | seoul_future_heritage | local_food | gyeonggi_best | michelin_* (외부 평판 가이드) — app/scoring/prior.py SIGNAL_KINDS
 CREATE TABLE IF NOT EXISTS restaurant_signals (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     restaurant_id TEXT NOT NULL REFERENCES restaurants(id),

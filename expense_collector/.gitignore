@@ -1,0 +1,13 @@
+# 수집 원본·중간 산출물·상태 DB·로그는 git 제외 (구조 유지용 .gitkeep 만 커밋)
+data/state.db
+data/raw/*
+data/parsed/*
+data/output/*
+logs/*
+!data/raw/.gitkeep
+!data/parsed/.gitkeep
+!data/output/.gitkeep
+!logs/.gitkeep
+.env
+.venv/
+*.egg-info/

@@ -52,6 +52,7 @@ GUIDE_SCORES = {
     "michelin_selected": 0.7,
     "seoul_future_heritage": 0.7,
     "local_food": 0.7,
+    "gyeonggi_best": 0.7,  # 경기도 으뜸맛집(지자체 선정, 향토음식점과 같은 등급)
 }
 GUIDE_LABELS = {
     "michelin_star": "미슐랭 가이드 스타",
@@ -60,6 +61,7 @@ GUIDE_LABELS = {
     "michelin_selected": "미슐랭 셀렉티드",
     "seoul_future_heritage": "서울미래유산",
     "local_food": "향토음식점",
+    "gyeonggi_best": "경기도 으뜸맛집",
 }
 MICHELIN_KINDS = ("michelin_star", "michelin_bib", "michelin_selected")
 # 공공 신호 kind 전체 (적재 화이트리스트)

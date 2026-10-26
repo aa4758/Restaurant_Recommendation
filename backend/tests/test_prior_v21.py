@@ -22,7 +22,7 @@ NOW = date(2026, 10, 26)
 def test_guide_score_table():
     assert prior.GUIDE_SCORES == {
         "michelin_star": 1.0, "michelin_bib": 0.85, "taste_of_seoul": 0.85,
-        "michelin_selected": 0.7, "seoul_future_heritage": 0.7, "local_food": 0.7,
+        "michelin_selected": 0.7, "seoul_future_heritage": 0.7, "local_food": 0.7, "gyeonggi_best": 0.7,
     }
     for kind, v in prior.GUIDE_SCORES.items():
         p = prior.prior_parts(now=NOW, designations=[kind])
