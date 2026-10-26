@@ -330,15 +330,86 @@ def _apply(conn: sqlite3.Connection, groups: dict, new_groups: dict, info: dict,
     return regions
 
 
+def check_files(paths, crs: str = DEFAULT_CRS) -> list[dict]:
+    """적재 전 파일 점검(DB 불필요): 인코딩, 헤더 누락, 개인정보 컬럼, 행 수, 인허가 종류·영업상태·업태 분포, 좌표 변환."""
+    from collections import Counter
+
+    from .license import LicenseCSVAdapter, is_excluded
+    from .sbiz import _open
+
+    out = []
+    for path in paths:
+        path = Path(path)
+        info: dict = {"path": str(path), "exists": path.exists()}
+        if not path.exists():
+            out.append(info)
+            continue
+        with _open(path) as f:
+            info["encoding"] = f.encoding
+            sample = f.read(200_000)
+        info["broken_chars"] = sample.count("\ufffd")  # 인코딩 깨짐 의심
+        ad = LicenseCSVAdapter(path, crs)
+        types, status, biz = Counter(), Counter(), Counter()
+        n = conv = excluded = 0
+        lat_rng, lng_rng = [90.0, -90.0], [180.0, -180.0]
+        for r in ad.iter_records():
+            n += 1
+            types[r["license_type"] or "(없음)"] += 1
+            status[r["status"]] += 1
+            biz[r["biz_type"] or "(없음)"] += 1
+            excluded += is_excluded(r["biz_type"])
+            if r["lat"] is not None:
+                conv += 1
+                lat_rng = [min(lat_rng[0], r["lat"]), max(lat_rng[1], r["lat"])]
+                lng_rng = [min(lng_rng[0], r["lng"]), max(lng_rng[1], r["lng"])]
+        info.update(
+            missing_columns=ad.missing_columns, pii_columns=ad.pii_dropped, rows=n, license_types=dict(types),
+            status=dict(status), top_biz=biz.most_common(12), excluded=excluded, coords_ok=conv,
+            lat_range=lat_rng if conv else None, lng_range=lng_rng if conv else None,
+        )
+        out.append(info)
+    return out
+
+
+def _print_check(results: list[dict]) -> None:
+    for i in results:
+        print(f"=== {i['path']}")
+        if not i["exists"]:
+            print("[err]  파일 없음")
+            continue
+        print(f"[info] 인코딩 {i['encoding']}, 행 {i['rows']:,}건")
+        if i["broken_chars"]:
+            print(f"[warn] 깨진 문자 {i['broken_chars']}개(앞부분 기준) — 인코딩 확인 필요")
+        if i["missing_columns"]:
+            print(f"[err]  누락 컬럼: {', '.join(i['missing_columns'])} → app/ingest/license.py 의 COL 수정 필요")
+        else:
+            print("[ok]   필수 컬럼 모두 있음")
+        for h in i["pii_columns"]:
+            print(f"[info] 개인정보 컬럼(적재 시 폐기): {h}")
+        print(f"[info] 인허가 종류: {i['license_types']}")
+        print(f"[info] 영업상태: {i['status']}")
+        print(f"[info] 업태 상위: {', '.join(f'{k} {v:,}' for k, v in i['top_biz'])}")
+        print(f"[info] 제외 업태(카페·제과 등): {i['excluded']:,}건")
+        pct = (100 * i["coords_ok"] / i["rows"]) if i["rows"] else 0
+        print(f"[info] 좌표 변환 성공 {i['coords_ok']:,}건 ({pct:.1f}%)")
+        if i["lat_range"]:
+            print(f"[info] 위도 {i['lat_range'][0]:.4f}~{i['lat_range'][1]:.4f}, 경도 {i['lng_range'][0]:.4f}~{i['lng_range'][1]:.4f}"
+                  " (서울 ≈ 위도 37.4~37.7, 경도 126.8~127.2)")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="인허가(일반·휴게음식점) CSV 적재(가게 매칭)")
     ap.add_argument("csv", nargs="+")
     ap.add_argument("--crs", default=DEFAULT_CRS, help=f"원본 좌표계 (기본 {DEFAULT_CRS}, 후보 {', '.join(CANDIDATE_CRS)})")
     ap.add_argument("--calibrate", action="store_true", help="후보 CRS 별 매칭 표본 거리 중앙값만 보고(적재 안 함)")
     ap.add_argument("--dry-run", action="store_true", help="DB 변경 없이 통계만")
+    ap.add_argument("--check", action="store_true", help="파일 점검만(헤더·인코딩·분포·좌표, DB 불필요)")
     ap.add_argument("--db", default=None, help="SQLite 경로 (기본: JJINMAT_DB 또는 data/jjinmat.db)")
     ap.add_argument("--out-dir", default=str(OUT_DIR))
     args = ap.parse_args()
+    if args.check:
+        _print_check(check_files(args.csv, args.crs))
+        return
     conn = connect(args.db or db_path())
     init_schema(conn)
     if args.calibrate:

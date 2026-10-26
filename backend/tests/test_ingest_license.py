@@ -228,3 +228,20 @@ def test_cli_calibrate(tmp_path, monkeypatch, capsys):
     out = capsys.readouterr().out
     assert "권장 --crs EPSG:2097" in out
     assert sqlite3.connect(db).execute("SELECT COUNT(*) FROM restaurants WHERE license_id IS NOT NULL").fetchone()[0] == 0
+
+
+def test_check_files_reports_header_pii_and_coords(tmp_path, capsys):
+    p = write_csv(tmp_path / "ok.csv", fixture_rows())
+    (res,) = ll.check_files([p])
+    assert res["encoding"] == "cp949" and res["missing_columns"] == [] and res["pii_columns"] == ["대표자명"]
+    assert res["rows"] == len(fixture_rows()) and res["coords_ok"] < res["rows"]  # A9 는 좌표 없음
+    assert 37.4 < res["lat_range"][0] <= res["lat_range"][1] < 37.7
+    bad = tmp_path / "bad.csv"
+    bad.write_text("관리번호,사업장명\nX1,가게\n", encoding="utf-8")
+    missing = tmp_path / "none.csv"
+    r_bad, r_none = ll.check_files([bad, missing])
+    assert "좌표정보(x)" in r_bad["missing_columns"] and r_none["exists"] is False
+    ll._print_check([res, r_bad, r_none])
+    out = capsys.readouterr().out
+    assert "필수 컬럼 모두 있음" in out and "누락 컬럼" in out and "파일 없음" in out
+    assert "홍길동" not in out
