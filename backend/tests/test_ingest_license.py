@@ -194,7 +194,7 @@ def test_load_license(tmp_path, monkeypatch):
     # 멱등 재적재: 행 수·값 동일, 신규 생성 없음
     snap = conn.execute("SELECT * FROM restaurants ORDER BY id").fetchall()
     res2 = ll.load_license(conn, [p], out_dir=out)
-    assert res2["new"] == 2 and res2["closed_applied"] == 0
+    assert res2["new"] == 0 and res2["closed_applied"] == 0 and res2["matched"] == 8
     snap2 = conn.execute("SELECT * FROM restaurants ORDER BY id").fetchall()
     strip = lambda rs: [tuple(v for k, v in zip(r.keys(), r) if k != "updated_at") for r in rs]  # noqa: E731
     assert strip(snap) == strip(snap2)
