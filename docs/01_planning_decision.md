@@ -54,9 +54,9 @@ v1(외부 평점 base 기반)은 폐기. 업무추진비 배지 문구·크롤�
 - `GET /health` → `{"status":"ok"}`
 - `GET /meta/filters` → `{"price":["~1만","1~2만","2~4만","4만+"],"genre":[...],"mood":[...],"alcohol":["any","yes","no"]}`
 - `POST /recommend` body `{"lat":float,"lng":float,"radius_m":int=1000,"price":[str]?,"genre":[str]?,"mood":[str]?,"alcohol":"any|yes|no","limit":int=3 (최대 5),"exclude_ids":[str]? (최대 200, 싫어요 숨김)}`
-  → `{"items":[{"id","name","genre","price_band","moods":[str],"alcohol":bool,"lat","lng","distance_m","star":float,"percentile":int,"review_count":int,"gov_visits":int,"gov_source":str?,"reasons":[str],"updated_at":str,"address":str?,"evidence":"low|mid|high"?}],"relaxed":[str]}`
+  → `{"items":[{"id","name","genre","price_band","moods":[str],"alcohol":bool,"lat","lng","distance_m","star":float,"percentile":int,"review_count":int,"gov_visits":int,"gov_source":str?,"reasons":[str],"updated_at":str,"address":str?,"evidence":"low|mid|high"?,"relaxed":[str] (이 가게가 원래 조건 중 충족 못한 항목)}],"relaxed":[str]}`
 - `GET /restaurants/{id}` → 위 item + `"score_breakdown":{"prior_star","user_mean","n","k","gov_bonus","ad_penalty","components":{"tenure","gov","hygiene","designation","reputation","sanction","ad"},"evidence":"low|mid|high"}` (v2: components·evidence 추가, 기존 키 유지. v2.1: components 의 `partner` → `reputation`(외부 평판)으로 변경). item `moods` 에는 착한가격업소면 `가성비` 가 조회 시 합성됨
-- `POST /restaurants/{id}/reviews` body `{"stars":0.5~5 (0.5단위),"text":str,"tags":[str]}` → 201 `{"id","final_star"}`
+- `POST /restaurants/{id}/reviews` body `{"stars":0.5~5 (0.5단위),"text":str,"tags":[str],"device_id":str? (레이트리밋·D6용, 응답 비노출)}` → 201 `{"id","final_star"}`
 - `GET /restaurants/{id}/reviews?limit=20&cursor=` → `{"items":[{"id","stars","text","tags","created_at","ad_disclosed":bool}],"next_cursor":str?}` (정렬: 광고표시 아닌 것 먼저 → 최신순)
 - `POST /reactions` body `{"device_id":str(8~64),"restaurant_id":str,"value":"like|dislike|none","reason":"far|price|not_into|visited"?}` → 204 (기기·가게당 1행 upsert, none=취소. 순위 미반영)
 - `POST /restaurants/{id}/report` body `{"field":str,"message":str}` → 202
