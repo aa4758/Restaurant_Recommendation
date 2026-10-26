@@ -1,15 +1,16 @@
-"""prior_raw 계산 — 점수 모델 v2 (docs/01_planning_decision.md "점수 모델 v2").
+"""prior_raw 계산 — 점수 모델 v2.1 (docs/01_planning_decision.md "점수 모델 v2" + "v2.1").
 
-prior_raw = 0.30 * 업력      min(log1p(영업연수)/log1p(20), 1)     # opened_at, 없으면 0
+prior_raw = 0.30 * 업력      min(log1p(영업연수)/log1p(20), 1)     # opened_at, 없으면 0. 백년가게는 최소 30년 간주
           + 0.25 * 업무추진비  min(log1p(방문수)/log1p(30), 1)
           + 0.15 * 위생등급    매우우수 1 / 우수 0.7 / 좋음 0.4 / 없음 0
-          + 0.10 * 지정업소    모범·착한가격·안심식당·백년가게 중 1개 이상이면 1
-          + 0.20 * 제휴 평점   0~1 정규화, 없으면 0.5(중립)
+          + 0.10 * 지정업소    모범음식점·안심식당·원산지표시 우수 중 1개 이상이면 1
+          + 0.20 * 외부 평판   max(가이드 선정 점수, 제휴 평점 0~1), 둘 다 없으면 0.4(중립)
           - 행정처분           기준일로부터 최근 3년(정확히 3년 전 당일 포함) 건당 0.05, 상한 0.15
           - 광고 감점          0.30 * clamp((ad_ratio-0.15)/0.5, 0, 1) * ad_conf
                                하한: 광고 감점 ≤ 가점 합계의 50% (오분류 시 소상공인 보호)
-근거 수준(evidence) = 데이터가 존재하는 신호 수 (가점은 값이 있으면 — 제휴 평점은 실제 값이 있으면 1.0 이어도 포함,
-                   결측 중립 0.5 제외 — 감점은 0보다 클 때만): 0 low / 1~2 mid / 3+ high
+착한가격업소(good_price)는 점수 무관 — 조회 시 분위기 태그 '가성비' 합성(service).
+근거 수준(evidence) = 데이터가 존재하는 신호 수 (가점은 값이 있으면 — 외부 평판은 가이드 또는 제휴 값이 있으면 포함
+                   (기여 0 이어도), 결측 중립 0.4 제외 — 감점은 0보다 클 때만): 0 low / 1~2 mid / 3+ high
 
 모든 함수는 순수 함수(DB·현재 시각 비의존). 영업연수·처분 기간은 기준일 인자 now 로 계산.
 """
@@ -30,15 +31,39 @@ W_HYGIENE = 0.15
 HYGIENE_SCORES = {"매우우수": 1.0, "우수": 0.7, "좋음": 0.4}
 HYGIENE_ALIASES = {"★★★": "매우우수", "★★": "우수", "★": "좋음", "3": "매우우수", "2": "우수", "1": "좋음"}
 W_DESIGNATION = 0.10
-DESIGNATION_KINDS = ("model_restaurant", "good_price", "safe_restaurant", "century_store")
+DESIGNATION_KINDS = ("model_restaurant", "safe_restaurant", "origin_label_excellent")  # 위생·서비스 지정만
 DESIGNATION_LABELS = {
     "model_restaurant": "모범음식점",
-    "good_price": "착한가격업소",
     "safe_restaurant": "안심식당",
-    "century_store": "백년가게",
+    "origin_label_excellent": "원산지표시 우수",
 }
-W_PARTNER = 0.20
-PARTNER_NEUTRAL = 0.5
+CENTURY_KIND = "century_store"  # 백년가게: 업력 보정(외부 평판 아님)
+CENTURY_LABEL = "백년가게"
+CENTURY_MIN_YEARS = 30
+GOOD_PRICE_KIND = "good_price"  # 착한가격업소: 점수 무관, 분위기 태그만
+GOOD_PRICE_MOOD = "가성비"
+W_REPUTATION = 0.20
+REPUTATION_NEUTRAL = 0.4  # 가이드·제휴 모두 없을 때
+# 외부 평판 가이드 점수 (restaurant_signals.kind). 미슐랭은 구조만 — 실데이터는 법무 확인 후 적재
+GUIDE_SCORES = {
+    "michelin_star": 1.0,
+    "michelin_bib": 0.85,
+    "taste_of_seoul": 0.85,
+    "michelin_selected": 0.7,
+    "seoul_future_heritage": 0.7,
+    "local_food": 0.7,
+}
+GUIDE_LABELS = {
+    "michelin_star": "미슐랭 가이드 스타",
+    "michelin_bib": "미슐랭 빕 구르망",
+    "taste_of_seoul": "서울미식 100선",
+    "michelin_selected": "미슐랭 셀렉티드",
+    "seoul_future_heritage": "서울미래유산",
+    "local_food": "향토음식점",
+}
+MICHELIN_KINDS = ("michelin_star", "michelin_bib", "michelin_selected")
+# 공공 신호 kind 전체 (적재 화이트리스트)
+SIGNAL_KINDS = ("hygiene_grade", "sanction", *DESIGNATION_KINDS, CENTURY_KIND, GOOD_PRICE_KIND, *GUIDE_SCORES)
 PARTNER_RATING_MIN = 1.0
 PARTNER_RATING_MAX = 5.0
 SANCTION_UNIT = 0.05
@@ -55,7 +80,7 @@ AD_RE = re.compile(
     "(?:" + "|".join(AD_KEYWORDS) + r")(?!\s*(?:[은는이가을를도]\s*)?(?:아님|아닙|아니|없이|없음|없었|않|안\s*받|받지\s*않))"
 )
 
-COMPONENT_KEYS = ("tenure", "gov", "hygiene", "designation", "partner", "sanction", "ad")
+COMPONENT_KEYS = ("tenure", "gov", "hygiene", "designation", "reputation", "sanction", "ad")
 
 
 def clamp(x: float, lo: float, hi: float) -> float:
@@ -98,8 +123,11 @@ def tenure_years(opened_at: str | date | None, now: date) -> float | None:
     return None if d is None else years_between(d, now)
 
 
-def tenure_score(opened_at: str | date | None, now: date) -> float:
+def tenure_score(opened_at: str | date | None, now: date, century_store: bool = False) -> float:
+    """업력 점수. 백년가게면 영업연수를 최소 30년으로 간주(결측·짧을 때만 보정 → 이중 가점 없음)."""
     y = tenure_years(opened_at, now)
+    if century_store:
+        y = max(y or 0.0, float(CENTURY_MIN_YEARS))
     if not y:
         return 0.0
     return min(math.log1p(y) / math.log1p(TENURE_CAP_YEARS), 1.0)
@@ -131,11 +159,27 @@ def designation_score(kinds: Iterable[str] | None) -> float:
     return 1.0 if set(kinds or ()) & set(DESIGNATION_KINDS) else 0.0
 
 
-def partner_score(rating: float | None) -> float:
-    """제휴 평점(1~5) → 0~1. 결측이면 중립값 0.5."""
+def partner_score(rating: float | None) -> float | None:
+    """제휴 평점(1~5) → 0~1. 결측이면 None."""
     if rating is None:
-        return PARTNER_NEUTRAL
+        return None
     return clamp((rating - PARTNER_RATING_MIN) / (PARTNER_RATING_MAX - PARTNER_RATING_MIN), 0.0, 1.0)
+
+
+def guide_score(kinds: Iterable[str] | None) -> float | None:
+    """가이드 선정 점수(여러 개면 최댓값). 없으면 None."""
+    vals = [GUIDE_SCORES[k] for k in set(kinds or ()) if k in GUIDE_SCORES]
+    return max(vals) if vals else None
+
+
+def reputation_score(kinds: Iterable[str] | None, partner_rating: float | None) -> float:
+    """외부 평판 = max(가이드 점수, 제휴 평점 0~1). 둘 다 없으면 중립 0.4."""
+    vals = [v for v in (guide_score(kinds), partner_score(partner_rating)) if v is not None]
+    return max(vals) if vals else REPUTATION_NEUTRAL
+
+
+def has_reputation(kinds: Iterable[str] | None, partner_rating: float | None) -> bool:
+    return guide_score(kinds) is not None or partner_rating is not None
 
 
 def recent_sanctions(dates: Iterable[str | date | None], now: date, years: int = SANCTION_YEARS) -> int:
@@ -207,24 +251,25 @@ def prior_parts(
     opened_at: str | date | None = None,
     gov_visits: int = 0,
     hygiene_grade: str | None = None,
-    designations: Iterable[str] | None = None,
+    designations: Iterable[str] | None = None,  # 공공 신호 kind 목록(지정업소·가이드·백년가게·착한가격 혼재 가능)
     partner_rating: float | None = None,
     sanction_dates: Iterable[str | date | None] | None = None,
     ad_ratio: float | None = None,
     ad_conf: float = 0.0,
 ) -> PriorParts:
-    t = W_TENURE * tenure_score(opened_at, now)
+    kinds = set(designations or ())
+    t = W_TENURE * tenure_score(opened_at, now, century_store=CENTURY_KIND in kinds)
     g = W_GOV * gov_score(gov_visits)
     h = W_HYGIENE * hygiene_score(hygiene_grade)
-    d = W_DESIGNATION * designation_score(designations)
-    p = W_PARTNER * partner_score(partner_rating)
+    d = W_DESIGNATION * designation_score(kinds)
+    p = W_REPUTATION * reputation_score(kinds, partner_rating)
     s = sanction_penalty(recent_sanctions(sanction_dates or (), now))
     plus = t + g + h + d + p
     a = 0.0 if ad_ratio is None else min(ad_penalty_raw(ad_ratio, ad_conf), plus * AD_FLOOR_RATIO)
     components = {
-        "tenure": t, "gov": g, "hygiene": h, "designation": d, "partner": p, "sanction": -s, "ad": -a,
+        "tenure": t, "gov": g, "hygiene": h, "designation": d, "reputation": p, "sanction": -s, "ad": -a,
     }
-    signals = sum(1 for v in (t, g, h, d, s, a) if v > 0) + (partner_rating is not None)
+    signals = sum(1 for v in (t, g, h, d, s, a) if v > 0) + has_reputation(kinds, partner_rating)
     return PriorParts(
         components=components,
         gov_bonus=g,
