@@ -11,7 +11,7 @@ from app.ingest.license import is_excluded, map_genre, parse_status, tm_to_wgs84
 from app.ingest.matcher import RestaurantIndex
 from app.scoring.recommend import haversine_m
 
-from .test_ingest_license import RESTAURANTS, fixture_rows, make_db, row, tm, write_csv
+from test_ingest_license import RESTAURANTS, fixture_rows, make_db, row, tm, write_csv
 
 
 def _q(conn, sql, *a):
@@ -70,9 +70,9 @@ def test_genre_mapping_more_values():
 
 # --- 재개업 우선순위·처리 순서 ---------------------------------------------------------
 def test_reopen_priority_order_independent_single_run(tmp_path, no_rebuild):
-    a, b = make_db(tmp_path / "a" if (tmp_path / "a").mkdir() is None else None), None
+    (tmp_path / "a").mkdir()
     (tmp_path / "b").mkdir()
-    b = make_db(tmp_path / "b")
+    a, b = make_db(tmp_path / "a"), make_db(tmp_path / "b")
     rows = fixture_rows()
     _load(a, tmp_path / "a", rows)
     _load(b, tmp_path / "b", list(reversed(rows)))
