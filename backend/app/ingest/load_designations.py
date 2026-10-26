@@ -24,6 +24,8 @@ from .matcher import RestaurantIndex
 
 OUT_DIR = BACKEND_DIR / "data" / "out"
 # 목록형으로 들어오는 kind (위생등급·행정처분은 별도 출처)
+UNMATCHED_COLUMNS = (*DesignationListCSVAdapter.COLUMNS, "reason")
+MICHELIN_HOLD_REASON = "미슐랭: 법무 확인 전 적재 보류"
 LIST_KINDS = (*prior.DESIGNATION_KINDS, prior.CENTURY_KIND, prior.GOOD_PRICE_KIND, *prior.GUIDE_SCORES)
 
 
@@ -40,12 +42,12 @@ def _write_unmatched(out_dir: Path, rows: list[tuple[dict, str]]) -> list[Path]:
     out_dir.mkdir(parents=True, exist_ok=True)
     for src, items in by_src.items():
         p = out_dir / f"unmatched_{src}.csv"
-        cols = list(DesignationListCSVAdapter.COLUMNS) + [k for k in items[0][0] if k not in DesignationListCSVAdapter.COLUMNS]
+        # 화이트리스트(COLUMNS + reason) 고정: 원본의 추가 컬럼(대표자·전화 등 PII)은 폐기
         with open(p, "w", encoding="utf-8-sig", newline="") as f:
-            w = csv.DictWriter(f, fieldnames=cols + ["reason"], extrasaction="ignore")
+            w = csv.DictWriter(f, fieldnames=UNMATCHED_COLUMNS, extrasaction="ignore")
             w.writeheader()
             for raw, reason in items:
-                w.writerow({**raw, "reason": reason})
+                w.writerow({**{k: raw.get(k, "") for k in DesignationListCSVAdapter.COLUMNS}, "reason": reason})
         paths.append(p)
     return paths
 
@@ -66,7 +68,7 @@ def load_designations(
             unmatched.append((r["_raw"], f"알 수 없는 kind: {kind}"))
             continue
         if kind in prior.MICHELIN_KINDS and not allow_michelin:
-            unmatched.append((r["_raw"], "미슐랭: 법무 확인 전 적재 보류"))
+            unmatched.append((r["_raw"], MICHELIN_HOLD_REASON))
             continue
         rest, reason = index.match(r["name"], r["address"], r["lat"], r["lng"])
         if rest is None:
@@ -86,8 +88,9 @@ def load_designations(
     for reg in regions:
         rebuild_scores(conn, reg)
     files = _write_unmatched(Path(out_dir), unmatched) if unmatched else []
+    held = sum(1 for _, reason in unmatched if reason == MICHELIN_HOLD_REASON)
     return {"matched": len(rows), "inserted": inserted, "unmatched": len(unmatched),
-            "unmatched_files": files, "regions": regions}
+            "unmatched_files": files, "regions": regions, "michelin_held": held}
 
 
 def main() -> None:
@@ -103,8 +106,11 @@ def main() -> None:
     print(f"[ok]   매칭 {res['matched']}건 (신규 신호 {res['inserted']}건), 재계산 시군구 {len(res['regions'])}곳")
     for p in res["unmatched_files"]:
         print(f"[warn] 매칭 실패 → {p}")
-    if res["unmatched"]:
-        print(f"[warn] 매칭 실패 {res['unmatched']}건 — 수기 검토 후 restaurant_signals.csv 로 보정")
+    review = res["unmatched"] - res["michelin_held"]
+    if review:
+        print(f"[warn] 매칭 실패 {review}건 — 수기 검토 필요")
+    if res["michelin_held"]:
+        print(f"[info] 미슐랭 {res['michelin_held']}건 적재 보류(법무 확인 전)")
     conn.close()
 
 

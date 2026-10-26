@@ -10,6 +10,7 @@ import sqlite3
 from pathlib import Path
 
 from app.db import BACKEND_DIR, connect, db_path, init_schema
+from app.scoring.prior import MICHELIN_KINDS
 from app.service import rebuild_scores
 
 from .base import SourceAdapter
@@ -93,6 +94,8 @@ def _load_signals(conn: sqlite3.Connection, recs: list[dict]) -> int:
         (r["restaurant_id"], r["kind"], r.get("value"), r.get("detail"), r.get("base_date"), r.get("source"))
         for r in recs
         if r.get("restaurant_id") in ids  # 매칭 실패 레코드는 버림
+        # 미슐랭은 법무 확인 전 → 어댑터에서 명시 허용(allow_michelin=True)한 레코드만
+        and (r.get("kind") not in MICHELIN_KINDS or r.get("_allow_michelin") is True)
     ]
     conn.executemany(
         # UNIQUE(restaurant_id,kind,value,base_date) → 재적재 시 중복 무시

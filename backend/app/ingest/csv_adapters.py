@@ -4,7 +4,7 @@ from __future__ import annotations
 import csv
 from pathlib import Path
 
-from app.scoring.prior import SIGNAL_KINDS
+from app.scoring.prior import MICHELIN_KINDS, SIGNAL_KINDS
 
 from .base import Record, SourceAdapter
 
@@ -120,12 +120,20 @@ class RestaurantSignalsCSVAdapter(_CSVAdapter):
     name = "restaurant_signals_csv"
     KINDS = SIGNAL_KINDS
 
+    def __init__(self, path: Path | str, allow_michelin: bool = False):
+        super().__init__(path)
+        self.allow_michelin = allow_michelin  # 미슐랭(michelin_*)은 법무 확인 전이라 기본 제외
+
     def fetch(self) -> list[Record]:
         out = []
         for r in read_csv(self.path):
             if r.get("kind") not in self.KINDS:
                 continue
-            out.append({k: r.get(k) or None for k in ("restaurant_id", "kind", "value", "detail", "base_date", "source")})
+            if r.get("kind") in MICHELIN_KINDS and not self.allow_michelin:
+                continue
+            rec: Record = {k: r.get(k) or None for k in ("restaurant_id", "kind", "value", "detail", "base_date", "source")}
+            rec["_allow_michelin"] = self.allow_michelin
+            out.append(rec)
         return out
 
 

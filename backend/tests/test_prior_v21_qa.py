@@ -1,4 +1,4 @@
-"""품질검증: 점수 모델 v2.1 (docs/01 "v2.1" + API 계약 components). 확인된 결함은 xfail(strict)."""
+"""품질검증: 점수 모델 v2.1 (docs/01 "v2.1" + API 계약 components)."""
 from __future__ import annotations
 
 import csv
@@ -116,13 +116,11 @@ def test_different_name_never_matches_even_same_address():
     assert not names_match("가상국밥", "가상국밥집")
 
 
-@pytest.mark.xfail(strict=True, reason="지번 '을지로1가 N' 이 도로명 '을지로 1' 로 해석 → 동 내 모든 지번이 같은 주소 키")
 def test_jibun_dong_ga_not_parsed_as_road():
     assert normalize_road_address("서울 중구 을지로1가 180") is None or not addresses_match(
         "서울 중구 을지로1가 180", "서울 중구 을지로1가 10")
 
 
-@pytest.mark.xfail(strict=True, reason="지번 주소의 동명+가가 도로명으로 오인 → 다른 건물의 동명 가게에 매칭")
 def test_jibun_address_does_not_match_other_building():
     idx = RestaurantIndex(_mem([("가상김밥", None, "서울 중구 을지로 1", 37.5660, 126.9780)]))
     # 목록 행: 지번 '을지로3가 무관' → 위치 1km 이상 떨어진 가게
@@ -130,12 +128,10 @@ def test_jibun_address_does_not_match_other_building():
     assert r is None
 
 
-@pytest.mark.xfail(strict=True, reason="쉼표 없이 층 표기 시 건물번호에 붙음(세종대로 110 1층 → 1101) → 같은 건물 미매칭")
 def test_floor_without_comma():
     assert addresses_match("서울 중구 세종대로 110 1층", "서울특별시 중구 세종대로 110")
 
 
-@pytest.mark.xfail(strict=True, reason="지점명이 명시적으로 다른데(시청점 vs 을지로점) 정규화로 지점명을 버려 같은 가게로 매칭")
 def test_explicit_different_branch_not_matched():
     lat, lng = 37.5660, 126.9780
     idx = RestaurantIndex(_mem([("가상치킨", "을지로점", "서울 중구 가상로 10", lat, lng)]))
@@ -143,7 +139,6 @@ def test_explicit_different_branch_not_matched():
     assert r is None
 
 
-@pytest.mark.xfail(strict=True, reason="매칭 후보에 폐업(status=closed) 가게 포함 → 같은 상호·주소 재개업 시 폐업 행에 신호 적재")
 def test_closed_restaurant_not_preferred():
     idx = RestaurantIndex(_mem([
         ("가상분식", None, "서울 중구 가상로 5", 37.5660, 126.9780, "closed"),
@@ -162,7 +157,6 @@ def _write(path, header, rows):
 H = ["name", "address", "lat", "lng", "kind", "base_date", "source"]
 
 
-@pytest.mark.xfail(strict=True, reason="unmatched 출력에 원본 CSV 의 추가 컬럼(대표자·전화 등)이 그대로 복사됨")
 def test_unmatched_output_has_no_extra_pii_columns(seeded, tmp_path):
     conn = appdb.connect(seeded)
     src = tmp_path / "l.csv"
@@ -186,7 +180,6 @@ def test_unmatched_basic_columns_and_michelin_default_off(seeded, tmp_path):
     assert res["matched"] == 3
 
 
-@pytest.mark.xfail(strict=True, reason="restaurant_signals.csv(load_seed) 경로는 미슐랭 보류 게이트가 없어 그대로 적재")
 def test_michelin_gate_on_signals_csv(seeded, tmp_path):
     from app.ingest.csv_adapters import RestaurantSignalsCSVAdapter
     p = tmp_path / "sig.csv"
@@ -209,6 +202,7 @@ def test_old_partner_key_db_rebuilt(seeded):
         d = json.loads(comps)
         d["partner"] = d.pop("reputation")
         conn.execute("UPDATE scores SET components=? WHERE restaurant_id=?", (json.dumps(d), rid))
+    conn.execute("PRAGMA user_version = 0")  # v2.1 이전 DB(마이그레이션 기록 없음) 재현
     conn.commit()
     conn.close()
     from app.main import app
@@ -247,3 +241,13 @@ def test_no_n_plus_one_with_v21_signals(seeded):
     conn.set_trace_callback(None)
     assert len(cands) > 10 and n[0] <= 2
     assert any(c.guides for c in cands) and any("가성비" in c.moods for c in cands)
+
+
+def test_migration_recorded_and_scan_skipped(seeded):
+    assert sqlite3.connect(seeded).execute("PRAGMA user_version").fetchone()[0] == appdb.SCHEMA_VERSION
+    conn = appdb.connect(seeded)
+    seen = []
+    conn.set_trace_callback(seen.append)
+    appdb.init_schema(conn)
+    conn.set_trace_callback(None)
+    assert not any("partner" in s for s in seen)

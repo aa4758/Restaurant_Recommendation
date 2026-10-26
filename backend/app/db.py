@@ -188,15 +188,25 @@ def _dedupe_signals(conn: sqlite3.Connection) -> None:
     )
 
 
+# PRAGMA user_version: 마이그레이션 완료 기록. 1 = v2.1(partner→reputation 키 재계산 완료)
+SCHEMA_VERSION = 1
+
+
 def init_schema(conn: sqlite3.Connection) -> None:
     conn.executescript(SCHEMA)
-    changed = _migrate(conn)
+    changed = _migrate(conn)  # PRAGMA table_info 만(저렴) — 누락 컬럼 보강
     _dedupe_signals(conn)
     conn.commit()
+    done = conn.execute("PRAGMA user_version").fetchone()[0] >= SCHEMA_VERSION
     # scores 에 v2 컬럼을 막 추가했다면 기존 행은 NULL → 즉시 재계산(근거 부족 오표시 방지)
-    # v2 → v2.1: components 에 구 키 partner 가 남아 있으면 재계산(reputation 키로 갱신)
-    stale = conn.execute("SELECT 1 FROM scores WHERE components LIKE '%\"partner\"%' LIMIT 1").fetchone()
+    # v2 → v2.1: components 에 구 키 partner 가 남아 있으면 재계산(reputation 키로 갱신).
+    #   이 전체 스캔은 user_version 기록 전(최초 1회)에만 수행.
+    stale = not done and conn.execute(
+        "SELECT 1 FROM scores WHERE components LIKE '%\"partner\"%' LIMIT 1").fetchone()
     if stale or ("scores" in changed and conn.execute("SELECT 1 FROM scores LIMIT 1").fetchone()):
         from app.service import rebuild_scores  # 순환 import 회피
 
         rebuild_scores(conn)
+    if not done:
+        conn.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
+        conn.commit()
