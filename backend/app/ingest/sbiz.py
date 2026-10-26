@@ -52,14 +52,21 @@ def map_genre(mid: str, detail: str) -> str:
     return MID_GENRE.get(mid, "기타")
 
 
+def detect_encoding(head: bytes) -> str:
+    """앞부분 바이트로 UTF-8(BOM 포함)/CP949 판별. 읽은 범위 끝에서 잘린 멀티바이트 문자는 UTF-8 로 간주."""
+    try:
+        head.decode("utf-8-sig")
+        return "utf-8-sig"
+    except UnicodeDecodeError as e:
+        if e.start >= len(head) - 3 and e.reason == "unexpected end of data":
+            return "utf-8-sig"
+        return "cp949"
+
+
 def _open(path: Path):
     with open(path, "rb") as f:
         head = f.read(65536)
-    try:
-        head.decode("utf-8-sig")
-        enc = "utf-8-sig"
-    except UnicodeDecodeError:
-        enc = "cp949"
+    enc = detect_encoding(head)
     return open(path, encoding=enc, errors="replace", newline="")
 
 

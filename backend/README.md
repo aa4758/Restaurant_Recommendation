@@ -34,6 +34,44 @@ python -m pytest -q                      # 테스트
   - 제외 업태(카페·디저트·출장조리·이동조리·푸드트럭 등)는 신규 생성만 막고, 이미 매칭된 가게의 영업 상태·폐업은 반영.
   - `--calibrate` 표본 30건 미만이면 경고. 미매칭 0건이면 기존 `unmatched_license.csv` 삭제.
     `--dry-run` 은 SAVEPOINT 로 이 적재의 변경만 롤백.
+  - `--check` 끝에 **추가 열 분포**(등급구분명 상위 10, 전통업소지정번호 있는 행 수, 전통업소주된음식 상위 10)를 출력 —
+    점수 미반영, 값 확인 후 기획 결정.
+- 별점 근거 신호(지정·선정 목록, 위생등급, 행정처분): 인허가 적재 **후** 실행. 원본 공공 CSV 를 그대로 넣는다(헤더 별칭 자동 해석,
+  UTF-8/CP949 자동, 제목 줄 건너뜀). **xlsx 는 미지원** → 엑셀에서 "다른 이름으로 저장 → CSV UTF-8(쉼표로 분리)".
+  파일 위치(git 제외): 지정·선정 목록 `data/raw/designations/`, 위생등급·행정처분 `data/raw/food_safety/`.
+  항상 `--check`(DB 불필요: 인코딩·헤더·매핑·필수 누락·행 수·시도 분포·폐기할 PII 열) → `--dry-run`(DB 변경 없음, 통계·미매칭 파일) → 적재 순.
+  ```powershell
+  # 모범음식점·안심식당 등(파일에 kind 열이 없으면 --kind 로 파일 전체 지정, 날짜 열이 없으면 --base-date)
+  python -m app.ingest.load_designations data\raw\designations\모범음식점.csv --kind model_restaurant --source "행정안전부 모범음식점" --check
+  python -m app.ingest.load_designations data\raw\designations\모범음식점.csv --kind model_restaurant --source "행정안전부 모범음식점" --dry-run
+  python -m app.ingest.load_designations data\raw\designations\모범음식점.csv --kind model_restaurant --source "행정안전부 모범음식점"
+  python -m app.ingest.load_designations data\raw\designations\안심식당.csv --kind safe_restaurant --source "농림축산식품부 안심식당" --check
+  # 착한가격업소: 대표메뉴·가격(대표메뉴1·가격1 … 포함)은 menus 에 source='good_price', 대표메뉴로 upsert
+  python -m app.ingest.load_designations data\raw\designations\착한가격업소.csv --kind good_price --source "행정안전부 착한가격업소" --check
+  python -m app.ingest.load_designations data\raw\designations\착한가격업소.csv --kind good_price --source "행정안전부 착한가격업소" --dry-run
+  python -m app.ingest.load_designations data\raw\designations\착한가격업소.csv --kind good_price --source "행정안전부 착한가격업소"
+  # 백년가게(업력 보정)·향토음식점 등도 같은 패턴: --kind century_store / local_food / seoul_future_heritage / taste_of_seoul
+  python -m app.ingest.load_designations data\raw\designations\백년가게.csv --kind century_store --source "중소벤처기업부 백년가게" --base-date 2025-01-01 --dry-run
+
+  # 위생등급(매우우수|우수|좋음 정규화, 지정취소 행 제외)
+  python -m app.ingest.load_food_safety data\raw\food_safety\위생등급.csv --type hygiene --check
+  python -m app.ingest.load_food_safety data\raw\food_safety\위생등급.csv --type hygiene --dry-run
+  python -m app.ingest.load_food_safety data\raw\food_safety\위생등급.csv --type hygiene
+  # 행정처분(식품접객업): 인허가번호 열이 있으면 관리번호 정확 일치 우선 → 상호+주소
+  python -m app.ingest.load_food_safety data\raw\food_safety\행정처분.csv --type sanction --check
+  python -m app.ingest.load_food_safety data\raw\food_safety\행정처분.csv --type sanction --dry-run
+  python -m app.ingest.load_food_safety data\raw\food_safety\행정처분.csv --type sanction
+  ```
+  - kind 허용값(`load_designations`): model_restaurant · safe_restaurant · origin_label_excellent · century_store · good_price ·
+    taste_of_seoul · seoul_future_heritage · local_food · michelin_*(기본 보류, `--allow-michelin`). `--kind` 는 kind 열보다 우선.
+    기존 고정 컬럼 CSV(name,address,lat,lng,kind,base_date,source)도 그대로 동작.
+  - 매칭: 인허가번호(인허가번호/관리번호/허가번호/영업신고번호) 일치 → 상호 + 도로명주소 일치 또는 좌표 50m. 통계에 방법별 건수,
+    신호 추가·중복 무시·미매칭(사유별)·보류(미슐랭)·제외(지정취소) 출력.
+  - 미매칭: `data/out/unmatched_<출처>.csv`(지정 목록), `data/out/unmatched_food_safety_<type>.csv` — 화이트리스트 열 + reason,
+    대표자·전화 등 PII 없음. 원본의 대표자명·전화 열은 읽지 않고 폐기.
+  - 행정처분은 처분일자 기준 최근 3년(정확히 3년 전 당일 포함) 건당 0.05, 상한 0.15 감점(prior). 같은 날 다른 처분은 처분내용으로 구분.
+  - 재적재 멱등(UNIQUE 신호 인덱스). 적재 후 영향 시군구만 점수 재계산. 헤더를 못 찾으면 `--check` 출력의 헤더를
+    `app/ingest/signal_common.py`(상호·주소·좌표·인허가번호) 또는 각 적재기의 `ALIASES` 에 추가.
 - DB 경로: `JJINMAT_DB` (기본 `data/jjinmat.db`)
 - 카카오 로컬 API: `KAKAO_REST_KEY` 설정 시에만 적재(미설정 시 skip)
 - API 계약·점수 모델: `docs/01_planning_decision.md`

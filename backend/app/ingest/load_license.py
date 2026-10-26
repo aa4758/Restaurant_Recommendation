@@ -420,8 +420,10 @@ def check_files(paths, crs: str = DEFAULT_CRS, license_type: str | None = None) 
             info["encoding"] = f.encoding
             sample = f.read(200_000)
         info["broken_chars"] = sample.count("\ufffd")  # 인코딩 깨짐 의심
-        ad = LicenseCSVAdapter(path, crs, license_type)
+        ad = LicenseCSVAdapter(path, crs, license_type, extra=True)
         types, status, biz = Counter(), Counter(), Counter()
+        grade_type, trad_food = Counter(), Counter()
+        trad_no = 0
         n = conv = excluded = 0
         lat_rng, lng_rng = [90.0, -90.0], [180.0, -180.0]
         for r in ad.iter_records():
@@ -430,6 +432,13 @@ def check_files(paths, crs: str = DEFAULT_CRS, license_type: str | None = None) 
             status[r["status"]] += 1
             biz[r["biz_type"] or "(없음)"] += 1
             excluded += is_excluded(r["biz_type"])
+            # 추가 열(점수 미반영, 값 확인용)
+            if "grade_type" in r:
+                grade_type[r["grade_type"] or "(빈 값)"] += 1
+            if r.get("traditional_no"):
+                trad_no += 1
+            if r.get("traditional_food"):
+                trad_food[r["traditional_food"]] += 1
             if r["lat"] is not None:
                 conv += 1
                 lat_rng = [min(lat_rng[0], r["lat"]), max(lat_rng[1], r["lat"])]
@@ -439,6 +448,8 @@ def check_files(paths, crs: str = DEFAULT_CRS, license_type: str | None = None) 
             missing_columns=ad.missing_columns, pii_columns=ad.pii_dropped, rows=n, license_types=dict(types),
             status=dict(status), top_biz=biz.most_common(12), excluded=excluded, coords_ok=conv,
             lat_range=lat_rng if conv else None, lng_range=lng_rng if conv else None,
+            extra_columns=ad.extra_colmap, grade_type_top=grade_type.most_common(10), traditional_no_rows=trad_no,
+            traditional_food_top=trad_food.most_common(10),
         )
         out.append(info)
     return out
@@ -476,6 +487,26 @@ def _print_check(results: list[dict]) -> None:
         if i["lat_range"]:
             print(f"[info] 위도 {i['lat_range'][0]:.4f}~{i['lat_range'][1]:.4f}, 경도 {i['lng_range'][0]:.4f}~{i['lng_range'][1]:.4f}"
                   " (서울 ≈ 위도 37.4~37.7, 경도 126.8~127.2)")
+        _print_extra(i)
+
+
+def _print_extra(i: dict) -> None:
+    """추가 열 분포(점수 미반영 — 값 확인 후 기획 결정)."""
+    ex = i.get("extra_columns", {})
+    print("[info] 추가 열 분포(점수 미반영):")
+    if "grade_type" in ex:
+        print(f"       {ex['grade_type']} 상위 10: {', '.join(f'{k} {v:,}' for k, v in i['grade_type_top']) or '(없음)'}")
+    else:
+        print("       등급구분명: 열 없음")
+    if "traditional_no" in ex:
+        print(f"       {ex['traditional_no']} 비어있지 않은 행: {i['traditional_no_rows']:,}건")
+    else:
+        print("       전통업소지정번호: 열 없음")
+    if "traditional_food" in ex:
+        print(f"       {ex['traditional_food']} 상위 10:"
+              f" {', '.join(f'{k} {v:,}' for k, v in i['traditional_food_top']) or '(없음)'}")
+    else:
+        print("       전통업소주된음식: 열 없음")
 
 
 def main() -> None:
