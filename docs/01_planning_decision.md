@@ -20,21 +20,30 @@
 - 백엔드: Python FastAPI + SQLite(MVP) → PostgreSQL/PostGIS(확장 시).
 - 점수 엔진: 순수 Python 모듈(`backend/app/scoring/`), 단위 테스트 필수.
 
-## 점수 모델 (확정)
+## 점수 모델 v2 (2026-10 개정 — 사용자 승인, `docs/04_data_plan.md` 3-2)
+개정 사유: 외부 평점(네이버 등)은 공식 API로 제공되지 않고 크롤링은 금지 → prior를 **합법적으로 확보 가능한 공공 신호** 위주로 재구성.
 ```
-prior_raw  = base(외부 평점 정규화, 0~1)
-           + w_gov * min(log1p(gov_visits)/log1p(GOV_CAP), 1)   # w_gov=0.25, GOV_CAP=30
-           - w_ad  * clamp((ad_ratio - 0.15)/0.5, 0, 1) * ad_conf # w_ad=0.30, ad_conf=판별 신뢰도 0~1
-prior_star = strict_map(prior_raw)            # 지역 내 분위수 → 엄격 스케일(평균 2.5, 4.5 이상은 상위 ~3%)
-final_star = (k*prior_star + n*user_mean) / (k + n)   # k=20, user_mean은 자체 리뷰 평균(0.5 단위, 원래 엄격 기준)
-rank_score = final_star + 조건적합도 보너스 - 거리 패널티
+prior_raw = 0.30 * 업력      min(log1p(영업연수)/log1p(20), 1)        # 인허가일자 opened_at, 없으면 0
+          + 0.25 * 업무추진비  min(log1p(방문수)/log1p(30), 1)          # 기존 w_gov·GOV_CAP 유지
+          + 0.15 * 위생등급    매우우수 1 / 우수 0.7 / 좋음 0.4 / 없음 0
+          + 0.10 * 지정업소    모범·착한가격·안심식당·백년가게 중 1개 이상이면 1
+          + 0.20 * 제휴 평점   0~1 정규화, 없으면 0.5(중립)
+          - 행정처분           최근 3년 건당 0.05, 상한 0.15
+          - 광고 감점          0.30 * clamp((ad_ratio-0.15)/0.5, 0, 1) * ad_conf
+                               ad_ratio = 자체 리뷰 중 체험단·협찬·제공받아·원고료 표시 비율
+                               ad_conf  = min(리뷰수/10, 1)  (제휴 통계가 있으면 신뢰도 높은 쪽 사용)
+                               하한: 광고 감점 ≤ 가점 합계의 50%
+prior_star = strict_map(prior_raw)    # 시군구 단위 분위수 → 평균 2.5, 4.5 이상 상위 ~3% (변경 없음)
+final_star = (k*prior_star + n*user_mean) / (k + n)   # k=20 (변경 없음, 가중 리뷰 v2는 별도 승인)
+근거 수준(evidence) = 0이 아닌 신호 수: 0 → "low"(근거 부족 표시), 1~2 → "mid", 3+ → "high"
 ```
+v1(외부 평점 base 기반)은 폐기. 업무추진비 배지 문구·크롤링 금지 원칙은 그대로.
 
 ## API 계약 (백엔드 ↔ 모바일 공통, 변경 시 이 문서 먼저 수정)
 - `GET /health` → `{"status":"ok"}`
 - `GET /meta/filters` → `{"price":["~1만","1~2만","2~4만","4만+"],"genre":[...],"mood":[...],"alcohol":["any","yes","no"]}`
 - `POST /recommend` body `{"lat":float,"lng":float,"radius_m":int=1000,"price":[str]?,"genre":[str]?,"mood":[str]?,"alcohol":"any|yes|no","limit":int=3}`
   → `{"items":[{"id","name","genre","price_band","moods":[str],"alcohol":bool,"lat","lng","distance_m","star":float,"percentile":int,"review_count":int,"gov_visits":int,"gov_source":str?,"reasons":[str],"updated_at":str}],"relaxed":[str]}`
-- `GET /restaurants/{id}` → 위 item + `"score_breakdown":{"prior_star","user_mean","n","k","gov_bonus","ad_penalty"}`
+- `GET /restaurants/{id}` → 위 item + `"score_breakdown":{"prior_star","user_mean","n","k","gov_bonus","ad_penalty","components":{"tenure","gov","hygiene","designation","partner","sanction","ad"},"evidence":"low|mid|high"}` (v2: components·evidence 추가, 기존 키 유지)
 - `POST /restaurants/{id}/reviews` body `{"stars":0.5~5 (0.5단위),"text":str,"tags":[str]}` → 201 `{"id","final_star"}`
 - `POST /restaurants/{id}/report` body `{"field":str,"message":str}` → 202
