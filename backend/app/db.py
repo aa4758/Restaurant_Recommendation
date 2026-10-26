@@ -101,7 +101,7 @@ CREATE TABLE IF NOT EXISTS scores (
 );
 CREATE TABLE IF NOT EXISTS review_stats (
     restaurant_id TEXT PRIMARY KEY REFERENCES restaurants(id),
-    ext_rating REAL,
+    ext_rating REAL,                   -- 제휴 평점(1~5), NULL = 없음 → prior v2 partner 중립 0.5
     ext_review_count INTEGER,
     ad_ratio REAL NOT NULL DEFAULT 0,
     ad_conf REAL NOT NULL DEFAULT 0,

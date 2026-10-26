@@ -70,6 +70,19 @@ export interface RecommendResponse {
   relaxed: string[];
 }
 
+/** 점수 모델 v2 구성요소별 사전 점수 기여분 (감점 항목 sanction·ad 는 음수) */
+export interface ScoreComponents {
+  tenure: number;
+  gov: number;
+  hygiene: number;
+  designation: number;
+  partner: number;
+  sanction: number;
+  ad: number;
+}
+
+export type Evidence = 'low' | 'mid' | 'high';
+
 export interface ScoreBreakdown {
   prior_star: number;
   user_mean: number | null;
@@ -77,6 +90,9 @@ export interface ScoreBreakdown {
   k: number;
   gov_bonus: number;
   ad_penalty: number;
+  /** v2 추가 — 구버전 서버 호환을 위해 optional */
+  components?: ScoreComponents;
+  evidence?: Evidence;
 }
 
 export interface RestaurantDetail extends RestaurantItem {
