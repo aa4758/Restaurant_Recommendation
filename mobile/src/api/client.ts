@@ -44,6 +44,8 @@ export interface RecommendRequest {
   mood?: string[];
   alcohol?: AlcoholFilter;
   limit?: number;
+  /** 싫어요로 숨긴 가게 id (최대 200) */
+  exclude_ids?: string[];
 }
 
 export interface RestaurantItem {
@@ -63,6 +65,10 @@ export interface RestaurantItem {
   gov_source?: string | null;
   reasons: string[];
   updated_at: string;
+  /** 목록 응답에 없을 수 있음 → review_count 로 대체 표시 */
+  evidence?: Evidence | null;
+  /** 서버가 내려주면 공유 문구에 사용 */
+  address?: string | null;
 }
 
 export interface RecommendResponse {
@@ -109,6 +115,30 @@ export interface CreateReviewRequest {
 export interface CreateReviewResponse {
   id: number;
   final_star: number;
+}
+
+export interface ReviewListItem {
+  id: number;
+  stars: number;
+  text: string;
+  tags: string[];
+  created_at: string;
+  ad_disclosed: boolean;
+}
+
+export interface ReviewListResponse {
+  items: ReviewListItem[];
+  next_cursor?: string | null;
+}
+
+export type ReactionValue = 'like' | 'dislike' | 'none';
+export type DislikeReason = 'far' | 'price' | 'not_into' | 'visited';
+
+export interface ReactionRequest {
+  device_id: string; // 8~64자 [A-Za-z0-9-_]
+  restaurant_id: string;
+  value: ReactionValue;
+  reason?: DislikeReason;
 }
 
 export interface ReportRequest {
@@ -186,6 +216,14 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(body),
     }),
+
+  listReviews: (id: string, cursor?: string | null, limit = 20) =>
+    request<ReviewListResponse>(
+      `/restaurants/${encodeURIComponent(id)}/reviews?limit=${limit}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`,
+    ),
+
+  react: (body: ReactionRequest) =>
+    request<void>('/reactions', { method: 'POST', body: JSON.stringify(body) }),
 
   reportIssue: (id: string, body: ReportRequest) =>
     request<void>(`/restaurants/${encodeURIComponent(id)}/report`, {
