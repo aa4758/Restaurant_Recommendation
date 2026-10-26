@@ -5,6 +5,7 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { api, RestaurantDetail, ScoreComponents } from '../../src/api/client';
 import { Button } from '../../src/components/Button';
 import { GovBudgetBadge, InlineErrorBanner, PercentileBadge, ReasonList, StarRatingBadge } from '../../src/components/ui';
+import { ReviewSheetEntryButton } from '../../src/components/ReviewSheet';
 import { useTheme } from '../../src/theme';
 
 function Bar({ label, value, color }: { label: string; value: number; color: string }) {
@@ -120,6 +121,7 @@ export default function RestaurantDetailScreen() {
       {d.review_count === 0 ? text('아직 리뷰가 없어요. 첫 리뷰를 남겨보세요.') : text(`찐맛 리뷰 ${d.review_count}개`)}
       {text(`정보 업데이트: ${d.updated_at || '-'}`)}
 
+      <ReviewSheetEntryButton restaurantId={id} name={d.name} reviewCount={d.review_count} />
       <Button label="리뷰 쓰기" onPress={() => router.push({ pathname: '/review/[id]', params: { id, name: d.name } })} />
       <Button label="정보 틀림 신고하기" variant="text" onPress={report} />
     </ScrollView>

@@ -34,40 +34,105 @@ HomeScreen
 
 ---
 
-## 2. 추천결과 (Recommendations)
+## 2. 추천결과 (Recommendations) — 릴스형
 
-**목적**: 조건에 맞는 3곳(최대 5곳)을 카드로 제시. 각 카드는 별점+상위 N% 배지, 이유 3줄, 업무추진비 배지(규칙 준수), 조건 완화 시 안내 배너.
+**목적**: 세로 전체화면 카드 덱으로 소수(기본 3, 최대 5)만 큐레이션. 무한 피드 금지. 사진 없이 타이포 중심. 좋아요·싫어요는 개인화 전용(공개 점수·순위 미반영).
 
 **컴포넌트 트리**
 ```
 RecommendationScreen
-├─ RelaxedConditionBanner          (relaxed 배열 있을 때만)
-├─ RecommendationList
-│  └─ RestaurantCard (x3~5)
-│     ├─ RestaurantThumbnail
-│     ├─ RestaurantName
-│     ├─ StarRatingBadge           (별점 + 색상은 starScale 기준)
-│     ├─ PercentileBadge           ("상위 N%")
-│     ├─ ReasonList                (ReasonLine x3)
-│     ├─ GovBudgetBadge            (gov_visits > 0 일 때만)
-│     ├─ AdPenaltyNotice           (ad_conf 높고 감점 적용 시, 선택적 표시)
-│     └─ DistanceTag
-├─ RefreshRecommendationButton     ("다른 곳 보기" — 동점대 로테이션 트리거)
-└─ ReportInfoLink                  ("정보가 틀렸나요?")
+├─ RelaxedConditionBanner          (relaxed 있을 때, 덱 상단 오버레이, 닫기 가능)
+├─ LocationDisabledNotice          (위치 거부 시, 상단 한 줄)
+├─ PageIndicator                   ("1/3", 우상단. 종료 카드에서는 숨김)
+├─ RecommendationDeck              (세로 페이징 전체화면, 한 번에 한 장 스냅)
+│  ├─ ReelCard (x3~5)
+│  └─ EndOfDeckCard                (마지막 1장)
+├─ ActionRail                      (우측 세로, 카드 위 고정)
+├─ SwipeHint                       (첫 진입 1회)
+├─ DislikeReasonSheet              (싫어요 시)
+├─ ReviewSheet                     (리뷰 버튼 시)
+└─ UndoToast                       (싫어요 후)
 ```
 
-**상태**
-- 로딩: `RecommendationList` 자리에 `RestaurantCardSkeleton` x3
-- 빈 결과: `EmptyResultView` — 일러스트 + "조건에 맞는 곳을 찾지 못했어요. 조건을 조금 넓혀볼까요?" + `AdjustFilterButton`("조건 다시 선택하기")
-- 에러: `FullScreenErrorView` ("추천을 불러오는 중 문제가 생겼어요.") + `RetryButton`
-- 위치 권한 거부: 거리 조건 없이 결과 표시, 카드 상단에 `LocationDisabledNotice` ("위치 정보 없이 추천 중이에요.")
+### 2-1. ReelCard 레이아웃 (위→아래, 좌측 정렬, 좌우 spacing 20, 우측 72px는 ActionRail 영역 확보)
+```
+ReelCard  (배경 colors.background, 상하 safe area 준수)
+├─ OpenStatusTag          영업 상태 칩: "영업 중" / "곧 마감" / "영업 종료" / "영업 정보 없음"
+├─ StarHero               별점 대형(typography 최대 크기, starScale 색상) "4.6"
+│  └─ PercentileBadge     "이 지역 상위 8%"
+├─ RestaurantName         굵게 2줄 말줄임
+├─ MetaLine               "{장르} · {가격대} · {거리}"  (예: "한식 · 1~2만 · 320m")
+├─ ReasonList             ReasonLine x3 (각 1~2줄, 불릿 없이 줄 간격 넉넉히)
+└─ BadgeRow               EvidenceBadge · GovBudgetBadge · RelaxedBadge (줄바꿈 허용)
+```
+- `EvidenceBadge`(evidence): low "리뷰 근거 적음" / mid "리뷰 근거 보통" / high "리뷰 근거 충분". 목록 응답에 evidence 없으면 `review_count` 로 대체("리뷰 {n}건"). 색만으로 구분 금지, 텍스트 필수.
+- `GovBudgetBadge`(gov_visits>0): "공공기관 업무추진비 기록 {N}회 ({출처}, {기준연도} 기준)". "공직자 맛집" 표현 금지.
+- `RelaxedBadge`(해당 항목이 relaxed에 속할 때): "{가격/장르/분위기/거리} 조건 완화됨". 음주 조건은 완화 대상 아님.
+- 광고 감점 안내는 카드에서 제외(상세 화면 `AdPenaltyRow` 에서만).
+- 큰 글자 설정 시 `ReasonList` 는 스크롤 가능한 영역으로 전환, 카드 하단 잘림 금지.
 
-**카피 (배지 문구 규칙 — "공직자 맛집" 등 표현 금지)**
-- `GovBudgetBadge`: "공공기관 업무추진비 기록 {N}회 ({출처}, {기준연도} 기준)"
-- `PercentileBadge`: "이 지역 상위 {N}%"
-- `RelaxedConditionBanner`: "조건에 맞는 곳이 적어 {거리/분위기/가격/장르} 조건을 완화했어요."
-- `AdPenaltyNotice`(선택): "광고성 리뷰 비중이 높아 점수에 반영했어요."
-- `RefreshRecommendationButton`: "다른 곳 보기"
+### 2-2. ActionRail (우측 세로, 하단에서 ReelCard 하단 여백 위, 아이콘 28 + 라벨 12, 터치 영역 48x48 이상)
+| 순서 | 버튼 | 라벨 | 접근성 라벨 | 동작 |
+|---|---|---|---|---|
+| 1 | LikeButton | "좋아요" | "{이름} 좋아요, 현재 {선택됨/선택 안 됨}" | 토글. `POST /reactions` like/none. 기기 찜 저장 |
+| 2 | DislikeButton | "싫어요" | "{이름} 싫어요, 30일간 숨김" | `DislikeReasonSheet` 열기 |
+| 3 | ReviewButton | "리뷰" | "{이름} 리뷰 보기" | `ReviewSheet` 열기 |
+| 4 | ShareButton | "공유" | "{이름} 공유하기" | OS 공유 시트 |
+- 좋아요 선택 상태는 아이콘 채움+색+라벨 "좋아요 완료"로 이중 표시. 낙관적 업데이트, 실패 시 롤백+토스트 "저장하지 못했어요. 다시 시도해 주세요."
+- 리뷰 버튼에 리뷰 수 표시(`review_count`, 0이면 숫자 생략).
+
+### 2-3. DislikeReasonSheet (하단 시트, 높이 콘텐츠 맞춤)
+- 제목: "어떤 점이 아쉬웠나요?" / 보조: "이 가게는 30일간 추천에서 숨겨요."
+- `ReasonChip` 4개(단일 선택, 선택 즉시 확정): "너무 멀어요"(far) · "가격이 맞지 않아요"(price) · "끌리지 않아요"(not_into) · "이미 가봤어요"(visited)
+- `SkipButton` "건너뛰기"(이유 없이 dislike만 전송). 시트 바깥 탭/닫기 = 취소(숨김 안 함).
+- 확정 시: 시트 닫힘 → 카드 즉시 사라짐(아래 카드가 올라옴, 150ms) → `UndoToast`.
+
+### 2-4. ReviewSheet (하단 시트, 읽기 전용, 화면 높이 70%, 끌어서 닫기)
+```
+ReviewSheet
+├─ SheetHeader           "{이름} 리뷰 {n}건"
+├─ ReviewList            (GET /restaurants/{id}/reviews, 커서 무한 스크롤은 시트 내부만 허용)
+│  └─ ReviewItem         별점(★ 4.5) · 본문 · 태그 · 작성일
+│     └─ SponsoredLabel  ad_disclosed=true 일 때 "협찬 표시" 라벨 (회색 칩, 목록 하단 정렬은 서버 정렬 그대로)
+├─ ReviewEmptyState      "아직 리뷰가 없어요. 첫 리뷰를 남겨보세요."
+├─ ReviewErrorState      "리뷰를 불러오지 못했어요." + RetryButton
+└─ WriteReviewButton     하단 고정 "리뷰 쓰기" → WriteReview 화면(엄격 기준 가이드 유지)
+```
+- 로딩: `ReviewItemSkeleton` x3. 별점 없는 한 줄 댓글/답글/신고/좋아요 없음.
+- `SponsoredLabel` 접근성 라벨: "협찬 표시된 리뷰".
+
+### 2-5. 공유 문구 템플릿 (OS 공유 시트, 텍스트+링크)
+```
+[찐맛] {이름}
+★ {star} · 이 지역 상위 {percentile}%
+{주소}
+{reasons[0]}
+지도에서 보기: {지도 검색 링크(이름+주소 검색어)}
+```
+- 금지: 사용자 위치·좌표·거리·검색 조건·기기 ID. 링크는 가게 이름+주소 기반 검색어만. 거리/영업 상태 미포함.
+
+### 2-6. 제스처 / 인디케이터 / 힌트
+- 세로 스와이프 = 다음/이전 카드(스냅). 카드 본문 탭 = 상세(`RestaurantDetail`). ActionRail·배지 영역 탭은 각자 동작. **더블탭 좋아요 없음(오조작 방지).**
+- 접근성: 스와이프 대체로 스크린리더용 "다음 카드"/"이전 카드" 액션(accessibilityActions) 제공. 카드 전환 시 "{현재}번째, 총 {전체}곳, {이름}" 안내.
+- `PageIndicator`: "1/3" (텍스트, 우상단). 종료 카드 포함하지 않음. 싫어요로 줄면 분모 갱신.
+- `SwipeHint`: 최초 진입 1회만(AsyncStorage `reel_hint_seen`). 첫 카드 하단에 위 화살표 애니메이션 + "위로 밀어 다음 곳 보기". 첫 스와이프/탭/3초 후 사라짐. 모션 줄이기 설정 시 정지 화살표.
+
+### 2-7. EndOfDeckCard
+- 문구: "오늘의 추천은 여기까지예요" / 보조 "조건을 바꾸면 다른 곳을 보여드릴게요."
+- `AdjustFilterButton`(주) "조건 바꾸기" → Home. `RefreshRecommendationButton`(보조) "다른 곳 보기" → 동점대 로테이션 재요청(`exclude_ids` 유지). `ReportInfoLink` "정보가 틀렸나요?".
+- 좋아요한 곳 요약은 1단계 제외.
+
+### 2-8. 상태
+- 로딩: `ReelCardSkeleton` 1장(별점·이름·이유 3줄 자리 블록) + `PageIndicator` 숨김.
+- 빈결과: `EmptyResultView` "조건에 맞는 곳을 찾지 못했어요. 조건을 조금 넓혀볼까요?" + `AdjustFilterButton` "조건 다시 선택하기". (싫어요로 전부 숨겨져 0장이면 바로 `EndOfDeckCard`)
+- 에러: `FullScreenErrorView` "추천을 불러오는 중 문제가 생겼어요." + `RetryButton` "다시 시도". 반응 전송 실패는 토스트로만 처리.
+- 위치 거부: 거리 없이 추천. `LocationDisabledNotice` "위치 정보 없이 추천 중이에요." + `MetaLine` 에서 거리 생략. 설정 이동 링크 "설정에서 허용하기".
+- 싫어요 후: 카드 즉시 사라짐 → 서버 재선정으로 덱 유지(`exclude_ids` 갱신, 새 카드는 덱 끝에 추가, 최대 5장) → `UndoToast` "30일간 숨겼어요 · 되돌리기" (5초). 되돌리기 = `POST /reactions` none + 카드를 원래 위치로 복원. 토스트는 ActionRail 아래에 위치, 스크린리더 live region.
+- 조건 완화: `RelaxedConditionBanner` "조건에 맞는 곳이 적어 {거리/분위기/가격/장르} 조건을 완화했어요."
+
+### 2-9. 토큰 / 접근성
+- 신규 토큰 불필요(기존 `colors`, `typography`, `starScale`, `radius`, `elevation`, `spacing` 사용). 시트 배경 dim = `colors.overlay`.
+- 본문 대비 4.5:1 이상, 터치 48dp 이상, 다크 모드 동일 구조, 별점·상태는 색+텍스트 병기.
 
 ---
 
@@ -90,6 +155,7 @@ RestaurantDetailScreen
 ├─ MoodTagList
 ├─ UpdatedAtNotice                  ("정보 업데이트: {updated_at}")
 ├─ ReportInfoButton                 ("정보 틀림 신고하기")
+├─ ReviewSheetEntryButton           ("리뷰 {n}건 보기" → 2-4 ReviewSheet 재사용)
 ├─ WriteReviewButton                ("리뷰 쓰기" → 리뷰작성 화면 이동)
 └─ ReviewSummaryList                (자체 리뷰 최근 목록, 없으면 EmptyReviewNotice)
 ```

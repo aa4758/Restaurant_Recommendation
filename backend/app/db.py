@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS restaurants (
     price_band TEXT,                   -- NULL = 미확인
     moods TEXT NOT NULL DEFAULT '',
     alcohol INTEGER,                   -- 1/0, NULL = 미확인
+    alcohol_src TEXT,                  -- 'license' = 휴게음식점 인허가로 0 강제 (ingest/load_license.py)
     lat REAL NOT NULL,
     lng REAL NOT NULL,
     address TEXT,                      -- 도로명 우선
@@ -129,10 +130,21 @@ CREATE TABLE IF NOT EXISTS user_reviews (
     tags TEXT,
     user_id TEXT,                      -- 기기 ID (로그인 전)
     verified INTEGER NOT NULL DEFAULT 0,  -- 영수증 인증 = 1
-    created_at TEXT NOT NULL
+    created_at TEXT NOT NULL,
+    ad_disclosed INTEGER               -- 광고·협찬 표시(prior.is_ad_text) 1/0, 작성 시 저장. NULL = 미계산 → 백필
 );
 CREATE INDEX IF NOT EXISTS idx_reviews_restaurant ON user_reviews(restaurant_id);
 CREATE INDEX IF NOT EXISTS idx_gov_restaurant ON gov_expense(restaurant_id);
+-- 좋아요/싫어요 (개인화 전용, 점수·순위 미사용). 기기·가게당 1행 upsert, value none = 삭제
+CREATE TABLE IF NOT EXISTS reactions (
+    device_id TEXT NOT NULL,           -- 기기 ID (로그인 전, 외부 비공개)
+    restaurant_id TEXT NOT NULL REFERENCES restaurants(id),
+    value TEXT NOT NULL CHECK (value IN ('like', 'dislike')),
+    reason TEXT,                       -- dislike 일 때만: far | price | not_into | visited
+    updated_at TEXT NOT NULL,
+    PRIMARY KEY (device_id, restaurant_id)
+);
+CREATE INDEX IF NOT EXISTS idx_reviews_restaurant_created ON user_reviews(restaurant_id, created_at, id);
 CREATE TABLE IF NOT EXISTS reports (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     restaurant_id TEXT NOT NULL REFERENCES restaurants(id),
@@ -159,7 +171,18 @@ def connect(path: Path | str | None = None) -> sqlite3.Connection:
 # 기존 DB 호환: CREATE TABLE IF NOT EXISTS 는 컬럼을 추가하지 않으므로 없으면 ALTER
 MIGRATIONS = {
     "scores": (("components", "TEXT"), ("evidence", "TEXT")),
+    "user_reviews": (("ad_disclosed", "INTEGER"),),
+    "restaurants": (("alcohol_src", "TEXT"),),
 }
+
+# 컬럼 마이그레이션 후에 만들어야 하는 인덱스(구 DB 에는 SCHEMA 실행 시점에 컬럼이 없음)
+POST_MIGRATION_INDEXES = (
+    # 리뷰 시트 키셋 페이지네이션: 광고 표시 아님 먼저 → 최신순 → id 내림차순
+    "CREATE INDEX IF NOT EXISTS idx_reviews_sheet ON user_reviews"
+    "(restaurant_id, ad_disclosed, created_at DESC, id DESC)",
+    # 백필 대상(미계산) 행만 담는 부분 인덱스 → 요청마다 확인해도 저렴
+    "CREATE INDEX IF NOT EXISTS idx_reviews_ad_pending ON user_reviews(id) WHERE ad_disclosed IS NULL",
+)
 
 
 def _migrate(conn: sqlite3.Connection) -> set[str]:
@@ -172,6 +195,18 @@ def _migrate(conn: sqlite3.Connection) -> set[str]:
                 conn.execute(f"ALTER TABLE {table} ADD COLUMN {name} {typ}")
                 changed.add(table)
     return changed
+
+
+def backfill_ad_disclosed(conn: sqlite3.Connection) -> int:
+    """ad_disclosed 가 NULL 인 리뷰(기존 행·API 외 경로 적재분)를 본문 판별로 채움. 반환: 갱신 행 수."""
+    rows = conn.execute("SELECT id, text FROM user_reviews WHERE ad_disclosed IS NULL").fetchall()
+    if not rows:
+        return 0
+    from app.scoring.prior import is_ad_text  # 순환 import 회피
+
+    conn.executemany("UPDATE user_reviews SET ad_disclosed=? WHERE id=?",
+                     [(int(is_ad_text(r[1])), r[0]) for r in rows])
+    return len(rows)
 
 
 def _dedupe_signals(conn: sqlite3.Connection) -> None:
@@ -195,6 +230,9 @@ SCHEMA_VERSION = 1
 def init_schema(conn: sqlite3.Connection) -> None:
     conn.executescript(SCHEMA)
     changed = _migrate(conn)  # PRAGMA table_info 만(저렴) — 누락 컬럼 보강
+    for ddl in POST_MIGRATION_INDEXES:
+        conn.execute(ddl)
+    backfill_ad_disclosed(conn)  # 부분 인덱스로 미계산 행만 조회
     _dedupe_signals(conn)
     conn.commit()
     done = conn.execute("PRAGMA user_version").fetchone()[0] >= SCHEMA_VERSION

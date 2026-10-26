@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { ScrollView, Text, TextInput, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { api } from '../../src/api/client';
+import * as store from '../../src/state/deviceStore';
 import { Button } from '../../src/components/Button';
 import { FilterChip, InlineErrorBanner, Notice } from '../../src/components/ui';
 import { useTheme } from '../../src/theme';
@@ -39,7 +40,8 @@ export default function WriteReviewScreen() {
     setBusy(true);
     setError(false);
     try {
-      await api.createReview(id, { stars, text, tags });
+      const device_id = await store.getDeviceId();
+      await api.createReview(id, { stars, text, tags, device_id });
       router.back();
     } catch {
       setError(true);

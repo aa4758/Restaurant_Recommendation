@@ -9,6 +9,7 @@ curl http://localhost:8000/health   # {"status":"ok"}
 ```
 - 첫 기동 시 `/data/jjinmat.db` 가 없으면 가상 시드를 자동 적재. 이후 재시작은 기존 DB 유지.
 - 호스팅(Fly.io/Render 등)은 **영구 볼륨을 `/data` 에 마운트** 해야 리뷰가 보존됨. `PORT` 환경변수 자동 반영.
+- LB/리버스 프록시 뒤라면 `-e FORWARDED_ALLOW_IPS=<LB 대역, 예: 10.0.0.0/8>` 설정(미설정 시 127.0.0.1 만 신뢰 → 모든 요청이 LB IP 하나로 묶여 레이트리밋 오차단).
 
 ## 데이터 갱신 (업무추진비·리뷰 통계·카카오)
 > ⚠️ `python -m app.ingest.load_seed` 는 **DB 파일을 삭제 후 재생성** 한다 → `user_reviews`, `reports` 소실.
@@ -18,10 +19,12 @@ curl http://localhost:8000/health   # {"status":"ok"}
 4. 백업 DB의 사용자 데이터 이관:
    ```sh
    sqlite3 new.db "ATTACH 'backup.db' AS old;
-     INSERT INTO user_reviews SELECT * FROM old.user_reviews WHERE restaurant_id IN (SELECT id FROM restaurants);
+     INSERT INTO user_reviews(id,restaurant_id,stars,text,tags,user_id,verified,created_at)
+       SELECT id,restaurant_id,stars,text,tags,user_id,verified,created_at FROM old.user_reviews
+       WHERE restaurant_id IN (SELECT id FROM restaurants);
      INSERT INTO reports SELECT * FROM old.reports WHERE restaurant_id IN (SELECT id FROM restaurants);"
    ```
-   이관 후 점수 재계산: `JJINMAT_DB=new.db python -m app.service`
+   이관 후 점수 재계산: `JJINMAT_DB=new.db python -m app.service` (`ad_disclosed` 는 비워 두면 기동 시 자동 백필)
 5. 서버 중지 → `new.db` 를 `/data/jjinmat.db` 로 교체 → 재기동 → `/health`, `/recommend` 확인.
 
 ## 이의제기·정보 오류 신고
@@ -45,6 +48,6 @@ npx eas-cli submit -p android
 ```
 
 ## 공개 전 체크리스트
-- [ ] 리뷰 레이트리밋(IP/기기 ID) — `docs/qa/report.md` 이슈 #2
+- [x] 리뷰 레이트리밋(기기 분당 30 + IP 분당 300) — `docs/qa/report.md` 이슈 #2. 프록시 뒤면 `FORWARDED_ALLOW_IPS` 확인
 - [ ] CORS `allow_origins=["*"]` 제한 (웹 클라이언트 없으면 무관)
 - [ ] 법무 검토: 업무추진비 배지 문구, 광고 감점

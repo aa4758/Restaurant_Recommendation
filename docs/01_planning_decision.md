@@ -53,8 +53,20 @@ v1(외부 평점 base 기반)은 폐기. 업무추진비 배지 문구·크롤�
 ## API 계약 (백엔드 ↔ 모바일 공통, 변경 시 이 문서 먼저 수정)
 - `GET /health` → `{"status":"ok"}`
 - `GET /meta/filters` → `{"price":["~1만","1~2만","2~4만","4만+"],"genre":[...],"mood":[...],"alcohol":["any","yes","no"]}`
-- `POST /recommend` body `{"lat":float,"lng":float,"radius_m":int=1000,"price":[str]?,"genre":[str]?,"mood":[str]?,"alcohol":"any|yes|no","limit":int=3}`
-  → `{"items":[{"id","name","genre","price_band","moods":[str],"alcohol":bool,"lat","lng","distance_m","star":float,"percentile":int,"review_count":int,"gov_visits":int,"gov_source":str?,"reasons":[str],"updated_at":str}],"relaxed":[str]}`
+- `POST /recommend` body `{"lat":float,"lng":float,"radius_m":int=1000,"price":[str]?,"genre":[str]?,"mood":[str]?,"alcohol":"any|yes|no","limit":int=3 (최대 5),"exclude_ids":[str]? (최대 200, 싫어요 숨김)}`
+  → `{"items":[{"id","name","genre","price_band","moods":[str],"alcohol":bool,"lat","lng","distance_m","star":float,"percentile":int,"review_count":int,"gov_visits":int,"gov_source":str?,"reasons":[str],"updated_at":str,"address":str?,"evidence":"low|mid|high"?,"relaxed":[str] (이 가게가 원래 조건 중 충족 못한 항목)}],"relaxed":[str]}`
 - `GET /restaurants/{id}` → 위 item + `"score_breakdown":{"prior_star","user_mean","n","k","gov_bonus","ad_penalty","components":{"tenure","gov","hygiene","designation","reputation","sanction","ad"},"evidence":"low|mid|high"}` (v2: components·evidence 추가, 기존 키 유지. v2.1: components 의 `partner` → `reputation`(외부 평판)으로 변경). item `moods` 에는 착한가격업소면 `가성비` 가 조회 시 합성됨
-- `POST /restaurants/{id}/reviews` body `{"stars":0.5~5 (0.5단위),"text":str,"tags":[str]}` → 201 `{"id","final_star"}`
+- `POST /restaurants/{id}/reviews` body `{"stars":0.5~5 (0.5단위),"text":str,"tags":[str],"device_id":str? (레이트리밋·D6용, 응답 비노출)}` → 201 `{"id","final_star"}`
+- `GET /restaurants/{id}/reviews?limit=20&cursor=` → `{"items":[{"id","stars","text","tags","created_at","ad_disclosed":bool}],"next_cursor":str?}` (정렬: 광고표시 아닌 것 먼저 → 최신순)
+- `POST /reactions` body `{"device_id":str(8~64),"restaurant_id":str,"value":"like|dislike|none","reason":"far|price|not_into|visited"?}` → 204 (기기·가게당 1행 upsert, none=취소. 순위 미반영)
 - `POST /restaurants/{id}/report` body `{"field":str,"message":str}` → 202
+
+## 릴스형 추천 화면 (2026-10 승인, 찬성/반대 토론 중재)
+| 쟁점 | 결정 |
+|---|---|
+| 소수 큐레이션 | 추천결과 = **세로 전체화면 카드 덱, 최대 5장**(기본 3) + 마지막 **종료 카드**("오늘의 추천 끝 · 조건 바꾸기"). 무한 피드 금지 |
+| 사진 부재 | 텍스트 중심 카드(별점·상위 N%, 이유 3줄, 거리, 영업 상태, 근거 배지). 사용자/업주 사진은 생기면 배경으로(2단계) |
+| 좋아요/싫어요 | **1단계는 개인화 전용, 공개 점수·순위 미반영.** 좋아요 = 찜(기기 저장 + 서버 기록). 싫어요 = 해당 기기에서 30일 숨김 + 이유 칩 1탭(멀다/가격/끌리지 않음/이미 가봄). 숨긴 곳은 `/recommend` 의 `exclude_ids` 로 서버가 제외 후 재선정(3곳 유지). 기기당 가게별 1표(덮어쓰기). 집계는 타인에게 비공개 |
+| 리뷰 시트 | 하단 시트, **읽기 전용, 별점 있는 리뷰만**. 광고·협찬 표시 리뷰는 하단 정렬 + "협찬 표시" 라벨. 작성은 기존 리뷰작성 화면으로(엄격 기준 가이드 유지). 별점 없는 한 줄 댓글 없음 |
+| 공유 | 음식점 이름·주소·별점·이유 1줄 + 지도 검색 링크만. **사용자 위치·검색 조건 미포함.** 1단계는 OS 공유 시트(텍스트+링크) |
+| 2단계(로그인·조작 방지 후) | 반응을 순위에 낮은 가중치·상한·최소 표본으로 반영, 공유 카드 이미지, 사진 |
