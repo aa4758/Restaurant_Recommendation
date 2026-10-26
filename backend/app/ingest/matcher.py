@@ -23,9 +23,12 @@ _PAREN_RE = re.compile(r"\([^)]*\)|\[[^\]]*\]")
 _BRANCH_TAIL = re.compile(r"^.{1,6}점$")
 _SIDO_SUFFIX = re.compile(r"(특별자치시|특별자치도|특별시|광역시|자치시|자치도|시|도)$")
 _SIDO_SHORT = {"서울", "부산", "대구", "인천", "광주", "대전", "울산", "세종", "경기", "강원", "충북", "충남",
-               "전북", "전남", "경북", "경남", "제주"}
+               "전북", "전남", "경북", "경남", "제주", "전남광주"}
 _SIDO_LONG = {"충청북": "충북", "충청남": "충남", "전라북": "전북", "전북특별자치": "전북", "전라남": "전남",
-              "경상북": "경북", "경상남": "경남", "강원특별자치": "강원", "제주특별자치": "제주"}
+              "경상북": "경북", "경상남": "경남", "강원특별자치": "강원", "제주특별자치": "제주",
+              "전남광주통합": "전남광주"}
+# 통합된 시도: 옛 이름도 같은 약칭으로(주소 표기가 출처마다 신·구 혼재). 광주·전남은 시군구명이 겹치지 않음
+_SIDO_MERGED = {"광주": "전남광주", "전남": "전남광주"}
 
 
 # '○○점' 형태지만 지점이 아닌 일반 접미어(업태·상호 일부)
@@ -87,10 +90,10 @@ def names_match(a: str | None, b: str | None) -> bool:
 
 def _sido(tok: str) -> str | None:
     if tok in _SIDO_SHORT:
-        return tok
+        return _SIDO_MERGED.get(tok, tok)
     base = _SIDO_SUFFIX.sub("", tok)
     base = _SIDO_LONG.get(base, base)
-    return base if base in _SIDO_SHORT else None
+    return _SIDO_MERGED.get(base, base) if base in _SIDO_SHORT else None
 
 
 _ROAD_TOK = re.compile(r"[가-힣A-Za-z0-9]*[가-힣A-Za-z](?:대로|로|길)|[가-힣A-Za-z0-9]+(?:대로|로)\d+(?:번)?[가-힣]?길")

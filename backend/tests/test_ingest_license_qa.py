@@ -164,19 +164,34 @@ def test_duplicate_license_rows_across_files_no_unique_error(tmp_path, no_rebuil
     p1 = write_csv(tmp_path / "a.csv", rows)
     p2 = write_csv(tmp_path / "b.csv", rows)  # 전국 + 서울 파일 겹침
     res = ll.load_license(conn, [p1, p2], out_dir=tmp_path / "out")
-    assert res["new"] == 2
-    assert _q(conn, "SELECT COUNT(*) FROM restaurants")[0] == len(RESTAURANTS) + 2
-    assert _q(conn, "SELECT COUNT(DISTINCT license_id), COUNT(license_id) FROM restaurants") == (7, 7)
+    assert res["new"] == 1  # 휴게음식점 신규는 만들지 않음
+    assert _q(conn, "SELECT COUNT(*) FROM restaurants")[0] == len(RESTAURANTS) + 1
+    assert _q(conn, "SELECT COUNT(DISTINCT license_id), COUNT(license_id) FROM restaurants") == (6, 6)
 
 
 # --- 신규 가게 시군구코드 -----------------------------------------------------------------
-def test_new_store_unknown_region_code_none(tmp_path, no_rebuild):
-    conn = make_db(tmp_path)  # 서울 중구만 존재
+def test_new_store_unknown_region_gets_name_key(tmp_path, no_rebuild):
+    conn = make_db(tmp_path)  # 서울 중구만 존재 → 부산 중구 공식 코드 모름
     res = _load(conn, tmp_path, [row("B1", "일반음식점", "부산밀면", "냉면집", "20200101",
                                      road="부산광역시 중구 중앙대로 10", xy=tm(35.1030, 129.0360))])
     assert res["new"] == 1
-    assert _q(conn, "SELECT sido, sigungu, sigungu_code FROM restaurants WHERE id='LB1'") == ("부산광역시", "중구", None)
-    assert None in res["regions"]
+    # 이름 기반 지역 키: 전국이 한 지역(None)으로 뭉치지 않고, 서울 중구(11140)와도 섞이지 않음
+    assert _q(conn, "SELECT sido, sigungu, sigungu_code FROM restaurants WHERE id='LB1'") == (
+        "부산광역시", "중구", "N:부산 중구")
+    assert "N:부산 중구" in res["regions"] and None not in res["regions"]
+
+
+def test_name_keys_reconciled_to_official_codes(tmp_path):
+    conn = make_db(tmp_path)
+    conn.execute("INSERT INTO restaurants(id,name,genre,lat,lng,sido,sigungu,sigungu_code) VALUES"
+                 "('L1','인허가먼저','한식',35.1,129.0,'부산광역시','중구','N:부산 중구'),"
+                 "('L2','세종집','한식',36.5,127.3,'세종특별자치시',NULL,'N:세종')")
+    assert ll.reconcile_region_keys(conn) == set()  # 공식 코드 아직 없음 → 유지
+    conn.execute("INSERT INTO restaurants(id,name,genre,lat,lng,sido,sigungu,sigungu_code) VALUES"
+                 "('S9','상가정보','한식',35.1,129.0,'부산광역시','중구','26110')")
+    assert ll.reconcile_region_keys(conn) == {"26110"}
+    assert _q(conn, "SELECT sigungu_code FROM restaurants WHERE id='L1'") == ("26110",)
+    assert _q(conn, "SELECT sigungu_code FROM restaurants WHERE id='L2'") == ("N:세종",)
 
 
 # --- dry-run ------------------------------------------------------------------------
@@ -242,7 +257,7 @@ def test_general_keeps_alcohol_zero_from_other_source(tmp_path, no_rebuild):
 # --- 회귀: L5 시도 없는 모호 시군구 ---------------------------------------------------------
 def test_sigungu_code_ambiguous_without_sido():
     regions = {("서울", "중구"): "11140", ("부산", "중구"): "26110"}
-    assert ll._sigungu_code(regions, "중구 세종대로 1") == (None, "중구", None)
+    assert ll._sigungu_code(regions, "중구 세종대로 1") == (None, "중구", None)  # 시도 없으면 이름 키도 못 만듦
     assert ll._sigungu_code({("서울", "중구"): "11140"}, "중구 세종대로 1") == (None, "중구", "11140")
     assert ll._sigungu_code(regions, "부산광역시 중구 중앙대로 1") == ("부산광역시", "중구", "26110")
 
@@ -269,3 +284,57 @@ def test_dry_run_keeps_caller_uncommitted_change(tmp_path, no_rebuild):
     assert conn.in_transaction  # 호출자 트랜잭션은 커밋·롤백되지 않고 유지
     conn.rollback()
     assert _q(conn, "SELECT phone FROM restaurants WHERE id='S1'")[0] is None
+
+
+# --- 회귀: 2026 전남광주통합특별시 주소에서 지역 없음 ---------------------------------------
+def test_merged_sido_gets_region_and_fix_regions(tmp_path, no_rebuild):
+    from app.ingest.matcher import _sido
+
+    assert _sido("전남광주통합특별시") == _sido("광주광역시") == _sido("전라남도") == "전남광주"
+    assert ll._sigungu_code({}, "전남광주통합특별시 서구 시청로50번길 21-4, 다보빌딩 5층 (치평동)")[2] == "N:전남광주 서구"
+    assert ll._sigungu_code({}, "전남광주통합특별시 보성군 회천면 녹차로 619")[2] == "N:전남광주 보성군"
+    conn = make_db(tmp_path)
+    conn.execute("INSERT INTO restaurants(id,name,genre,lat,lng,address,sigungu_code) VALUES"
+                 "('L1','광주집','한식',35.15,126.85,'전남광주통합특별시 서구 하남대로 696, 1층 (동천동)',NULL)")
+    r = ll.fix_regions(conn)
+    assert r["fixed"] == 1 and r["still_none"] == 0
+    assert _q(conn, "SELECT sido, sigungu, sigungu_code FROM restaurants WHERE id='L1'") == (
+        "전남광주통합특별시", "서구", "N:전남광주 서구")
+
+
+# --- 회귀: 일반음식점 파일 → 휴게음식점 파일 순서 적재 시 영업 중 일반 가게가 닫히거나 휴게로 바뀜 ------------------
+def test_rest_file_after_general_file_keeps_general_store(tmp_path, no_rebuild):
+    conn = make_db(tmp_path)
+    road, xy = "서울특별시 중구 다동길 7", tm(37.5680, 126.9800)
+    # 1) 일반음식점 파일: 영업 중 호프 → 신규 가게(주점, 음주 가능)
+    _load(conn, tmp_path, [row("G1", "일반음식점", "다동호프", "호프/통닭", "20150101", road=road, xy=xy)], "g.csv")
+    assert _q(conn, "SELECT status, license_type, alcohol FROM restaurants WHERE id='LG1'") == ("open", "일반음식점", 1)
+    # 2) 휴게음식점 파일: 같은 상호·주소의 (a) 더 늦게 연 휴게 폐업, (b) 영업 중 휴게, (c) 폐업한 커피숍(제외 업태)
+    for rows in (
+        [row("R1", "휴게음식점", "다동호프", "기타 휴게음식점", "20200101", status="폐업", closed="20230101",
+             road=road, xy=xy)],
+        [row("R2", "휴게음식점", "다동호프", "기타 휴게음식점", "20210101", road=road, xy=xy)],
+        [row("R3", "휴게음식점", "다동호프", "커피숍", "20220101", status="폐업", closed="20240101", road=road, xy=xy)],
+    ):
+        res = _load(conn, tmp_path, rows, "r.csv")
+        assert res["closed_applied"] == 0
+        assert _q(conn, "SELECT status, license_id, license_type, alcohol FROM restaurants WHERE id='LG1'") == (
+            "open", "G1", "일반음식점", 1)
+    # 3) 붙은 일반 인허가 자체가 폐업하면 닫힘
+    res = _load(conn, tmp_path, [row("G1", "일반음식점", "다동호프", "호프/통닭", "20150101", status="폐업",
+                                     closed="20250101", road=road, xy=xy)], "g2.csv")
+    assert res["closed_applied"] == 1 and _q(conn, "SELECT status FROM restaurants WHERE id='LG1'") == ("closed",)
+
+
+def test_general_reload_repairs_store_wrongly_switched_to_rest(tmp_path, no_rebuild):
+    """이전 버전으로 휴게 파일을 적재해 휴게로 덮이고 닫힌 가게 → 일반 파일 재적재로 복구(주점은 음주 가능 복원)."""
+    conn = make_db(tmp_path)
+    road, xy = "서울특별시 중구 다동길 9", tm(37.5681, 126.9801)
+    _load(conn, tmp_path, [row("G2", "일반음식점", "다동포차", "정종/대포집/소주방", "20150101", road=road, xy=xy)])
+    conn.execute("UPDATE restaurants SET license_id='R9', license_type='휴게음식점', status='closed',"
+                 " closed_at='2023-01-01', alcohol=0, alcohol_src='license' WHERE id='LG2'")
+    res = _load(conn, tmp_path, [row("G2", "일반음식점", "다동포차", "정종/대포집/소주방", "20150101",
+                                     road=road, xy=xy)], "g.csv")
+    assert res["reopened"] == 1
+    assert _q(conn, "SELECT status, license_id, license_type, alcohol, alcohol_src FROM restaurants WHERE id='LG2'") == (
+        "open", "G2", "일반음식점", 1, None)

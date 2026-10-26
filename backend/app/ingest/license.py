@@ -4,7 +4,8 @@
 파일은 backend/data/raw/license/*.csv 에 둔다(용량이 커서 git 제외).
 - 인코딩 UTF-8/CP949 자동, 날짜 YYYYMMDD / YYYY-MM-DD 모두 처리.
 - 좌표는 중부원점 TM(EPSG:5174 추정, 2097 가능성) → pyproj 로 WGS84 변환. 없음/0 이면 None(주소 매칭만).
-- 컬럼명이 배포 시점마다 바뀔 수 있음 → 적재 전 헤더 확인, 다르면 COL 만 수정.
+- 컬럼명이 배포 시점마다 바뀜 → ALIASES·COORD_PREFIX 로 흡수. 적재 전 `--check` 로 헤더 확인, 못 찾으면 ALIASES 에 추가.
+- 개방서비스명(일반/휴게) 컬럼이 없는 업종별 파일은 --license-type 또는 파일명(일반/휴게)으로 지정.
 - 개인정보: COL 에 있는 컬럼만 읽는다. 대표자명 등 PII 컬럼이 들어오면 읽지 않고 폐기(pii_dropped 에 헤더명만 기록).
 """
 from __future__ import annotations
@@ -38,6 +39,58 @@ COL = {
     "y": "좌표정보(y)",
     "data_updated": "데이터갱신일자",
 }
+# 배포처·시점마다 다른 헤더 별칭(공백·괄호·밑줄 제거, 소문자 비교). 첫 일치 사용
+ALIASES = {
+    "license_type": ("서비스명", "업종명", "개방서비스"),
+    "opened_at": ("인허가일", "허가일자"),
+    "status": ("영업상태",),
+    "status_detail": ("상세영업상태",),
+    "closed_at": ("폐업일",),
+    "phone": ("전화번호", "소재지전화번호", "소재지전화"),
+    "area": ("면적", "시설총규모"),
+    "address_jibun": ("지번주소", "소재지주소", "소재지지번주소", "지번"),
+    "address_road": ("도로명주소", "소재지도로명주소", "도로명"),
+    "name": ("업소명", "상호", "상호명"),
+    "biz_type": ("업태", "업태명", "위생업태명"),
+    "data_updated": ("데이터갱신시점", "최종수정시점", "최종수정일자", "데이터기준일자"),
+}
+# 좌표 컬럼은 접두 일치(예: '좌표정보X(EPSG5174)', '좌표정보(X)')
+COORD_PREFIX = {"x": ("좌표정보x", "x좌표", "좌표x"), "y": ("좌표정보y", "y좌표", "좌표y")}
+# 없으면 적재 불가인 필드(나머지는 비면 None). 좌표·주소는 둘 중 하나만 있어도 매칭 가능
+REQUIRED = ("license_id", "opened_at", "status", "name", "biz_type")
+
+
+def _norm_header(h: str) -> str:
+    return "".join(ch for ch in h.lower() if ch not in " \t()[]_-·")
+
+
+def resolve_columns(header: list[str]) -> dict[str, str]:
+    """필드 → 실제 헤더명. COL 기본명 우선, 그다음 별칭, 좌표는 접두 일치."""
+    norm = {_norm_header(h): h for h in header}
+    out: dict[str, str] = {}
+    for k, primary in COL.items():
+        if primary in header:
+            out[k] = primary
+            continue
+        if k in COORD_PREFIX:
+            hit = next((h for n, h in norm.items() if n.startswith(COORD_PREFIX[k])), None)
+        else:
+            hit = next((norm[_norm_header(a)] for a in (primary, *ALIASES.get(k, ())) if _norm_header(a) in norm), None)
+        if hit:
+            out[k] = hit
+    return out
+
+
+def infer_license_type(path: Path | str) -> str | None:
+    """개방서비스명 컬럼이 없을 때 파일명으로 추정(휴게/rest → 휴게, 일반/general → 일반). 모르면 None."""
+    n = Path(path).name.lower()
+    if "휴게" in n or "rest_" in n or n.startswith("rest") or "snack" in n:
+        return "휴게음식점"
+    if "일반" in n or "general" in n:
+        return "일반음식점"
+    return None
+
+
 LICENSE_TYPES = ("일반음식점", "휴게음식점")
 REST_TYPE = "휴게음식점"  # 주류 판매 불가(식품위생법 시행령) → alcohol=0
 
@@ -126,11 +179,16 @@ class LicenseCSVAdapter(SourceAdapter):
     kind = "restaurants"
     name = "license_csv"
 
-    def __init__(self, path: Path | str, crs: str = DEFAULT_CRS):
+    def __init__(self, path: Path | str, crs: str = DEFAULT_CRS, license_type: str | None = None):
         self.path = Path(path)
         self.crs = crs
+        # 개방서비스명 컬럼이 없을 때 쓸 값(인자 > 파일명 추정)
+        self.default_license_type = license_type or infer_license_type(path)
+        self.header: list[str] = []
+        self.colmap: dict[str, str] = {}
         self.pii_dropped: list[str] = []
-        self.missing_columns: list[str] = []
+        self.missing_columns: list[str] = []  # 필수 필드 중 못 찾은 것(COL 기본명으로 표기)
+        self.missing_optional: list[str] = []
 
     def available(self) -> bool:
         return self.path.exists()
@@ -145,10 +203,15 @@ class LicenseCSVAdapter(SourceAdapter):
             reader = csv.DictReader(f)
             header = [(h or "").strip().lstrip("﻿") for h in (reader.fieldnames or [])]
             reader.fieldnames = header
+            self.header = header
             self.pii_dropped = [h for h in header if h in PII_COLUMNS]
-            self.missing_columns = [c for c in COL.values() if c not in header]
+            cm = self.colmap = resolve_columns(header)
+            self.missing_columns = [COL[k] for k in REQUIRED if k not in cm]
+            self.missing_optional = [COL[k] for k in COL if k not in cm and k not in REQUIRED]
+            if self.missing_columns:
+                return
             for r in reader:
-                g = lambda k: (r.get(COL[k]) or "").strip()  # noqa: E731 — COL 외 컬럼(PII 포함)은 읽지 않음
+                g = lambda k: (r.get(cm[k]) or "").strip() if k in cm else ""  # noqa: E731 — 매핑 외 컬럼(PII 포함)은 읽지 않음
                 lid = g("license_id")
                 if not lid or not g("name"):
                     continue
@@ -158,7 +221,7 @@ class LicenseCSVAdapter(SourceAdapter):
                 yield (
                     {
                         "license_id": lid,
-                        "license_type": g("license_type") or None,
+                        "license_type": g("license_type") or self.default_license_type,
                         "opened_at": parse_date(g("opened_at")),
                         "status": parse_status(g("status"), g("status_detail")),
                         "status_raw": g("status") or g("status_detail") or None,

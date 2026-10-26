@@ -48,11 +48,19 @@ CALIBRATE_SAMPLE = 200
 CALIBRATE_MIN_N = 30  # 이보다 적으면 calibrate 결과 경고
 
 
-def iter_records(paths, crs: str = DEFAULT_CRS, pii: list[str] | None = None) -> Iterator[dict]:
-    """파일들을 행 단위로 스트리밍. pii 목록이 주어지면 파일별 폐기 PII 헤더를 채움."""
+def iter_records(paths, crs: str = DEFAULT_CRS, pii: list[str] | None = None,
+                 license_type: str | None = None) -> Iterator[dict]:
+    """파일들을 행 단위로 스트리밍. pii 목록이 주어지면 파일별 폐기 PII 헤더를 채움.
+    필수 컬럼이 없는 파일은 ValueError(잘못된 파일을 조용히 0건 적재하지 않음)."""
     for p in paths:
-        ad = LicenseCSVAdapter(p, crs)
-        yield from ad.iter_records()
+        ad = LicenseCSVAdapter(p, crs, license_type)
+        gen = ad.iter_records()
+        first = next(gen, None)
+        if ad.missing_columns:
+            raise ValueError(f"{p}: 필수 컬럼 없음 {ad.missing_columns} — --check 로 헤더 확인")
+        if first is not None:
+            yield first
+        yield from gen
         if pii is not None:
             pii.extend(f"{Path(p).name}:{h}" for h in ad.pii_dropped)
 
@@ -107,10 +115,39 @@ def _priority(r: dict) -> tuple:
             r["license_id"])
 
 
+# 공식 시군구코드를 모를 때(상가정보 미적재) 쓰는 이름 기반 지역 키. 예: 'N:서울 중구', 'N:경기 성남시분당구', 'N:세종'
+# → 엄격 별점·상위 N% 가 전국 한 지역으로 뭉치지 않게. 상가정보 적재 후 reconcile_region_keys 가 공식 코드로 치환.
+NAME_KEY_PREFIX = "N:"
+
+
+def region_name_key(short_sido: str | None, gu: str | None) -> str | None:
+    s = (short_sido or "").strip()
+    g = re.sub(r"\s+", "", gu or "")
+    if not s:
+        return None  # 시도 없는 주소는 동명 시군구(중구 등) 구분 불가
+    return f"{NAME_KEY_PREFIX}{s} {g}" if g else f"{NAME_KEY_PREFIX}{s}"
+
+
+def reconcile_region_keys(conn: sqlite3.Connection) -> set[str]:
+    """이름 기반 지역 키를 같은 (시도, 시군구)의 공식 코드로 치환. 반환: 바뀐 공식 코드(점수 재계산 대상)."""
+    official = _region_map(conn)
+    changed: set[str] = set()
+    for (key,) in conn.execute(
+        f"SELECT DISTINCT sigungu_code FROM restaurants WHERE sigungu_code LIKE '{NAME_KEY_PREFIX}%'"
+    ).fetchall():
+        short, _, gu = key[len(NAME_KEY_PREFIX):].partition(" ")
+        code = official.get((short, gu))
+        if code:
+            conn.execute("UPDATE restaurants SET sigungu_code=? WHERE sigungu_code=?", (code, key))
+            changed.add(code)
+    return changed
+
+
 def _region_map(conn: sqlite3.Connection) -> dict[tuple[str, str], str]:
     out: dict[tuple[str, str], str] = {}
     for sido, gu, code in conn.execute(
-        "SELECT DISTINCT sido, sigungu, sigungu_code FROM restaurants WHERE sigungu_code IS NOT NULL"
+        "SELECT DISTINCT sido, sigungu, sigungu_code FROM restaurants"
+        f" WHERE sigungu_code IS NOT NULL AND sigungu_code NOT LIKE '{NAME_KEY_PREFIX}%'"
     ):
         s = _sido((sido or "").strip()) or ""
         g = re.sub(r"\s+", "", gu or "")
@@ -138,7 +175,7 @@ def parse_region(addr: str | None) -> tuple[str | None, str | None, str | None]:
 def _sigungu_code(regions: dict, addr: str | None) -> tuple[str | None, str | None, str | None]:
     sido, gu, short = parse_region(addr)
     if not gu:
-        return sido, None, None
+        return sido, None, region_name_key(short, None)  # 세종처럼 시군구 없는 시도
     parts = gu.split()
     for key in ("".join(parts), parts[-1]):
         if short:
@@ -151,7 +188,30 @@ def _sigungu_code(regions: dict, addr: str | None) -> tuple[str | None, str | No
             code = next(iter(codes), None)
         if code:
             return sido, gu, code
-    return sido, gu, None
+    return sido, gu, region_name_key(short, gu)
+
+
+def fix_regions(conn: sqlite3.Connection) -> dict:
+    """지역 없음·이름 키 가게의 시도/시군구/지역 키를 주소에서 다시 계산(재적재 없이). 점수는 바뀐 지역만 재계산."""
+    region_codes = _region_map(conn)
+    rows = conn.execute(
+        f"SELECT id, address, address_jibun, sigungu_code FROM restaurants"
+        f" WHERE sigungu_code IS NULL OR sigungu_code LIKE '{NAME_KEY_PREFIX}%'"
+    ).fetchall()
+    regions: set = set()
+    fixed = 0
+    for rid, road, jibun, old in rows:
+        sido, gu, code = _sigungu_code(region_codes, road or jibun)
+        if code != old:
+            conn.execute("UPDATE restaurants SET sido=?, sigungu=?, sigungu_code=? WHERE id=?", (sido, gu, code, rid))
+            regions.update((old, code))
+            fixed += 1
+    regions |= reconcile_region_keys(conn)
+    for reg in regions:
+        rebuild_scores(conn, reg)
+    conn.commit()
+    left = conn.execute("SELECT COUNT(*) FROM restaurants WHERE sigungu_code IS NULL").fetchone()[0]
+    return {"checked": len(rows), "fixed": fixed, "regions": len(regions), "still_none": left}
 
 
 def _write_unmatched(out_dir: Path, rows: list[tuple[dict, str]]) -> Path:
@@ -185,22 +245,24 @@ def _keep_best(d: dict, key, r: dict) -> None:
 
 
 def load_license(conn: sqlite3.Connection, csv_paths, crs: str = DEFAULT_CRS, out_dir: Path | str = OUT_DIR,
-                 dry_run: bool = False) -> dict:
+                 dry_run: bool = False, license_type: str | None = None) -> dict:
     if isinstance(csv_paths, (str, Path)):
         csv_paths = [csv_paths]
     pii: list[str] = []
     index = RestaurantIndex(conn)
     by_license = {r[0]: r[1] for r in conn.execute(
         "SELECT license_id, id FROM restaurants WHERE license_id IS NOT NULL")}
-    info = {r[0]: {"status": r[1], "sigungu_code": r[2], "license_id": r[3], "opened_at": r[4]}
-            for r in conn.execute("SELECT id, status, sigungu_code, license_id, opened_at FROM restaurants")}
+    info = {r[0]: {"status": r[1], "sigungu_code": r[2], "license_id": r[3], "opened_at": r[4], "license_type": r[5]}
+            for r in conn.execute(
+                "SELECT id, status, sigungu_code, license_id, opened_at, license_type FROM restaurants")}
 
     stats = {"total": 0, "excluded": 0, "matched": 0, "updated": 0, "new": 0, "closed_applied": 0,
-             "reopened": 0, "ignored_closed": 0, "stale_ignored": 0, "duplicate": 0, "unmatched": 0}
+             "reopened": 0, "ignored_closed": 0, "stale_ignored": 0, "duplicate": 0, "unmatched": 0,
+             "rest_not_created": 0, "general_kept": 0}
     groups: dict[str, list] = {}       # 가게 id → [best 행, 행 수]
     new_groups: dict[tuple, list] = {}  # (상호, 도로명키|좌표) → [best 행, 행 수]
     unmatched: list[tuple[dict, str]] = []
-    for r in iter_records(csv_paths, crs, pii):
+    for r in iter_records(csv_paths, crs, pii, license_type):
         stats["total"] += 1
         excluded = is_excluded(r["biz_type"])
         if excluded:
@@ -216,6 +278,10 @@ def load_license(conn: sqlite3.Connection, csv_paths, crs: str = DEFAULT_CRS, ou
             stats["matched"] += 1
             continue
         if excluded:
+            continue
+        if r["license_type"] == REST_TYPE and r["status"] == "open":
+            # 휴게음식점은 추천 대상 신규 가게로 만들지 않음(01 결정, 2026-10). 매칭된 기존 가게의 음주 불가·폐업 판별에만 사용
+            stats["rest_not_created"] += 1
             continue
         if r["status"] != "open":
             stats["ignored_closed"] += 1
@@ -260,10 +326,15 @@ def _apply(conn: sqlite3.Connection, groups: dict, new_groups: dict, info: dict,
     for rid, (best, _n) in groups.items():
         cur = info[rid]
         closed = best["status"] == "closed"
-        if (closed and cur["status"] == "open" and cur["license_id"] and best["license_id"] != cur["license_id"]
-                and cur["opened_at"] and not (best["opened_at"] and best["opened_at"] >= cur["opened_at"])):
-            # 이미 영업 중 인허가가 붙은 가게에, 그보다 오래된 다른 관리번호의 폐업 행(이전 실행·다른 파일) → 무시
+        other_open = cur["status"] == "open" and cur["license_id"] and best["license_id"] != cur["license_id"]
+        if other_open and (closed or best.get("_excluded")):
+            # 영업 중 인허가가 붙은 가게를 다른 관리번호의 폐업 행·제외 업태 행(같은 상호·주소의 다른 업소)으로 닫지 않음.
+            # 붙은 인허가가 실제로 폐업했다면 그 관리번호의 행이 직접 반영함(다른 파일·이전 실행이어도)
             stats["stale_ignored"] += 1
+            continue
+        if other_open and best["license_type"] == REST_TYPE and cur["license_type"] != REST_TYPE:
+            # 일반음식점으로 영업 중인 가게를 같은 자리의 휴게 인허가로 덮지 않음(주류 가능 → 불가 오표시 방지)
+            stats["general_kept"] += 1
             continue
         if closed and cur["status"] == "open":
             stats["closed_applied"] += 1
@@ -289,7 +360,8 @@ def _apply(conn: sqlite3.Connection, groups: dict, new_groups: dict, info: dict,
                 " closed_at=CASE WHEN ?='closed' THEN COALESCE(closed_at, ?) END, area_m2=COALESCE(?, area_m2),"
                 " phone=CASE WHEN phone IS NULL OR TRIM(phone)='' THEN ? ELSE phone END,"
                 " alcohol=CASE WHEN ?=1 THEN 0"
-                "  WHEN ?=1 AND alcohol_src='license' AND alcohol=0 THEN NULL ELSE alcohol END,"
+                "  WHEN ?=1 AND alcohol_src='license' AND alcohol=0 THEN CASE WHEN genre='주점' THEN 1 END"
+                "  ELSE alcohol END,"
                 " alcohol_src=CASE WHEN ?=1 THEN 'license' WHEN ?=1 AND alcohol_src='license' THEN NULL"
                 "  ELSE alcohol_src END,"
                 " updated_at=? WHERE id=?",
@@ -330,19 +402,111 @@ def _apply(conn: sqlite3.Connection, groups: dict, new_groups: dict, info: dict,
     return regions
 
 
+def check_files(paths, crs: str = DEFAULT_CRS, license_type: str | None = None) -> list[dict]:
+    """적재 전 파일 점검(DB 불필요): 인코딩, 헤더 누락, 개인정보 컬럼, 행 수, 인허가 종류·영업상태·업태 분포, 좌표 변환."""
+    from collections import Counter
+
+    from .license import LicenseCSVAdapter, is_excluded
+    from .sbiz import _open
+
+    out = []
+    for path in paths:
+        path = Path(path)
+        info: dict = {"path": str(path), "exists": path.exists()}
+        if not path.exists():
+            out.append(info)
+            continue
+        with _open(path) as f:
+            info["encoding"] = f.encoding
+            sample = f.read(200_000)
+        info["broken_chars"] = sample.count("\ufffd")  # 인코딩 깨짐 의심
+        ad = LicenseCSVAdapter(path, crs, license_type)
+        types, status, biz = Counter(), Counter(), Counter()
+        n = conv = excluded = 0
+        lat_rng, lng_rng = [90.0, -90.0], [180.0, -180.0]
+        for r in ad.iter_records():
+            n += 1
+            types[r["license_type"] or "(없음)"] += 1
+            status[r["status"]] += 1
+            biz[r["biz_type"] or "(없음)"] += 1
+            excluded += is_excluded(r["biz_type"])
+            if r["lat"] is not None:
+                conv += 1
+                lat_rng = [min(lat_rng[0], r["lat"]), max(lat_rng[1], r["lat"])]
+                lng_rng = [min(lng_rng[0], r["lng"]), max(lng_rng[1], r["lng"])]
+        info.update(
+            header=ad.header, colmap=ad.colmap, missing_optional=ad.missing_optional,
+            missing_columns=ad.missing_columns, pii_columns=ad.pii_dropped, rows=n, license_types=dict(types),
+            status=dict(status), top_biz=biz.most_common(12), excluded=excluded, coords_ok=conv,
+            lat_range=lat_rng if conv else None, lng_range=lng_rng if conv else None,
+        )
+        out.append(info)
+    return out
+
+
+def _print_check(results: list[dict]) -> None:
+    for i in results:
+        print(f"=== {i['path']}")
+        if not i["exists"]:
+            print("[err]  파일 없음")
+            continue
+        print(f"[info] 인코딩 {i['encoding']}, 행 {i['rows']:,}건")
+        if i["broken_chars"]:
+            print(f"[warn] 깨진 문자 {i['broken_chars']}개(앞부분 기준) — 인코딩 확인 필요")
+        print(f"[info] 헤더: {', '.join(i['header'])}")
+        print(f"[info] 매핑: {', '.join(f'{k}←{v}' for k, v in i['colmap'].items())}")
+        if i["missing_columns"]:
+            print(f"[err]  필수 컬럼 없음: {', '.join(i['missing_columns'])} → app/ingest/license.py 의 ALIASES 추가 필요")
+        else:
+            print("[ok]   필수 컬럼 모두 있음")
+        if i["missing_optional"]:
+            print(f"[warn] 선택 컬럼 없음(비워서 적재): {', '.join(i['missing_optional'])}")
+        if "x" not in i["colmap"] or "y" not in i["colmap"]:
+            print("[warn] 좌표 컬럼 없음 → 주소로만 매칭, 상가정보에 없는 신규 가게는 만들지 못함")
+        if "(없음)" in i["license_types"]:
+            print("[warn] 일반/휴게 구분 불가 → --license-type 일반음식점|휴게음식점 지정 필요(휴게 = 주류 불가 판별)")
+        for h in i["pii_columns"]:
+            print(f"[info] 개인정보 컬럼(적재 시 폐기): {h}")
+        print(f"[info] 인허가 종류: {i['license_types']}")
+        print(f"[info] 영업상태: {i['status']}")
+        print(f"[info] 업태 상위: {', '.join(f'{k} {v:,}' for k, v in i['top_biz'])}")
+        print(f"[info] 제외 업태(카페·제과 등): {i['excluded']:,}건")
+        pct = (100 * i["coords_ok"] / i["rows"]) if i["rows"] else 0
+        print(f"[info] 좌표 변환 성공 {i['coords_ok']:,}건 ({pct:.1f}%)")
+        if i["lat_range"]:
+            print(f"[info] 위도 {i['lat_range'][0]:.4f}~{i['lat_range'][1]:.4f}, 경도 {i['lng_range'][0]:.4f}~{i['lng_range'][1]:.4f}"
+                  " (서울 ≈ 위도 37.4~37.7, 경도 126.8~127.2)")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="인허가(일반·휴게음식점) CSV 적재(가게 매칭)")
-    ap.add_argument("csv", nargs="+")
+    ap.add_argument("csv", nargs="*")
+    ap.add_argument("--fix-regions", action="store_true", help="지역 없음 가게의 지역 키를 주소로 다시 계산(재적재 없음)")
     ap.add_argument("--crs", default=DEFAULT_CRS, help=f"원본 좌표계 (기본 {DEFAULT_CRS}, 후보 {', '.join(CANDIDATE_CRS)})")
     ap.add_argument("--calibrate", action="store_true", help="후보 CRS 별 매칭 표본 거리 중앙값만 보고(적재 안 함)")
     ap.add_argument("--dry-run", action="store_true", help="DB 변경 없이 통계만")
+    ap.add_argument("--check", action="store_true", help="파일 점검만(헤더·인코딩·분포·좌표, DB 불필요)")
+    ap.add_argument("--license-type", choices=["일반음식점", "휴게음식점"], default=None,
+                    help="개방서비스명 컬럼이 없는 파일의 인허가 종류(파일 하나씩 실행)")
     ap.add_argument("--db", default=None, help="SQLite 경로 (기본: JJINMAT_DB 또는 data/jjinmat.db)")
     ap.add_argument("--out-dir", default=str(OUT_DIR))
     args = ap.parse_args()
+    if args.fix_regions:
+        conn = connect(args.db or db_path())
+        init_schema(conn)
+        r = fix_regions(conn)
+        print(f"[ok]   점검 {r['checked']:,}곳, 지역 수정 {r['fixed']:,}곳, 재계산 지역 {r['regions']}곳, 남은 지역 없음 {r['still_none']:,}곳")
+        conn.close()
+        return
+    if not args.csv:
+        ap.error("CSV 경로가 필요합니다 (--fix-regions 제외)")
+    if args.check:
+        _print_check(check_files(args.csv, args.crs, args.license_type))
+        return
     conn = connect(args.db or db_path())
     init_schema(conn)
     if args.calibrate:
-        res = calibrate(conn, iter_records(args.csv, args.crs))
+        res = calibrate(conn, iter_records(args.csv, args.crs, license_type=args.license_type))
         print(f"[info] 표본 {res['n']}건 (상호+도로명주소 단일 매칭, 모든 후보 CRS 변환 성공)")
         if res["warning"]:
             print(f"[warn] {res['warning']}")
@@ -354,11 +518,12 @@ def main() -> None:
             print("[warn] 표본 없음 — 상가정보 적재 후 다시 실행")
         conn.close()
         return
-    res = load_license(conn, args.csv, args.crs, args.out_dir, args.dry_run)
+    res = load_license(conn, args.csv, args.crs, args.out_dir, args.dry_run, args.license_type)
     tag = "[dry]" if res["dry_run"] else "[ok] "
     print(f"{tag} 전체 {res['total']}건: 매칭 {res['matched']}건(가게 {res['updated']}곳 갱신), 신규 {res['new']}곳,"
           f" 폐업 반영 {res['closed_applied']}곳, 재개업 {res['reopened']}곳, 업태 제외 {res['excluded']}건,"
-          f" 미매칭 폐업 무시 {res['ignored_closed']}건, 오래된 폐업 무시 {res['stale_ignored']}건, 중복 {res['duplicate']}건, 미매칭 {res['unmatched']}건")
+          f" 미매칭 폐업 무시 {res['ignored_closed']}건, 휴게 미생성 {res['rest_not_created']}건,"
+          f" 다른 인허가 폐업 무시 {res['stale_ignored']}건, 일반 유지(휴게 무시) {res['general_kept']}건, 중복 {res['duplicate']}건, 미매칭 {res['unmatched']}건")
     if not res["dry_run"]:
         print(f"[ok]   재계산 시군구 {len(res['regions'])}곳")
     for h in res["pii_dropped"]:

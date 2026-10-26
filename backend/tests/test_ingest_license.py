@@ -165,7 +165,8 @@ def test_load_license(tmp_path, monkeypatch):
     res = ll.load_license(conn, [p], out_dir=out)
     q = lambda sql, *a: tuple(conn.execute(sql, a).fetchone())  # noqa: E731
 
-    assert res["excluded"] == 1 and res["new"] == 2 and res["unmatched"] == 2 and res["ignored_closed"] == 1
+    assert res["excluded"] == 1 and res["new"] == 1 and res["unmatched"] == 2 and res["ignored_closed"] == 1
+    assert res["rest_not_created"] == 1  # 미매칭 영업 중 휴게음식점(A12 신규분식)은 신규 가게로 만들지 않음
     assert res["matched"] == 6 and res["updated"] == 5 and res["closed_applied"] == 1
     # 매칭 갱신: 업력·인허가·면적, 전화는 비어 있을 때만
     r = q("SELECT license_id, opened_at, license_type, area_m2, phone, status FROM restaurants WHERE id='S1'")
@@ -179,8 +180,7 @@ def test_load_license(tmp_path, monkeypatch):
     # 신규: 영업 중 + 좌표 있음만, 시군구코드는 기존 (시도, 시군구) 매핑
     new = conn.execute("SELECT id, genre, sigungu_code, alcohol, sigungu, opened_at FROM restaurants"
                        " WHERE id LIKE 'L%' ORDER BY id").fetchall()
-    assert [tuple(x) for x in new] == [("LA12", "분식", "11140", 0, "중구", "2020-01-01"),
-                                       ("LA8", "한식", "11140", None, "중구", "2019-01-01")]
+    assert [tuple(x) for x in new] == [("LA8", "한식", "11140", None, "중구", "2019-01-01")]
     assert q("SELECT COUNT(*) FROM restaurants WHERE name IN ('망한집','별다방','좌표없는집')")[0] == 0
     # 재계산: 영향받은 시군구
     assert set(calls) == {"11140"}
@@ -194,23 +194,23 @@ def test_load_license(tmp_path, monkeypatch):
     # 멱등 재적재: 행 수·값 동일, 신규 생성 없음
     snap = conn.execute("SELECT * FROM restaurants ORDER BY id").fetchall()
     res2 = ll.load_license(conn, [p], out_dir=out)
-    assert res2["new"] == 0 and res2["closed_applied"] == 0 and res2["matched"] == 8
+    assert res2["new"] == 0 and res2["closed_applied"] == 0 and res2["matched"] == 7 and res2["rest_not_created"] == 1
     snap2 = conn.execute("SELECT * FROM restaurants ORDER BY id").fetchall()
     strip = lambda rs: [tuple(v for k, v in zip(r.keys(), r) if k != "updated_at") for r in rs]  # noqa: E731
     assert strip(snap) == strip(snap2)
-    assert q("SELECT COUNT(*) FROM restaurants")[0] == len(RESTAURANTS) + 2
+    assert q("SELECT COUNT(*) FROM restaurants")[0] == len(RESTAURANTS) + 1
 
 
 def test_dry_run_and_real_rebuild(tmp_path):
     conn = make_db(tmp_path)
     p = write_csv(tmp_path / "l.csv", fixture_rows())
     res = ll.load_license(conn, [p], out_dir=tmp_path / "out", dry_run=True)
-    assert res["new"] == 2
+    assert res["new"] == 1
     assert conn.execute("SELECT COUNT(*) FROM restaurants").fetchone()[0] == len(RESTAURANTS)
     assert conn.execute("SELECT license_id FROM restaurants WHERE id='S1'").fetchone()[0] is None
     ll.load_license(conn, [p], out_dir=tmp_path / "out")
     ids = {r[0] for r in conn.execute("SELECT restaurant_id FROM scores")}
-    assert "S5" not in ids and {"S1", "LA8", "LA12"} <= ids  # 폐업 제외, 신규 포함
+    assert "S5" not in ids and {"S1", "LA8"} <= ids and "LA12" not in ids  # 폐업 제외, 신규 포함
 
 
 def test_tenure_uses_opened_at():
@@ -228,3 +228,62 @@ def test_cli_calibrate(tmp_path, monkeypatch, capsys):
     out = capsys.readouterr().out
     assert "권장 --crs EPSG:2097" in out
     assert sqlite3.connect(db).execute("SELECT COUNT(*) FROM restaurants WHERE license_id IS NOT NULL").fetchone()[0] == 0
+
+
+def test_check_files_reports_header_pii_and_coords(tmp_path, capsys):
+    p = write_csv(tmp_path / "ok.csv", fixture_rows())
+    (res,) = ll.check_files([p])
+    assert res["encoding"] == "cp949" and res["missing_columns"] == [] and res["pii_columns"] == ["대표자명"]
+    assert res["rows"] == len(fixture_rows()) and res["coords_ok"] < res["rows"]  # A9 는 좌표 없음
+    assert 37.4 < res["lat_range"][0] <= res["lat_range"][1] < 37.7
+    bad = tmp_path / "bad.csv"
+    bad.write_text("관리번호,사업장명\nX1,가게\n", encoding="utf-8")
+    missing = tmp_path / "none.csv"
+    r_bad, r_none = ll.check_files([bad, missing])
+    assert r_bad["missing_columns"] == ["인허가일자", "영업상태명", "업태구분명"] and r_none["exists"] is False
+    ll._print_check([res, r_bad, r_none])
+    out = capsys.readouterr().out
+    assert "필수 컬럼 모두 있음" in out and "필수 컬럼 없음" in out and "파일 없음" in out
+    assert "홍길동" not in out
+
+
+NEW_HEADER = ["개방자치단체코드", "관리번호", "인허가일자", "영업상태명", "상세영업상태명", "폐업일자", "전화번호",
+              "소재지면적", "지번주소", "도로명주소", "사업장명", "최종수정시점", "업태구분명",
+              "좌표정보X(EPSG5174)", "좌표정보Y(EPSG5174)", "대표자명"]
+
+
+def test_alias_header_and_license_type_override(tmp_path):
+    x, y = tm(37.5665, 126.9780)
+    p = tmp_path / "food_restaurant.csv"
+    with open(p, "w", encoding="cp949", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(NEW_HEADER)
+        w.writerow(["3000000", "N1", "20100105", "영업/정상", "영업", "", "02-000-0000", "33.3",
+                    "서울특별시 중구 태평로1가 31", "서울특별시 중구 세종대로 110", "가상식당", "2024-01-02 10:00:00",
+                    "한식", f"{x:.3f}", f"{y:.3f}", "홍길동"])
+    ad = LicenseCSVAdapter(p)
+    (r,) = list(ad.iter_records())
+    assert ad.missing_columns == [] and "개방서비스명" in ad.missing_optional
+    assert r["license_type"] is None  # 파일명으로 추정 불가
+    assert r["address_road"] == "서울특별시 중구 세종대로 110" and r["phone"] == "02-000-0000"
+    assert haversine_m(r["lat"], r["lng"], 37.5665, 126.9780) < 1.0
+    assert "홍길동" not in str(r)
+    (r2,) = list(LicenseCSVAdapter(p, license_type="일반음식점").iter_records())
+    assert r2["license_type"] == "일반음식점"
+    (chk,) = ll.check_files([p], license_type="휴게음식점")
+    assert chk["license_types"] == {"휴게음식점": 1} and chk["coords_ok"] == 1
+    assert chk["colmap"]["x"] == "좌표정보X(EPSG5174)"
+
+
+def test_missing_required_columns_raise(tmp_path):
+    p = tmp_path / "bad.csv"
+    p.write_text("관리번호,사업장명\nX1,가게\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="필수 컬럼"):
+        list(ll.iter_records([p]))
+
+
+def test_infer_license_type_from_filename():
+    from app.ingest.license import infer_license_type
+    assert infer_license_type("휴게음식점_2026.csv") == "휴게음식점"
+    assert infer_license_type("행정안전부_일반음식점.csv") == "일반음식점"
+    assert infer_license_type("food_restaurant.csv") is None
