@@ -10,3 +10,4 @@ logs/*
 !logs/.gitkeep
 .env
 .venv/
+*.egg-info/
