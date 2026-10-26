@@ -25,7 +25,7 @@ M_LAT = 111_195.0  # haversine(R=6371km) 기준 위도 1도 거리(m)
 def test_guide_table_exact_and_max_and_neutral():
     assert prior.GUIDE_SCORES == {
         "michelin_star": 1.0, "michelin_bib": 0.85, "taste_of_seoul": 0.85,
-        "michelin_selected": 0.7, "seoul_future_heritage": 0.7, "local_food": 0.7,
+        "michelin_selected": 0.7, "seoul_future_heritage": 0.7, "local_food": 0.7, "gyeonggi_best": 0.7,
     }
     assert prior.reputation_score(["local_food", "taste_of_seoul", "michelin_star"], None) == 1.0
     assert prior.reputation_score(["local_food", "seoul_future_heritage"], None) == 0.7

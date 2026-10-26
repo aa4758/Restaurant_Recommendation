@@ -285,3 +285,51 @@ def test_license_check_extra_columns(tmp_path, capsys):
     assert info["traditional_no_rows"] == 2 and info["traditional_food_top"] == [("비빔밥", 2)]
     ll._print_check([info])
     assert "추가 열 분포" in capsys.readouterr().out
+
+
+def test_city_match_for_list_without_address(conn, tmp_path):
+    """주소·좌표 없는 목록(경기 모범음식점): 같은 시도·시군 영업 중 후보 정확히 1곳일 때만 매칭."""
+    conn.executemany(
+        "INSERT INTO restaurants(id,name,address,lat,lng,sido,sigungu,sigungu_code,genre,status)"
+        " VALUES(?,?,?,?,?,'경기도',?,?,'한식',?)", [
+            ("G1", "늘봄", "경기도 가평군 가평읍 문화로 1", 37.83, 127.51, "가평군", "41820", "open"),
+            ("G2", "두집", "경기도 고양시 덕양구 원당로 1", 37.65, 126.83, "고양시", "41281", "open"),
+            ("G3", "두집", "경기도 고양시 일산동구 중앙로 1", 37.66, 126.77, "고양시", "41285", "open"),
+            ("G4", "닫힌집", "경기도 가평군 가평읍 문화로 2", 37.83, 127.51, "가평군", "41820", "closed"),
+        ])
+    conn.commit()
+    p = write(tmp_path / "g.csv", ["집계년도", "시군명", "업소명", "전화번호", "소재지도로명주소"], [
+        ["2026", "가평군", "늘   봄", "031-000-0000", ""],   # 유일 → 매칭
+        ["2026", "고양시", "두집", "", ""],                 # 같은 시군 2곳 → 미매칭
+        ["2026", "가평군", "닫힌집", "", ""],               # 영업 중 아님 → 미매칭
+        ["2026", "고양시", "늘봄", "", ""],                 # 다른 시군 → 미매칭
+    ])
+    res = load_designations(conn, p, tmp_path / "out", kind="model_restaurant", source="경기도 모범음식점",
+                            sido="경기")
+    assert res["by_method"] == {"name+city": 1}
+    assert [r[0] for r in signals(conn, "model_restaurant")] == ["G1"]
+    # 시도를 모르면 시군만으로는 매칭하지 않음(고성군 등 시도 간 동명 시군)
+    res = load_designations(conn, p, tmp_path / "out2", kind="model_restaurant", source="x", dry_run=True)
+    assert res["matched"] == 0
+
+
+def test_city_match_skips_franchise_names(conn):
+    for i in range(sc.CITY_MAX_CANDS):
+        conn.execute("INSERT INTO restaurants(id,name,address,lat,lng,genre,status) VALUES(?,?,?,?,?,'한식','open')",
+                     (f"F{i}", "체인국밥", f"경기도 수원시 팔달구 정조로 {i + 1}" if i == 0 else f"부산광역시 중구 중앙대로 {i}",
+                      35.1, 129.0))
+    conn.commit()
+    rid, _, reason = sc.SignalMatcher(conn).match_city("체인국밥", "경기", "수원시")
+    assert rid is None and "프랜차이즈" in reason
+
+
+def test_gyeonggi_best_is_guide_kind():
+    from app.scoring import prior
+    assert prior.GUIDE_SCORES["gyeonggi_best"] == 0.7
+    assert prior.reputation_score(["gyeonggi_best"], None) == 0.7
+    assert prior.designation_score(["gyeonggi_best"]) == 0.0
+
+
+def test_wgs84_coordinate_headers():
+    cm = sc.resolve(["음식점명", "WGS84위도", "WGS84경도"], sc.COMMON_ALIASES)
+    assert cm["lat"] == "WGS84위도" and cm["lng"] == "WGS84경도"

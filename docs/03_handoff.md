@@ -58,15 +58,15 @@ claude
 | #3 | 사전 점수 v2·v2.1(공공 신호 기반 prior) |
 | #4 | D2 인허가 적재 + 릴스형 추천 화면 |
 | #5 | 인허가 실데이터 적재 수정(헤더 별칭, 지역 키, 전남광주, 휴게음식점 처리, v1 DB 업그레이드) |
-| **#6 (열림)** | 별점 근거 입력기: 공공 지정목록·위생등급·행정처분, 인허가번호 우선 매칭 |
+| #6 | 별점 근거 입력기: 공공 지정목록·위생등급·행정처분, 인허가번호 우선 매칭 |
 
 ### 2-3. 로컬 DB 상태 (`backend\data\jjinmat.db`, git 제외)
 - 기존 v1 DB 는 `data\jjinmat_v1_backup.db` 로 백업(가상 샘플 48곳 포함 — 실서비스에 쓰지 말 것).
-- **전국 일반음식점 647,729곳** 적재(인허가 기반 `L{관리번호}`), 점수 계산 완료, 평균 별점 ≈ 2.47.
+- **전국 일반음식점 647,634곳** 적재(인허가 기반 `L{관리번호}`), 점수 계산 완료, 평균 별점 ≈ 2.47.
 - 지역 256곳(이름 키 `N:<시도> <시군구>` — 상가정보 적재 시 공식 코드로 자동 치환). 지역 없음 0.
 - 휴게음식점 파일 적재 완료(신규 생성 없음, 매칭 가게 판별용) — 영업 중 일반 가게를 덮어쓰지 않음 확인.
 - 미매칭 약 2.1만 곳(주로 좌표 없음) → `data\out\unmatched_license.csv`.
-- **별점 근거는 현재 대부분 '업력'뿐** → 많은 가게가 evidence=low("근거 부족").
+- 별점 근거: 업력(거의 전부, evidence=mid) + 2026-10-26 지정목록 적재 — 모범음식점 3,941(서울 25개 구 2,860 + 경기 1,081, 경기는 상호+시군 유일 매칭) · 원산지표시 우수 193 · 백년가게 489 · 착한가격업소 6,939(메뉴 13,878) · 경기도 으뜸맛집 78(125행 중). 적재 전 백업 `data\jjinmat_before_signals.db`. 검수 `docs/qa/report_signals_load.md`.
 
 ### 2-4. 원본 데이터 파일 위치 (git 제외)
 | 폴더 | 내용 |
@@ -80,8 +80,8 @@ claude
 
 ## 3. 다음 할 일 (우선순위)
 
-1. **PR #6 마무리** — CI 확인 → 병합.
-2. **별점 근거 데이터 적재** (파일마다 `--check` → `--dry-run` → 적재, 아래 4-2)
+1. ~~PR #6 마무리~~ ✅ 병합됨.
+2. **별점 근거 데이터 적재** 🔄 모범(서울·경기)·원산지·백년가게·착한가격·경기 으뜸맛집 완료(PR data/signals-load). 남은 것: (파일마다 `--check` → `--dry-run` → 적재, 아래 4-2)
    - 바로 받을 수 있음: 백년가게(data.go.kr 15132695), 원산지표시 우수(국립수산물품질관리원), 모범음식점(시도 현황 + 지자체)
    - 지자체별: 안심식당, 위생등급, 착한가격업소(서울은 열린데이터광장)
    - 직접 정리: 서울미식 100선 / 서울미래유산 / 향토음식점 → 고정 열 CSV(4-3)
@@ -89,8 +89,8 @@ claude
 3. **API 키 필요 작업**
    - 행정처분(식품접객업) 오픈API 서비스 키 → API 수집 스크립트 작성(키는 `.env`, git 제외)
    - 식품안전나라 위생등급 API(필요 시)
-4. **업무추진비(가중치 0.25, 가장 큼)** — 기관·연도 범위 결정 → 수기 정규화 CSV → `load_designations` 가 아닌 기존 `GovExpenseCSVAdapter` 경로(PII 화이트리스트).
-   - 수집 자동화는 `expense_collector/` 하위 프로젝트에서 진행(`expense_collector/docs/handoff.md`). 산출 CSV(`gov_expense_for_jjinmat.csv`)를 이 경로로 적재.
+4. **업무추진비(가중치 0.25, 가장 큼)** — 범위 확정(서울시 본청 + 25개 구, 최근 2년). 본청 ✅ 2026-10-26 적재(2024-10~2026-09, 45,825건 / 4,355곳, 백업 `data\jjinmat_before_gov.db`, 검수 `docs/qa/report_signals_load.md`). 매월 `load_gov_expense --fetch-seoul` 로 갱신(runbook). 25개 구는 게시판 수집 예외(01) 시범: 조건 통과 관악·구로 2곳만(`collect_gov_boards`). 관악 수집 완료(37,947건 → dry-run 매칭 18,653건 / 1,386곳, 미적재). 구로는 수집만 마치고 **보류**(2026-10-26 사용자 지시: 업무추진비 수집은 별도 프로그램으로 할 예정 → 이 저장소에서 구 게시판 적재·확장 진행 안 함). 나머지 23곳은 robots·봇 차단·공공누리 4유형으로 제외 → 정보공개청구 대안. HWP 파서 없음.
+   - 수집 자동화는 `expense_collector/` 하위 프로젝트에서 진행(`expense_collector/docs/handoff.md`). 산출 CSV(`gov_expense_for_jjinmat.csv`)를 `load_designations` 가 아닌 기존 `GovExpenseCSVAdapter` 경로(PII 화이트리스트)로 적재.
 5. **앱 실기기 확인** — 서버 + Expo Go 로 실데이터 추천·릴스 덱·리뷰 시트 동작 확인(4-4).
 6. **미매칭 2.1만 곳** — 주소→좌표 지오코딩(예: 브이월드 API, 키 필요).
 7. **D5** 지도 링크·메뉴·영업시간 표시 / **D6** 영수증 인증·리뷰 조작 방지(출시 전 필수) + 최종 별점 v2 승인.
@@ -113,7 +113,8 @@ python -m app.ingest.load_license <csv> --calibrate      # 상가정보 적재 �
 ### 4-2. 지정목록 / 위생·처분 (PR #6)
 ```powershell
 # --kind: model_restaurant | safe_restaurant | origin_label_excellent | century_store | good_price
-#         taste_of_seoul | seoul_future_heritage | local_food   (michelin_* 는 법무 확인 전 보류)
+#         taste_of_seoul | seoul_future_heritage | local_food | gyeonggi_best   (michelin_* 는 법무 확인 전 보류)
+# 주소·좌표 없이 시군만 있는 목록은 --sido 경기 처럼 시도를 주면 상호+시군 유일 매칭
 python -m app.ingest.load_designations data\raw\designations\백년가게.csv --kind century_store --source "중소벤처기업부 백년가게" --check
 python -m app.ingest.load_designations data\raw\designations\백년가게.csv --kind century_store --source "중소벤처기업부 백년가게" --dry-run
 python -m app.ingest.load_designations data\raw\designations\백년가게.csv --kind century_store --source "중소벤처기업부 백년가게"
@@ -177,7 +178,7 @@ cd C:\Restaurant_Recommendation\mobile;  npx tsc --noEmit
 ## 6. 사용자 결정·준비 대기 목록
 | 항목 | 상태 |
 |---|---|
-| 업무추진비 범위(기관·연도) | 결정 필요 |
+| 업무추진비 범위(기관·연도) | ✅ 서울시 본청 + 25개 구, 최근 2년 · 본청 적재 완료 · 👤 25개 구 정보공개청구 |
 | 행정처분 API 서비스 키 | 신청 필요 |
 | 인허가 추가 열(등급구분명·전통업소) 점수 반영 | 분포 확인 후 결정 |
 | 최종 별점 v2(영수증 인증 가중·시간 감쇠·후한 작성자 보정) | 승인 필요(D6 과 함께) |

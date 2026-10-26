@@ -271,6 +271,18 @@ def test_detect_encoding_cp949_char_on_boundary():
     assert detect_encoding(data[:65536]) == "cp949"
 
 
+def test_detect_encoding_bom_utf8_char_on_boundary():
+    data = b"\xef\xbb\xbf" +("a" * 65532 + "가").encode()  # BOM 포함 64KB 경계에서 '가' 잘림
+    assert detect_encoding(data[:65536]) == "utf-8-sig"
+
+
+def test_resolve_designation_header_aliases():
+    a = sc.COMMON_ALIASES
+    assert sc.resolve(["허가(신고)번호", "업소명"], a)["license_id"] == "허가(신고)번호"
+    assert sc.resolve(["업체명", "기본주소", "상세주소"], a)["address"] == "기본주소"
+    assert sc.resolve(["음식점명", "주소"], a)["name"] == "음식점명"
+
+
 # --- license.py 추가 열(--check 전용) -----------------------------------------------------
 def test_license_extra_columns_not_in_load_records(tmp_path):
     header = [*lic.COL.values(), "등급구분명", "전통업소주된음식"]
@@ -316,3 +328,38 @@ def test_scale_no_n_plus_one(tmp_path):
     assert queries[0] < 50, queries[0]
     assert elapsed < 20, elapsed
     c.close()
+
+
+def test_road_name_with_digit_before_ro():
+    from app.ingest.matcher import addresses_match, normalize_road_address
+    assert addresses_match("경기 용인시 수지구 신봉1로 302 (신봉동)", "경기도 용인시 수지구 신봉1로 302 (신봉동,1,2층)")
+    assert normalize_road_address("경기 성남시 성남1길 172") is not None
+    assert normalize_road_address("서울 중구 을지로1가 180") is None  # 지번(동+가)
+
+
+# 변경 전 _ROAD_TOK(숫자+로/길 미인식). 신 정규식이 지번(동+가)을 도로명으로 오인하지 않는지 비교 기준.
+_OLD_ROAD_TOK = r"[가-힣A-Za-z0-9]*[가-힣A-Za-z](?:대로|로|길)|[가-힣A-Za-z0-9]+(?:대로|로)\d+(?:번)?[가-힣]?길"
+
+
+@pytest.mark.parametrize("addr,gained", [
+    ("전북특별자치도 군산시 궁포안2길 27, 107호 (조촌동)", True),   # 구 정규식 누락 → 신규 키
+    ("서울특별시 종로구 인사동3길 8 (인사동)", True),
+    ("서울특별시 중구 을지로1가 180", False),                       # 지번: 신·구 모두 None
+    ("서울특별시 종로구 종로5가 246-2 지상1층", False),
+    ("서울특별시 종로구 신문로1가 158 (지상1층)", False),
+])
+def test_road_tok_change_no_jibun_regression(monkeypatch, addr, gained):
+    import re
+
+    from app.ingest import matcher as m
+    new = m.normalize_road_address(addr)
+    monkeypatch.setattr(m, "_ROAD_TOK", re.compile(_OLD_ROAD_TOK))
+    old = m.normalize_road_address(addr)
+    assert old is None
+    assert (new is not None) is gained
+
+
+def test_paren_branch_not_dropped():
+    from app.ingest.matcher import names_match
+    assert not names_match("임고집(강남점)", "임고집(역삼점)")
+    assert not names_match("임고집(2호점)", "임고집 본점")
