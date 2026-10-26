@@ -90,6 +90,7 @@ claude
    - 행정처분(식품접객업) 오픈API 서비스 키 → API 수집 스크립트 작성(키는 `.env`, git 제외)
    - 식품안전나라 위생등급 API(필요 시)
 4. **업무추진비(가중치 0.25, 가장 큼)** — 기관·연도 범위 결정 → 수기 정규화 CSV → `load_designations` 가 아닌 기존 `GovExpenseCSVAdapter` 경로(PII 화이트리스트).
+   - 수집 자동화는 `expense_collector/` 하위 프로젝트에서 진행(`expense_collector/docs/handoff.md`). 산출 CSV(`gov_expense_for_jjinmat.csv`)를 이 경로로 적재.
 5. **앱 실기기 확인** — 서버 + Expo Go 로 실데이터 추천·릴스 덱·리뷰 시트 동작 확인(4-4).
 6. **미매칭 2.1만 곳** — 주소→좌표 지오코딩(예: 브이월드 API, 키 필요).
 7. **D5** 지도 링크·메뉴·영업시간 표시 / **D6** 영수증 인증·리뷰 조작 방지(출시 전 필수) + 최종 별점 v2 승인.
