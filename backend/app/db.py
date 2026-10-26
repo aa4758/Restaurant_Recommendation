@@ -82,6 +82,7 @@ CREATE TABLE IF NOT EXISTS restaurant_signals (
     source TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_signals_restaurant ON restaurant_signals(restaurant_id, kind);
+-- value: hygiene_grade = 매우우수|우수|좋음, 그 외 자유기술. base_date: 지정일·처분일(YYYY-MM-DD)
 -- 점수 배치 결과 (app/service.py rebuild_scores). 영업 중인 가게만, 시군구 단위로 재계산
 CREATE TABLE IF NOT EXISTS scores (
     restaurant_id TEXT PRIMARY KEY REFERENCES restaurants(id),
@@ -94,6 +95,8 @@ CREATE TABLE IF NOT EXISTS scores (
     gov_source TEXT,
     gov_bonus REAL NOT NULL,
     ad_penalty REAL,                   -- NULL = 광고 리뷰 통계 없음
+    components TEXT,                   -- JSON: 점수 모델 v2 구성요소 7개(가중 기여분, 감점은 음수)
+    evidence TEXT,                     -- low | mid | high
     computed_at TEXT NOT NULL
 );
 CREATE TABLE IF NOT EXISTS review_stats (
@@ -151,6 +154,21 @@ def connect(path: Path | str | None = None) -> sqlite3.Connection:
     return conn
 
 
+# 기존 DB 호환: CREATE TABLE IF NOT EXISTS 는 컬럼을 추가하지 않으므로 없으면 ALTER
+MIGRATIONS = {
+    "scores": (("components", "TEXT"), ("evidence", "TEXT")),
+}
+
+
+def _migrate(conn: sqlite3.Connection) -> None:
+    for table, cols in MIGRATIONS.items():
+        have = {r[1] for r in conn.execute(f"PRAGMA table_info({table})")}
+        for name, typ in cols:
+            if name not in have:
+                conn.execute(f"ALTER TABLE {table} ADD COLUMN {name} {typ}")
+
+
 def init_schema(conn: sqlite3.Connection) -> None:
     conn.executescript(SCHEMA)
+    _migrate(conn)
     conn.commit()
