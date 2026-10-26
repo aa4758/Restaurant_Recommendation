@@ -139,7 +139,8 @@ final = (k·prior_star + Σ w_i·s_i') / (k + Σ w_i),  k = 20
 | D1 | 점수 배치 계산(`scores`, 시군구 단위) + 반경 조회. 서울 10.7만 곳 기준 추천 50~230ms (이전 247초) | ✅ |
 | D2 | 인허가(B) 어댑터 + 좌표 변환 + 엔티티 매칭 → 폐업·일반/휴게·업력 (`app/ingest/license.py`, `load_license`, CRS `--calibrate`) | ✅ | 휴게음식점은 신규 생성 안 함(매칭 가게 판별만, 01 결정).
 | D3 | prior v2·v2.1 — 구현·QA 완료(`docs/qa/report_prior_v2.md`, `report_prior_v21.md`) | ✅ |
-| D4 | TourAPI(C)·착한가격(D)·식품안전나라(F) → 메뉴·영업시간·위생 | ⏳ (API 키 필요) |
+| D4 | 지정목록·위생등급·행정처분 입력기(`load_designations`, `load_food_safety`, PR #6) ✅ · 실제 파일 적재 ⏳ · TourAPI 메뉴·영업시간 ⏳(API 키) | 🔄 |
+| D2+ | 인허가 실데이터 적재: 전국 일반음식점 647,729곳, 지역 256곳(이름 키), 평균 별점 2.47 (로컬) | ✅ |
 | D5 | API/앱: 지도 링크·메뉴·영업시간 표시, "정보 미확인" 처리 | ⏳ (01 API 계약 개정) |
 | D6 | 영수증 인증·조작 방지 | ⏳ |
 

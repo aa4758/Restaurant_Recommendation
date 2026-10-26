@@ -52,7 +52,7 @@ class Signals:
     hygiene: str | None = None  # 최신 위생등급 (매우우수|우수|좋음)
     designations: set[str] = field(default_factory=set)  # 지정업소·가이드·백년가게·착한가격 kind
     guide_years: dict[str, int | None] = field(default_factory=dict)  # 가이드 kind → 최신 기준연도
-    sanction_dates: list[str | None] = field(default_factory=list)
+    sanction_dates: list[str | None] = field(default_factory=list)  # 서로 다른 처분일자(같은 날 = 1건)
 
 
 def _signals(conn: sqlite3.Connection, where: str, params: tuple) -> dict[str, Signals]:
@@ -61,7 +61,8 @@ def _signals(conn: sqlite3.Connection, where: str, params: tuple) -> dict[str, S
     rows = conn.execute(
         "SELECT g.restaurant_id, g.kind, g.value, g.base_date FROM restaurant_signals g"
         " JOIN restaurants r ON r.id = g.restaurant_id WHERE " + where +
-        " ORDER BY g.restaurant_id, g.base_date",  # 날짜 오름차순 → 마지막 위생등급이 최신
+        # 지정일 없는 행 먼저(후순위) → 날짜 오름차순 → 같은 날짜는 id 오름차순: 마지막 위생등급이 최신(동률은 id 큰 쪽)
+        " ORDER BY g.restaurant_id, (IFNULL(g.base_date, '') <> ''), g.base_date, g.id",
         params,
     )
     for r in rows:
@@ -72,7 +73,11 @@ def _signals(conn: sqlite3.Connection, where: str, params: tuple) -> dict[str, S
             if grade:
                 sig.hygiene = grade
         elif kind == "sanction":
-            sig.sanction_dates.append(r["base_date"])
+            # 건수 = 서로 다른 처분일자 수(docs/01): 같은 날 여러 행·출처별 표기 차이는 1건
+            d = prior.parse_date(r["base_date"])
+            key = d.isoformat() if d else None
+            if key and key not in sig.sanction_dates:
+                sig.sanction_dates.append(key)
         elif kind in prior.SIGNAL_KINDS:
             sig.designations.add(kind)
             if kind in prior.GUIDE_SCORES:

@@ -56,6 +56,12 @@ ALIASES = {
 }
 # 좌표 컬럼은 접두 일치(예: '좌표정보X(EPSG5174)', '좌표정보(X)')
 COORD_PREFIX = {"x": ("좌표정보x", "x좌표", "좌표x"), "y": ("좌표정보y", "y좌표", "좌표y")}
+# --check 의 '추가 열 분포' 전용(적재·점수 미반영 — 값 확인 후 기획 결정). 필드 → 헤더 별칭
+EXTRA_COLUMNS = {
+    "grade_type": ("등급구분명", "등급구분"),
+    "traditional_no": ("전통업소지정번호", "전통업소지정"),
+    "traditional_food": ("전통업소주된음식", "주된음식"),
+}
 # 없으면 적재 불가인 필드(나머지는 비면 None). 좌표·주소는 둘 중 하나만 있어도 매칭 가능
 REQUIRED = ("license_id", "opened_at", "status", "name", "biz_type")
 
@@ -179,8 +185,11 @@ class LicenseCSVAdapter(SourceAdapter):
     kind = "restaurants"
     name = "license_csv"
 
-    def __init__(self, path: Path | str, crs: str = DEFAULT_CRS, license_type: str | None = None):
+    def __init__(self, path: Path | str, crs: str = DEFAULT_CRS, license_type: str | None = None,
+                 extra: bool = False):
         self.path = Path(path)
+        self.extra = extra  # True 면 EXTRA_COLUMNS 값도 레코드에 포함(--check 분포용)
+        self.extra_colmap: dict[str, str] = {}
         self.crs = crs
         # 개방서비스명 컬럼이 없을 때 쓸 값(인자 > 파일명 추정)
         self.default_license_type = license_type or infer_license_type(path)
@@ -208,6 +217,12 @@ class LicenseCSVAdapter(SourceAdapter):
             cm = self.colmap = resolve_columns(header)
             self.missing_columns = [COL[k] for k in REQUIRED if k not in cm]
             self.missing_optional = [COL[k] for k in COL if k not in cm and k not in REQUIRED]
+            if self.extra:
+                norm = {_norm_header(h): h for h in header}
+                self.extra_colmap = {k: hit for k, names in EXTRA_COLUMNS.items()
+                                     if (hit := next((norm[_norm_header(a)] for a in names
+                                                      if _norm_header(a) in norm), None))}
+            ex = self.extra_colmap
             if self.missing_columns:
                 return
             for r in reader:
@@ -218,7 +233,7 @@ class LicenseCSVAdapter(SourceAdapter):
                 x, y = _float(g("x")), _float(g("y"))
                 ll = tm_to_wgs84(x, y, self.crs)
                 area = _float(g("area"))
-                yield (
+                rec = (
                     {
                         "license_id": lid,
                         "license_type": g("license_type") or self.default_license_type,
@@ -241,3 +256,6 @@ class LicenseCSVAdapter(SourceAdapter):
                         "updated_at": today,
                     }
                 )
+                for k, h in ex.items():
+                    rec[k] = (r.get(h) or "").strip()
+                yield rec
