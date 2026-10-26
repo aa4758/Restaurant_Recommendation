@@ -24,7 +24,7 @@ from app.schemas import (
     ReviewOut,
     ReviewPage,
 )
-from app.ratelimit import write_limiter
+from app.ratelimit import IP_LIMIT_PER_MIN, WRITE_LIMIT_PER_MIN, write_limiter
 from app.scoring.prior import is_ad_text
 from app.scoring.recommend import DISTANCE_RELAX_FACTOR, Query, Scored as RecScored, make_reasons, recommend
 from app.service import candidates_near, get_scored, rebuild_scores, region_of
@@ -67,6 +67,7 @@ def _item_dict(s: RecScored) -> dict:
         "updated_at": c.updated_at,
         "address": c.address,
         "evidence": c.evidence,
+        "relaxed": s.relaxed,
     }
 
 
@@ -111,10 +112,15 @@ def get_restaurant(rid: str, conn=Depends(get_conn)) -> dict:
 
 
 def _client_ip(request: Request) -> str:
+    """연결 상대 IP. 프록시 뒤라면 uvicorn --proxy-headers --forwarded-allow-ips(LB 대역)로만 XFF 신뢰."""
     return request.client.host if request.client else "unknown"
 
 
-def _rate_limit(keys: list[str]) -> None:
+def _rate_limit(scope: str, request: Request, device_id: str | None) -> None:
+    """기기 키 우선(분당 WRITE_LIMIT_PER_MIN) + IP 버킷(분당 IP_LIMIT_PER_MIN, NAT 공유 감안)."""
+    keys: list[tuple[str, int]] = [(f"{scope}:ip:{_client_ip(request)}", IP_LIMIT_PER_MIN)]
+    if device_id:
+        keys.insert(0, (f"{scope}:dev:{device_id}", WRITE_LIMIT_PER_MIN))
     if not write_limiter.allow(keys):
         raise HTTPException(status_code=429, detail="too many requests")
 
@@ -135,52 +141,46 @@ def _decode_cursor(cur: str) -> tuple[int, str, int]:
         raise HTTPException(status_code=400, detail="invalid cursor")
 
 
-def _after(row: tuple[int, str, int], cur: tuple[int, str, int]) -> bool:
-    """정렬(광고 아님 먼저 → created_at 내림차순 → id 내림차순)에서 row 가 커서 뒤인가."""
-    ad, ca, i = row
-    c_ad, c_ca, c_i = cur
-    if ad != c_ad:
-        return ad > c_ad
-    if ca != c_ca:
-        return ca < c_ca
-    return i < c_i
+_REVIEW_COLS = "SELECT id, stars, text, tags, created_at, ad_disclosed FROM user_reviews"
+_REVIEW_ORDER = " ORDER BY ad_disclosed ASC, created_at DESC, id DESC LIMIT ?"
 
 
 @app.get("/restaurants/{rid}/reviews", response_model=ReviewPage)
 def get_reviews(
     rid: str, limit: int = Q(default=20, ge=1, le=50), cursor: str | None = None, conn=Depends(get_conn)
 ) -> dict:
-    """읽기 전용 리뷰 시트. 별점 있는 리뷰만, 기기 ID(user_id) 등은 노출하지 않음."""
+    """읽기 전용 리뷰 시트. 별점 있는 리뷰만, 기기 ID(user_id) 등은 노출하지 않음.
+
+    정렬: 광고 표시 아님 먼저 → created_at 내림차순 → id 내림차순. 저장된 ad_disclosed 로 SQL 키셋 페이지네이션
+    (인덱스 idx_reviews_sheet). 커서 = base64([ad, created_at, id]) — 기존 형식 그대로.
+    """
     _require(conn, rid)
-    cur = _decode_cursor(cursor) if cursor else None
-    # 광고 표시 판별은 본문 정규식(prior.is_ad_text, 부정 표현 제외) → SQL 정렬 불가, 가게 단위로 메모리 정렬
-    # ponytail: 가게당 리뷰 수천 건까지 ms 단위. 커지면 ad_disclosed 컬럼 저장 후 SQL 키셋 페이지네이션
-    rows = conn.execute(
-        "SELECT id, stars, text, tags, created_at FROM user_reviews"
-        " WHERE restaurant_id = ? AND stars IS NOT NULL AND stars > 0",
-        (rid,),
-    ).fetchall()
-    keyed = [((int(is_ad_text(r["text"])), r["created_at"], int(r["id"])), r) for r in rows]
-    keyed.sort(key=lambda kr: (kr[0][1], kr[0][2]), reverse=True)  # 최신순, 동일 시각은 id 내림차순
-    keyed.sort(key=lambda kr: kr[0][0])  # 안정 정렬: 광고 아님 먼저
-    if cur:
-        keyed = [kr for kr in keyed if _after(kr[0], cur)]
-    page = keyed[:limit]
+    db.backfill_ad_disclosed(conn)  # API 외 경로로 들어온 미계산 행(부분 인덱스, 보통 0건)
+    where = " WHERE restaurant_id = ? AND stars IS NOT NULL AND stars > 0"
+    args: list = [rid]
+    if cursor:
+        c_ad, c_ca, c_id = _decode_cursor(cursor)
+        where += " AND (ad_disclosed > ? OR (ad_disclosed = ? AND (created_at < ? OR (created_at = ? AND id < ?))))"
+        args += [c_ad, c_ad, c_ca, c_ca, c_id]
+    rows = conn.execute(_REVIEW_COLS + where + _REVIEW_ORDER, (*args, limit + 1)).fetchall()
+    page = rows[:limit]
     items = [
         ReviewItem(
             id=r["id"], stars=float(r["stars"]), text=r["text"] or "",
-            tags=json.loads(r["tags"]) if r["tags"] else [], created_at=r["created_at"], ad_disclosed=bool(k[0]),
+            tags=json.loads(r["tags"]) if r["tags"] else [], created_at=r["created_at"],
+            ad_disclosed=bool(r["ad_disclosed"]),
         ).model_dump()
-        for k, r in page
+        for r in page
     ]
-    nxt = _encode_cursor(bool(page[-1][0][0]), *page[-1][0][1:]) if len(keyed) > limit else None
+    last = page[-1] if page else None
+    nxt = _encode_cursor(bool(last["ad_disclosed"]), last["created_at"], int(last["id"])) if len(rows) > limit else None
     return {"items": items, "next_cursor": nxt}
 
 
 @app.post("/reactions", status_code=204)
 def post_reaction(body: ReactionIn, request: Request, conn=Depends(get_conn)) -> Response:
     """좋아요/싫어요 기록(개인화 전용). 점수·순위 계산에는 절대 사용하지 않음."""
-    _rate_limit([f"reaction:dev:{body.device_id}", f"reaction:ip:{_client_ip(request)}"])
+    _rate_limit("reaction", request, body.device_id)
     _require(conn, body.restaurant_id)
     if body.value == "none":
         conn.execute("DELETE FROM reactions WHERE device_id=? AND restaurant_id=?", (body.device_id, body.restaurant_id))
@@ -197,13 +197,14 @@ def post_reaction(body: ReactionIn, request: Request, conn=Depends(get_conn)) ->
 
 @app.post("/restaurants/{rid}/reviews", response_model=ReviewOut, status_code=201)
 def post_review(rid: str, body: ReviewIn, request: Request, conn=Depends(get_conn)) -> dict:
-    _rate_limit([f"review:ip:{_client_ip(request)}"])
+    _rate_limit("review", request, body.device_id)  # device_id 있으면 기기 키 + IP, 없으면 IP 만
     if get_scored(conn, rid) is None:  # 없는 가게·폐업 가게
         raise HTTPException(status_code=404, detail="restaurant not found")
     cur = conn.execute(
-        "INSERT INTO user_reviews(restaurant_id,stars,text,tags,created_at) VALUES(?,?,?,?,?)",
-        (rid, body.stars, body.text, json.dumps(body.tags, ensure_ascii=False),
-         datetime.now(timezone.utc).isoformat()),
+        "INSERT INTO user_reviews(restaurant_id,stars,text,tags,user_id,ad_disclosed,created_at)"
+        " VALUES(?,?,?,?,?,?,?)",
+        (rid, body.stars, body.text, json.dumps(body.tags, ensure_ascii=False), body.device_id,
+         int(is_ad_text(body.text)), datetime.now(timezone.utc).isoformat()),
     )
     conn.commit()
     rebuild_scores(conn, region_of(conn, rid))  # ponytail: 리뷰마다 시군구 재계산(수천 건, ms 단위). 트래픽 커지면 큐/주기 배치

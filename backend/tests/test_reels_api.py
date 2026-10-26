@@ -5,7 +5,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.ingest.load_seed import load
-from app.ratelimit import WRITE_LIMIT_PER_MIN, RateLimiter
+from app.ratelimit import IP_LIMIT_PER_MIN, WRITE_LIMIT_PER_MIN, RateLimiter
 
 CITY_HALL = {"lat": 37.5663, "lng": 126.9779}
 DEV = "device-abc_123"
@@ -195,11 +195,58 @@ def test_reactions_rate_limited(client):
     assert codes[:-1] == [204] * WRITE_LIMIT_PER_MIN and codes[-1] == 429
 
 
-def test_review_write_rate_limited(client):
-    codes = [client.post("/restaurants/R007/reviews", json={"stars": 3}).status_code
+def test_review_write_rate_limited_by_device(client):
+    codes = [client.post("/restaurants/R007/reviews", json={"stars": 3, "device_id": DEV}).status_code
              for _ in range(WRITE_LIMIT_PER_MIN + 1)]
     assert codes[:-1] == [201] * WRITE_LIMIT_PER_MIN and codes[-1] == 429
+    # 같은 IP 의 다른 기기는 영향 없음(IP 버킷은 분당 IP_LIMIT_PER_MIN)
+    assert client.post("/restaurants/R007/reviews", json={"stars": 3, "device_id": "device-other1"}).status_code == 201
+    assert client.post("/restaurants/R007/reviews", json={"stars": 3}).status_code == 201
     assert client.get("/restaurants/R007/reviews").status_code == 200  # 읽기는 제한 없음
+
+
+def test_review_write_without_device_uses_ip_bucket_only():
+    """device_id 없으면 IP 키만, 한도 IP_LIMIT_PER_MIN (API 호출 300회 대신 키 구성만 검증)."""
+    from starlette.requests import Request
+
+    from app import main
+    seen = []
+    orig = main.write_limiter.allow
+    main.write_limiter.allow = lambda keys: seen.append(list(keys)) or True
+    try:
+        req = Request({"type": "http", "client": ("1.2.3.4", 1), "headers": []})
+        main._rate_limit("review", req, None)
+        main._rate_limit("review", req, DEV)
+    finally:
+        main.write_limiter.allow = orig
+    assert seen == [[("review:ip:1.2.3.4", IP_LIMIT_PER_MIN)],
+                    [(f"review:dev:{DEV}", WRITE_LIMIT_PER_MIN), ("review:ip:1.2.3.4", IP_LIMIT_PER_MIN)]]
+
+
+def test_review_device_id_stored_not_exposed(client, dbp):
+    r = client.post("/restaurants/R007/reviews", json={"stars": 4, "text": "협찬 받았어요", "device_id": DEV})
+    assert r.status_code == 201 and set(r.json()) == {"id", "final_star"} and DEV not in r.text
+    c = sqlite3.connect(dbp)
+    assert c.execute("SELECT user_id, ad_disclosed FROM user_reviews WHERE id=?", (r.json()["id"],)).fetchone() \
+        == (DEV, 1)
+    c.close()
+    sheet = client.get("/restaurants/R007/reviews?limit=50")
+    assert DEV not in sheet.text and "user_id" not in sheet.text
+    assert client.post("/restaurants/R007/reviews", json={"stars": 4, "device_id": "bad id!"}).status_code == 422
+
+
+def test_rate_limiter_mixed_limits_and_cap():
+    rl = RateLimiter(limit=1, window_s=60, max_keys=3)
+    assert rl.allow([("dev", 1), ("ip", 2)], now=0)
+    assert not rl.allow([("dev", 1), ("ip", 2)], now=0)
+    assert rl.allow([("dev2", 1), ("ip", 2)], now=0)
+    assert not rl.allow([("dev3", 1), ("ip", 2)], now=0)  # IP 한도
+    assert "dev3" not in rl._hits  # 거부 요청은 키 생성 안 함
+    for i in range(10):
+        rl.allow([f"k{i}"], now=1)
+    assert len(rl._hits) == 3 and list(rl._hits) == ["k7", "k8", "k9"]  # 상한 초과 시 오래된 키부터 정리
+    rl.allow(["z"], now=100)
+    assert list(rl._hits) == ["z"]  # 창 지난 키 삭제
 
 
 def test_existing_db_gets_reactions_table(tmp_path):
@@ -225,3 +272,52 @@ def test_recommend_items_include_address(client):
     assert r.status_code == 200
     items = r.json()["items"]
     assert items and all(it.get("address") for it in items)
+
+
+# --- 항목별 relaxed --------------------------------------------------------
+def test_item_relaxed_lists_unmet_conditions(client):
+    q = {**CITY_HALL, "radius_m": 300, "genre": ["한식"], "mood": ["혼밥"], "price": ["1만 이하"], "limit": 5}
+    r = client.post("/recommend", json=q).json()
+    assert r["items"] and r["relaxed"]
+    from app.scoring.recommend import haversine_m
+    for it in r["items"]:
+        exp = []
+        if it["distance_m"] > 300 and haversine_m(q["lat"], q["lng"], it["lat"], it["lng"]) > 300:
+            exp.append("distance")
+        if "혼밥" not in it["moods"]:
+            exp.append("mood")
+        if it["price_band"] not in q["price"]:
+            exp.append("price")
+        if it["genre"] != "한식":
+            exp.append("genre")
+        assert it["relaxed"] == exp, it
+        assert set(it["relaxed"]) <= set(r["relaxed"])  # 완화된 조건만 미충족 가능
+
+
+def test_item_relaxed_empty_when_all_met(client):
+    r = client.post("/recommend", json={**CITY_HALL, "radius_m": 3000}).json()
+    assert r["relaxed"] == [] and all(it["relaxed"] == [] for it in r["items"])
+
+
+# --- 리뷰 ad_disclosed 저장·백필 --------------------------------------------
+def test_existing_reviews_backfilled_ad_disclosed(tmp_path):
+    from app import db as dbm
+    p = tmp_path / "old.db"
+    c = sqlite3.connect(p)
+    c.execute("CREATE TABLE user_reviews (id INTEGER PRIMARY KEY AUTOINCREMENT, restaurant_id TEXT NOT NULL,"
+              " stars REAL NOT NULL, text TEXT, tags TEXT, user_id TEXT, verified INTEGER NOT NULL DEFAULT 0,"
+              " created_at TEXT NOT NULL)")
+    c.executemany("INSERT INTO user_reviews(restaurant_id,stars,text,created_at) VALUES(?,?,?,?)",
+                  [("R1", 4, "체험단 리뷰입니다", "2026-01-01"), ("R1", 4, "광고 아닙니다 내돈내산", "2026-01-02"),
+                   ("R1", 4, None, "2026-01-03")])
+    c.commit(); c.close()
+    conn = dbm.connect(p)
+    dbm.init_schema(conn)
+    dbm.init_schema(conn)  # 멱등
+    assert [tuple(r) for r in conn.execute("SELECT ad_disclosed FROM user_reviews ORDER BY id")] == [(1,), (0,), (0,)]
+    idx = {r[1] for r in conn.execute("PRAGMA index_list(user_reviews)")}
+    assert "idx_reviews_sheet" in idx
+    plan = " ".join(r[3] for r in conn.execute(
+        "EXPLAIN QUERY PLAN SELECT id FROM user_reviews WHERE restaurant_id='R1' AND stars > 0"
+        " ORDER BY ad_disclosed, created_at DESC, id DESC LIMIT 21"))
+    assert "idx_reviews_sheet" in plan and "TEMP B-TREE" not in plan, plan

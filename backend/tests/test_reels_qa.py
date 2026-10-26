@@ -13,7 +13,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.ingest.load_seed import load
-from app.ratelimit import WRITE_LIMIT_PER_MIN, RateLimiter, write_limiter
+from app.ratelimit import IP_LIMIT_PER_MIN, WRITE_LIMIT_PER_MIN, RateLimiter, write_limiter
 from app.scoring.recommend import Candidate, Query, recommend
 
 CH = {"lat": 37.5663, "lng": 126.9779}
@@ -175,8 +175,7 @@ def test_exclude_unshown_candidate_keeps_rotation():
         hidden = next(c.id for c in cands if c.id not in top_ids)
         top2, _ = recommend([c for c in cands if c.id != hidden], q, day=day)
         changed += [s.cand.id for s in top2] != top_ids
-    if changed:
-        pytest.xfail(f"동점대 셔플 시드에 그룹 id 전체가 들어가 숨김 1건으로 {changed}/30일 순서·구성이 바뀜")
+    assert changed == 0, f"숨김 1건으로 {changed}/30일 순서·구성이 바뀜"
 
 
 # --- device_id / reason / none -------------------------------------------
@@ -300,14 +299,17 @@ def test_reaction_response_is_empty(client):
 
 # --- 레이트리밋 ------------------------------------------------------------
 def test_xff_spoof_does_not_bypass_ip_limit(client):
-    codes = [client.post("/reactions", headers={"X-Forwarded-For": f"10.0.{i}.1", "X-Real-IP": f"10.1.{i}.1"},
+    """정책: IP 버킷 분당 IP_LIMIT_PER_MIN. 신뢰 프록시 미설정 시 XFF/X-Real-IP 위조로 IP 버킷 회피 불가."""
+    codes = [client.post("/reactions", headers={"X-Forwarded-For": f"10.0.{i % 250}.{i // 250}",
+                                                "X-Real-IP": f"10.1.{i % 250}.{i // 250}"},
                          json={"device_id": f"qa-rot-{i:06d}", "restaurant_id": "R001", "value": "like"}).status_code
-             for i in range(WRITE_LIMIT_PER_MIN + 1)]
-    assert codes[-1] == 429 and codes[:-1] == [204] * WRITE_LIMIT_PER_MIN
+             for i in range(IP_LIMIT_PER_MIN + 1)]
+    assert codes[-1] == 429 and codes[:-1] == [204] * IP_LIMIT_PER_MIN
 
 
 def test_device_rotation_does_not_bypass(client):
-    codes = [_react(client, "R001", "like", dev=f"qa-rot-{i:06d}").status_code for i in range(WRITE_LIMIT_PER_MIN + 5)]
+    """기기 ID 를 매번 바꿔도 같은 IP 는 분당 IP_LIMIT_PER_MIN 에서 막힘."""
+    codes = [_react(client, "R001", "like", dev=f"qa-rot-{i:06d}").status_code for i in range(IP_LIMIT_PER_MIN + 5)]
     assert codes.count(429) == 5
 
 
@@ -337,14 +339,12 @@ def test_normal_toggling_user_not_blocked(client):
     assert set(codes) == {204}
 
 
-@pytest.mark.xfail(strict=True, reason="IP 버킷이 프록시/통신사 NAT 뒤 다수 사용자를 하나로 묶음 → 정상 사용자 오차단")
 def test_users_sharing_ip_not_blocked_by_each_other(client):
     for k in range(WRITE_LIMIT_PER_MIN):
         assert _react(client, "R001", "like", dev=f"qa-user-{k:05d}").status_code == 204
     assert _react(client, "R001", "like", dev="qa-user-fresh").status_code == 204
 
 
-@pytest.mark.xfail(strict=True, reason="거부된 요청도 device 키 deque 를 생성, 빈 키도 영구 보존 → 랜덤 device_id 로 메모리 증가")
 def test_rate_limiter_memory_bounded_under_device_flood():
     rl = RateLimiter(limit=1, window_s=60)
     rl.allow(["ip"], now=0)
