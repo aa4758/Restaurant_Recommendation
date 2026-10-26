@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS restaurants (
     price_band TEXT,                   -- NULL = 미확인
     moods TEXT NOT NULL DEFAULT '',
     alcohol INTEGER,                   -- 1/0, NULL = 미확인
+    alcohol_src TEXT,                  -- 'license' = 휴게음식점 인허가로 0 강제 (ingest/load_license.py)
     lat REAL NOT NULL,
     lng REAL NOT NULL,
     address TEXT,                      -- 도로명 우선
@@ -171,6 +172,7 @@ def connect(path: Path | str | None = None) -> sqlite3.Connection:
 MIGRATIONS = {
     "scores": (("components", "TEXT"), ("evidence", "TEXT")),
     "user_reviews": (("ad_disclosed", "INTEGER"),),
+    "restaurants": (("alcohol_src", "TEXT"),),
 }
 
 # 컬럼 마이그레이션 후에 만들어야 하는 인덱스(구 DB 에는 SCHEMA 실행 시점에 컬럼이 없음)
