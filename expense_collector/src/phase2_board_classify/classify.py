@@ -2,8 +2,8 @@
 
 기관당 요청: 게시판 목록(캐시 재사용) + 게시글 최대 2건 + 저작권/이용약관 1쪽 + (직접 링크 PDF 가 있으면) 샘플 1개.
 등급(5.2): C = robots 비허용·로그인·차단 / A = 목록에 기간 내 날짜(정적) + 직접 다운로드 / B = 그 외.
-'수집 가능'(01 D-1, 2026-10-27 개정)은 등급 A·B + 약관상 자동수집 금지 없음 + 공공누리 1~4유형 표시 일 때만
-(출처 표기 조건으로 사용, 유형 미표시는 보류).
+'수집 가능'(01 D-1, 2026-10-27 개정)은 등급 A·B + 약관상 자동수집 금지 없음.
+공공누리는 1~4유형·표시 없음 모두 출처 표기 조건으로 사용 → license 는 출처 표기용으로 기록만 한다.
 """
 import csv
 import io
@@ -23,6 +23,7 @@ from src.web import anchors, fetch_followed, robots_blocked
 
 FINGERPRINTS = Path(__file__).with_name("cms_fingerprints.yaml")
 USABLE_LICENSES = {f"공공누리 {n}유형" for n in range(1, 5)}
+NO_KOGL = "공공누리 표시 없음"
 POST_URL = re.compile(r"view|detail|read|nttId|nttSn|bbsSn|dataSid|articleNo|idx=|seq=|no=|/\d{3,}(?:$|[/?])", re.I)
 DOWNLOAD = re.compile(r"down|atchFile|attach|fileSn|FileDown|getFile", re.I)
 JS_DOWN = re.compile(r"fn\w*Down\w*\(|download\w*\(|fileDown\w*\(", re.I)
@@ -183,11 +184,11 @@ def classify(client: HttpClient, inst: dict, board_url: str, start: date, end: d
         r["crawl_grade"] = "A"
     else:
         r["crawl_grade"] = "B"
-    licensed = r["license"] in USABLE_LICENSES
-    collectable = r["crawl_grade"] in ("A", "B") and r["terms_ok"] != "no" and licensed
+    # 표시 없는 자료도 출처 표기로 사용(01, 2026-10-27 (나)). 유형은 출처 표기용으로만 기록
+    r["license"] = r["license"] or NO_KOGL
+    collectable = r["crawl_grade"] in ("A", "B") and r["terms_ok"] != "no"
     notes.append("수집 가능" if collectable else "수집 보류(" + ", ".join(
-        x for x, bad in [("등급 C", r["crawl_grade"] == "C"), ("약관", r["terms_ok"] == "no"),
-                         ("공공누리 미표시", not licensed)] if bad) + ")")
+        x for x, bad in [("등급 C", r["crawl_grade"] == "C"), ("약관", r["terms_ok"] == "no")] if bad) + ")")
     r["note"] = " · ".join(n for n in notes if n)
     return r
 

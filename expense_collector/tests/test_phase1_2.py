@@ -84,7 +84,7 @@ def test_post_links_path_style():
 def test_usable_licenses():
     from src.phase2_board_classify.classify import USABLE_LICENSES
     assert {kogl_type('<img src="/img/img_opentype0%d.png">' % n) for n in range(1, 5)} == USABLE_LICENSES
-    assert kogl_type("") not in USABLE_LICENSES  # 미표시는 보류
+    assert kogl_type("") == ""  # 표시 없음 → classify 에서 NO_KOGL 로 기록(출처 표기로 사용)
 
 
 def test_post_links_prefer_board_path():

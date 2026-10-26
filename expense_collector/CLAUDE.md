@@ -14,7 +14,7 @@
 - **크롤링(D-1, 2026-10-26 승인 — `../docs/01_planning_decision.md` 업무추진비 전국 확장)**: 상위 원칙 "네이버 등 크롤링 금지"의 예외로 공공기관 사전공표 게시판 수집을 **기관 단위 판정**으로 허용.
   - Phase 0~2 는 전국 허용(robots·약관·공공누리 확인 + 게시판 몇 페이지 저빈도 조회, 9절 준수).
   - Phase 3 `--source board` 는 등급 A·B + robots 허용 + 약관상 자동수집 금지 없음 + 공공누리 1~4유형 표시를 모두 통과한 기관만. 미통과는 `foi_candidates.csv`.
-  - 찐맛은 **비상업 서비스**(2026-10-27 결정) → 공공누리 **1~4유형 모두 출처 표기 조건으로 사용**. 수익화 도입 전엔 2·4유형 재검토(01). 레코드마다 `license` 보존, export `source` 에 유형 표기, 원문 재배포 없이 집행 사실만 사용. 유형 미표시 자료는 보류. 요청 간격은 **3초 이상**(01 결정, 9절 2초보다 우선).
+  - 찐맛은 **비상업 서비스**(2026-10-27 결정) → 공공누리 **1~4유형 모두 출처 표기 조건으로 사용**. 수익화 도입 전엔 2·4유형 재검토(01). 레코드마다 `license` 보존, export `source` 에 유형 표기, 원문 재배포 없이 집행 사실만 사용. 공공누리 표시 없는 자료도 출처 표기로 사용(2026-10-27 (나), `license=공공누리 표시 없음`). 요청 간격은 **3초 이상**(01 결정, 9절 2초보다 우선).
   - 순서: 공공데이터포털 → 게시판 유형별 파일럿 보고·사용자 승인 → 전국 확대. 품질 리포트에 시도별 커버리지 표시.
 - **카페(D-2, 2026-10-26 승인)**: 찐맛 export 에서 제외(`restaurant` 만). 통합 CSV 에는 `vendor_category=cafe` 로 보존.
 - 일하는 방식(팀 분리·토론·strict xfail·요약 핸드오프·`<result>` XML·모델 티어링·최소 도구)은 상위 문서 그대로.
@@ -331,7 +331,7 @@ python -m src.cli export-jjinmat   # 찐맛 연동 CSV (13절)
 | `purpose` | str | 집행 목적 |
 | `payment_method` | str | 카드/현금 등 |
 | `source` | str | `DATAGOKR` / `BOARD` |
-| `license` | str | 공공누리 유형(`공공누리 1유형`~`4유형`). 미표시면 export 제외 (B절 개정) |
+| `license` | str | `공공누리 1유형`~`4유형` 또는 `공공누리 표시 없음` (모두 출처 표기로 사용, B절) |
 | `source_file_id` | str | 원본 파일 추적용 |
 | `parse_confidence` | float | 0~1 (OCR, 컬럼 매핑 불확실성 반영) |
 
@@ -423,7 +423,7 @@ python -m src.cli export-jjinmat   # 찐맛 연동 CSV (13절)
 | `agency` | `institution_name` | |
 | `amount` | `amount` | 정수(원) |
 | `purpose` | `purpose` | 개인 이름이 섞이면 마스킹 |
-| `source` | `"{기관명} 업무추진비 공개({DATAGOKR 또는 BOARD}, 공공누리 N유형)"` | 출처 표기(공공누리 이용조건) |
+| `source` | `"{기관명} 업무추진비 공개({DATAGOKR 또는 BOARD}, 공공누리 N유형 또는 공공누리 표시 없음)"` | 출처 표기(공공누리 이용조건) |
 | `base_year` | `exec_date` 의 연도 | |
 
 - `vendor_category in config.jjinmat_export.categories` 인 레코드만, `parse_confidence >= 0.7` 만.
