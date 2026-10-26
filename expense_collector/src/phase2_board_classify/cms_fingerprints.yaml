@@ -1,0 +1,24 @@
+# 게시판 엔진 판별 규칙(위에서부터 첫 일치). url_regex 는 게시판 URL, html_regex 는 목록 HTML 에 적용.
+# 실제 패턴은 파일럿·전체 조사 결과로 채워 나간다.
+- id: egovframe_bbs
+  name: 전자정부표준프레임워크 게시판
+  match:
+    url_regex: ["selectBbsNttList\\.do", "selectBoardList\\.do", "bbsId=BBSMSTR_"]
+- id: mois_frt
+  name: 행정안전부 frt 계열
+  match:
+    url_regex: ["/frt/(sub|bbs|a\\d+)/"]
+- id: web_bbs
+  name: /web/{site}/bbs/bbs_ 계열 (통일부 등)
+  match:
+    url_regex: ["/web/\\w+/bbs/bbs_\\d+"]
+- id: site_jsp
+  name: /site/{site}/... .do/.jsp 계열 (지자체 공통 CMS)
+  match:
+    url_regex: ["/site/\\w+/.+\\.(do|jsp)"]
+- id: board_do
+  name: 일반 board.do / bbs.do 계열
+  match:
+    url_regex: ["/board\\.do", "boardId=", "bbs\\.do", "/bbs/", "/board/"]
+- id: unknown
+  name: 미분류

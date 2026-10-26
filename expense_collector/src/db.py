@@ -7,13 +7,13 @@ SCHEMA = """
 CREATE TABLE IF NOT EXISTS institutions (
     institution_id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
-    type TEXT NOT NULL CHECK (type IN ('METRO_EDU','LOCAL_EDU','METRO_GOV','LOCAL_GOV','CENTRAL')),
+    type TEXT NOT NULL CHECK (type IN ('METRO_EDU','LOCAL_EDU','METRO_GOV','LOCAL_GOV','CENTRAL','OTHER')),
     parent TEXT,
     region TEXT,
     homepage_url TEXT,
     admin_code TEXT,
     source TEXT,                      -- 목록을 얻은 출처
-    status TEXT NOT NULL DEFAULT 'ok' CHECK (status IN ('ok','needs_review')),
+    status TEXT NOT NULL DEFAULT 'ok' CHECK (status IN ('ok','needs_review','excluded')),  -- excluded: 홈페이지 미확보로 대상 제외
     note TEXT,
     updated_at TEXT NOT NULL
 );

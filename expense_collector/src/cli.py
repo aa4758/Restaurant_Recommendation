@@ -25,5 +25,19 @@ def phase0():
     run(load_config())
 
 
+@app.command()
+def phase1(pilot: bool = typer.Option(False, "--pilot", help="config.pilot.institutions 만")):
+    """기관별 수집 출처 조사 → data/source_survey.csv, data/output/foi_candidates.csv"""
+    from src.phase1_source_survey.survey import run
+    run(load_config(), pilot)
+
+
+@app.command()
+def phase2(pilot: bool = typer.Option(False, "--pilot", help="config.pilot.institutions 만")):
+    """BOARD found 기관의 게시판 분류 → data/board_registry.csv"""
+    from src.phase2_board_classify.classify import run
+    run(load_config(), pilot)
+
+
 if __name__ == "__main__":
     app()

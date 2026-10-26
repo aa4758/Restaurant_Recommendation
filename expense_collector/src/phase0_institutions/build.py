@@ -2,7 +2,9 @@
 
 출처
 1. 기관 목록: 행정표준코드관리시스템(code.go.kr) '기관코드 전체자료' (공공데이터포털 15092039 의 다운로드 링크)
-2. 홈페이지: 정부24 '정부/지자체 누리집'(gov.kr/portal/orgSite, robots 명시 허용). 교육지원청은 여기에 없음 → needs_review
+2. 홈페이지: 정부24 '정부/지자체 누리집'(gov.kr/portal/orgSite, robots 명시 허용)
+3. 교육지원청 홈페이지: 정부24 에 없음 → 시도교육청 홈페이지(JS 리다이렉트 몇 단계)의 '○○교육지원청' 바로가기 링크
+홈페이지를 못 찾은 기관은 status=excluded (2026-10-27 사용자 결정: URL 미확보 기관은 제외).
 
 원본은 data/raw/_phase0/ 에 캐시(있으면 재다운로드 안 함, 갱신하려면 파일 삭제).
 """
@@ -17,12 +19,13 @@ from bs4 import BeautifulSoup
 
 from src import db
 from src.http_client import HttpClient
+from src.web import anchors, fetch_followed, robots_blocked
 
 CODE_URL = "https://www.code.go.kr/etc/codeFullDown.do?codeseId=00001"
 CODE_MEMBER = "기관코드 전체자료(유형분류 의미추가).txt"
 GOVKR_URL = "https://www.gov.kr/portal/orgSite"
 
-EXPECTED = {"METRO_EDU": 17, "LOCAL_EDU": 176, "METRO_GOV": 17, "LOCAL_GOV": 226, "CENTRAL": 50}
+EXPECTED = {"METRO_EDU": 17, "LOCAL_EDU": 176, "METRO_GOV": 17, "LOCAL_GOV": 226, "CENTRAL": 50, "OTHER": 0}
 CENTRAL_KINDS = {"부", "처", "청", "위원회", "국무총리직속(위원회)"}
 LOCAL_KINDS = {"군", "도농복합시", "일반시", "자치구"}
 # 정부24 목록이 통합 전 명칭으로 남아 있는 경우 — 매칭은 하되 needs_review 로 둔다
@@ -58,8 +61,12 @@ def select_institutions(df: pd.DataFrame) -> list[dict]:
         ("METRO_GOV", live[mid.eq("광역자치단체") & depth.eq("1")]),
         ("LOCAL_GOV", live[mid.eq("기초자치단체") & depth.eq("2") & small.isin(LOCAL_KINDS)]),
         ("METRO_EDU", live[mid.eq("시.도 교육청") & depth.eq("1")]),
-        ("LOCAL_EDU", live[mid.eq("지역교육청") & depth.eq("2")]),
+        # 지역교육청 분류에 섞인 학교 부설 기관(예: 농업경영전문학교) 제외
+        ("LOCAL_EDU", live[mid.eq("지역교육청") & depth.eq("2") & live["최하위기관명"].str.endswith("교육지원청")]),
         ("CENTRAL", live[mid.eq("중앙행정기관") & depth.eq("1") & small.isin(CENTRAL_KINDS)]),
+        # 기타 범위(2026-10-27 사용자 결정): 국가행정조직 1차 중 중앙행정기관 분류 밖 — 대통령직속(기타)·분류 없음
+        ("OTHER", live[depth.eq("1") & live["유형분류_대_의미"].eq("국가행정조직")
+                       & ((mid.eq("중앙행정기관") & small.eq("대통령직속(기타)")) | mid.isna())]),
     ]
     edu_region = {}
     out = []
@@ -157,14 +164,71 @@ def match_homepages(insts: list[dict], entries: list[dict]) -> None:
             if how:
                 _review(inst, how)
         elif len(urls) > 1:
+            inst["_candidates"] = sorted(urls)
             _review(inst, "정부24 누리집 후보 여러 개: " + " ".join(sorted(urls)))
+        elif key:
+            _review(inst, "홈페이지 미확보 (정부24 목록에서 못 찾음)")
+
+
+# --- 3. 교육지원청 ---
+PROVINCE = re.compile(r"^.*?(?:통합특별시|특별자치시|특별자치도|특별시|광역시|도)(?=.+교육지원청$)")
+NEWSY = re.compile(r"[.,!?…\"“”'‘’]")  # 괄호 밖에 문장부호가 있으면 기사 제목으로 본다
+
+
+def edu_links(html: str) -> list[tuple[str, str]]:
+    """(공백 제거한 링크 문구, 절대 URL) — 문구가 '○○교육지원청' 으로 시작하는 메뉴 링크만(기사 제목 제외)."""
+    out = []
+    for raw_text, url, a in anchors(html):
+        if not url:
+            continue
+        for text in (a.get_text(" ", strip=True), a.get("title") or ""):
+            text = re.sub(r"\s+", "", text)
+            if re.match(r"^[가-힣]+교육지원청", text) and not NEWSY.search(re.sub(r"\([^)]*\)", "", text)):
+                out.append((text, url))
+    return out
+
+
+def collapse(urls: set[str]) -> set[str]:
+    """같은 사이트의 '/x/' 와 '/x/main.do' 처럼 한쪽이 다른 쪽의 접두어면 짧은 쪽만 남긴다."""
+    return {u for u in urls if not any(o != u and u.startswith(o) for o in urls)}
+
+
+def short_edu_name(name: str) -> str:
+    return PROVINCE.sub("", name)  # '서울특별시동부교육지원청' → '동부교육지원청'
+
+
+def match_edu_offices(client: HttpClient, insts: list[dict], raw: Path) -> None:
+    cache = raw / "edu"
+    cache.mkdir(parents=True, exist_ok=True)
+    links_by_parent: dict[str, list] = {}
+    blocked: dict[str, bool] = {}
+    for p in (i for i in insts if i["type"] == "METRO_EDU"):
+        seeds = [p["homepage_url"]] if p.get("homepage_url") else p.get("_candidates", [])
+        htmls = [fetch_followed(client, u, cache) for u in seeds]
+        links_by_parent[p["name"]] = [l for h in htmls for l in edu_links(h)]
+        blocked[p["name"]] = bool(htmls) and all(robots_blocked(h) for h in htmls)
+    for inst in (i for i in insts if i["type"] == "LOCAL_EDU"):
+        short = short_edu_name(inst["name"])
+        urls = collapse({u for text, u in links_by_parent.get(inst["parent"], []) if text.startswith(short)})
+        if len(urls) == 1:
+            inst["homepage_url"] = urls.pop()
+        elif urls:
+            _review(inst, "시도교육청 누리집 링크 후보 여러 개: " + " ".join(sorted(urls)))
+        elif blocked.get(inst["parent"]):
+            _review(inst, "시도교육청 누리집 robots 비허용 — 링크 확인 불가")
         else:
-            _review(inst, "홈페이지 미확보" + (" (정부24 목록에 교육지원청 없음)" if inst["type"] == "LOCAL_EDU" else " (정부24 목록에서 못 찾음)"))
+            _review(inst, "시도교육청 누리집에서 링크 못 찾음")
 
 
 def _review(inst: dict, why: str) -> None:
     inst["status"] = "needs_review"
     inst["note"] = "; ".join(x for x in (inst.get("note"), why) if x)
+
+
+def exclude_without_homepage(insts: list[dict]) -> None:
+    for i in insts:
+        if not i.get("homepage_url"):
+            i["status"] = "excluded"
 
 
 # --- 실행 ---
@@ -177,6 +241,8 @@ def run(cfg: dict) -> dict:
     try:
         insts = select_institutions(load_codes(client, raw))
         match_homepages(insts, load_govkr(client, raw))
+        match_edu_offices(client, insts, raw)
+        exclude_without_homepage(insts)
         for inst in insts:
             db.upsert_institution(conn, inst)
         conn.commit()
@@ -197,17 +263,18 @@ def run(cfg: dict) -> dict:
 
 
 def summarize(insts: list[dict]) -> dict:
-    counts = {t: {"n": 0, "homepage": 0, "needs_review": 0} for t in EXPECTED}
+    counts = {t: {"n": 0, "homepage": 0, "needs_review": 0, "excluded": 0} for t in EXPECTED}
     for i in insts:
         c = counts[i["type"]]
         c["n"] += 1
         c["homepage"] += bool(i.get("homepage_url"))
-        c["needs_review"] += i["status"] == "needs_review"
+        if i["status"] in ("needs_review", "excluded"):
+            c[i["status"]] += 1
     return {"counts": counts}
 
 
 def print_summary(summary: dict, out: Path) -> None:
     print(f"→ {out}")
-    print(f"{'type':<10}{'n':>5}{'예상':>6}{'차이':>6}{'홈페이지':>9}{'검토':>6}")
+    print(f"{'type':<10}{'n':>5}{'예상':>6}{'차이':>6}{'홈페이지':>9}{'검토':>6}{'제외':>6}")
     for t, c in summary["counts"].items():
-        print(f"{t:<10}{c['n']:>5}{EXPECTED[t]:>6}{c['n'] - EXPECTED[t]:>+6}{c['homepage']:>9}{c['needs_review']:>6}")
+        print(f"{t:<10}{c['n']:>5}{EXPECTED[t]:>6}{c['n'] - EXPECTED[t]:>+6}{c['homepage']:>9}{c['needs_review']:>6}{c['excluded']:>6}")

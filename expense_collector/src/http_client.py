@@ -2,7 +2,8 @@
 
 - robots.txt 준수: 우리 UA 와 ClaudeBot 둘 다 허용일 때만 요청(이 수집기는 Claude 가 운영하므로 ClaudeBot 차단도 존중).
   robots.txt 가 404 면 전체 허용, 401/403/5xx/네트워크 오류면 전체 비허용(보수적).
-- 같은 도메인 요청 간격 ≥ max(config min_interval_sec, Crawl-delay). 동기 클라이언트라 동시 접속은 항상 1.
+- 같은 도메인 요청 간격 ≥ max(config min_interval_sec, Crawl-delay). Crawl-delay > 60초면 비허용으로 본다.
+  동기 클라이언트라 동시 접속은 항상 1.
 - 429/5xx/전송 오류는 지수 백오프 재시도. 로그인·CAPTCHA 우회 없음.
 """
 import time
@@ -12,6 +13,7 @@ from urllib.robotparser import RobotFileParser
 import httpx
 
 ROBOTS_ALSO_CHECK = "ClaudeBot"
+MAX_CRAWL_DELAY = 60  # 초. 이보다 길면 비허용으로 본다
 
 
 class RobotsDisallowed(Exception):
@@ -47,19 +49,20 @@ class HttpClient:
                 self.sleep(gap)
         self._last[host] = self.clock()
 
-    def _raw(self, method: str, url: str, interval: float, **kw) -> httpx.Response:
+    def _raw(self, method: str, url: str, interval: float, retries: int | None = None, **kw) -> httpx.Response:
         host = urlsplit(url).netloc
-        for attempt in range(self.retries + 1):
+        retries = self.retries if retries is None else retries
+        for attempt in range(retries + 1):
             self._wait(host, interval)
             try:
                 r = self._client.request(method, url, **kw)
                 if r.status_code != 429 and r.status_code < 500:
                     return r
             except httpx.TransportError:
-                if attempt == self.retries:
+                if attempt == retries:
                     raise
                 r = None
-            if attempt < self.retries:
+            if attempt < retries:
                 self.sleep(interval * 2 ** attempt)
         return r
 
@@ -69,7 +72,8 @@ class HttpClient:
         if key not in self._robots:
             rp = RobotFileParser()
             try:
-                r = self._raw("GET", key + "/robots.txt", self.min_interval)
+                # 1회만 시도(응답 없는 서버에서 재시도로 수 분 묶이지 않게). 실패 = 전체 비허용
+                r = self._raw("GET", key + "/robots.txt", self.min_interval, retries=0, timeout=20)
                 code = r.status_code
             except httpx.TransportError:
                 code = 503
@@ -86,6 +90,8 @@ class HttpClient:
         if not self.respect_robots:
             return True
         rp = self.robots(url)
+        if float(rp.crawl_delay(self.ua_token) or 0) > MAX_CRAWL_DELAY:
+            return False  # 사실상 수집 거부(예: Crawl-delay 3600) → 비허용과 같이 취급
         return rp.can_fetch(self.ua_token, url) and rp.can_fetch(ROBOTS_ALSO_CHECK, url)
 
     def interval_for(self, url: str) -> float:

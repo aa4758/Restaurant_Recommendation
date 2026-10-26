@@ -71,7 +71,7 @@ def test_db_schema_upsert_idempotent(tmp_path):
 def test_db_rejects_bad_type(tmp_path):
     conn = db.connect(tmp_path / "s.db")
     with pytest.raises(Exception):
-        db.upsert_institution(conn, {"institution_id": "X", "name": "n", "type": "OTHER"})
+        db.upsert_institution(conn, {"institution_id": "X", "name": "n", "type": "BOGUS"})
 
 
 def test_runs(tmp_path):
@@ -124,3 +124,19 @@ def test_retry_backoff_then_success():
     assert c.get("https://a.go.kr/x").status_code == 200
     assert calls.count("/x") == 3
     assert 6 in clk.slept and 3 in clk.slept  # 지수 백오프 3·2^0, 3·2^1
+
+
+def test_robots_single_attempt_and_huge_crawl_delay():
+    calls = []
+
+    def down(req):
+        calls.append(req.url.path)
+        raise httpx.ConnectError("reset")
+    c, _ = client(down)
+    with pytest.raises(RobotsDisallowed):
+        c.get("https://slow.go.kr/x")
+    assert calls == ["/robots.txt"]  # 재시도 없이 비허용
+
+    c, _ = client(site("User-agent: *\nCrawl-delay: 3600\n")[0])
+    with pytest.raises(RobotsDisallowed):
+        c.get("https://a.go.kr/x")
