@@ -79,3 +79,17 @@ def test_terms_ban():
 def test_post_links_path_style():
     html = '<!-- url: https://og.kr/expense/list -->\n<a href="/expense/37223170">2026년 9월 본청 업무추진비 내역</a>'
     assert post_links(html, "https://og.kr/expense/list") == ["https://og.kr/expense/37223170"]
+
+
+def test_usable_licenses():
+    from src.phase2_board_classify.classify import USABLE_LICENSES
+    assert {kogl_type('<img src="/img/img_opentype0%d.png">' % n) for n in range(1, 5)} == USABLE_LICENSES
+    assert kogl_type("") not in USABLE_LICENSES  # 미표시는 보류
+
+
+def test_post_links_prefer_board_path():
+    html = ('<!-- url: https://u.kr/web/u/bbs/bbs_125 -->\n'
+            '<a href="/web/u/contents/openDatedetail_a">사전정보 공표 목록 상세</a>'
+            '<a href="/web/u/contents/openDatedetail_b">정보공개 목록 상세 보기</a>'
+            '<a href="/web/u/bbs/bbs_125/60543?cp=1">장차관업무추진비 2026년 9월</a>')
+    assert post_links(html, "https://u.kr/web/u/bbs/bbs_125")[0] == "https://u.kr/web/u/bbs/bbs_125/60543?cp=1"

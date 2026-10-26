@@ -140,3 +140,15 @@ def test_robots_single_attempt_and_huge_crawl_delay():
     c, _ = client(site("User-agent: *\nCrawl-delay: 3600\n")[0])
     with pytest.raises(RobotsDisallowed):
         c.get("https://a.go.kr/x")
+
+
+def test_robots_wildcards_and_longest_match():
+    # 통일부 실제 robots.txt 형태 — 표준 라이브러리는 '*' 를 글자로 비교해 이 규칙들을 놓친다
+    rules = "User-agent: *\nCrawl-delay: 5\nAllow: \nDisallow: /web/*/file/\nDisallow: /*?*\nAllow: /pub$\nDisallow: /pub\n"
+    c, _ = client(site(rules)[0])
+    blocked = ["https://u.go.kr/web/unikorea/file/a.pdf", "https://u.go.kr/web/x/bbs/1?id=2", "https://u.go.kr/pub/x"]
+    for u in blocked:
+        with pytest.raises(RobotsDisallowed):
+            c.get(u)
+    for u in ["https://u.go.kr/web/unikorea/bbs/1", "https://u.go.kr/pub"]:
+        assert c.get(u).status_code == 200

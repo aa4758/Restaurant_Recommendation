@@ -2,7 +2,8 @@
 
 기관당 요청: 게시판 목록(캐시 재사용) + 게시글 최대 2건 + 저작권/이용약관 1쪽 + (직접 링크 PDF 가 있으면) 샘플 1개.
 등급(5.2): C = robots 비허용·로그인·차단 / A = 목록에 기간 내 날짜(정적) + 직접 다운로드 / B = 그 외.
-'수집 가능'(01 D-1)은 등급 A·B + 약관상 자동수집 금지 없음 + 공공누리 1유형 일 때만.
+'수집 가능'(01 D-1, 2026-10-27 개정)은 등급 A·B + 약관상 자동수집 금지 없음 + 공공누리 1~4유형 표시 일 때만
+(출처 표기 조건으로 사용, 유형 미표시는 보류).
 """
 import csv
 import io
@@ -20,6 +21,7 @@ from src.phase1_source_survey.survey import EXT, in_period, kogl_type
 from src.web import anchors, fetch_followed, robots_blocked
 
 FINGERPRINTS = Path(__file__).with_name("cms_fingerprints.yaml")
+USABLE_LICENSES = {f"공공누리 {n}유형" for n in range(1, 5)}
 POST_URL = re.compile(r"view|detail|read|nttId|nttSn|bbsSn|dataSid|articleNo|idx=|seq=|no=|/\d{3,}(?:$|[/?])", re.I)
 DOWNLOAD = re.compile(r"down|atchFile|attach|fileSn|FileDown|getFile", re.I)
 JS_DOWN = re.compile(r"fn\w*Down\w*\(|download\w*\(|fileDown\w*\(", re.I)
@@ -54,6 +56,7 @@ def pagination(html: str) -> str:
 def post_links(html: str, board_url: str, limit: int = 2) -> list[str]:
     host = urlsplit(board_url).netloc
     base_q = parse_qs(urlsplit(board_url).query)
+    board_dir = urlsplit(board_url).path.rsplit("/", 1)[0]
     out = []
     for text, url, _ in anchors(html):
         if not url or urlsplit(url).netloc != host or url in out or url.rstrip("/") == board_url.rstrip("/"):
@@ -61,9 +64,9 @@ def post_links(html: str, board_url: str, limit: int = 2) -> list[str]:
         same_list = urlsplit(url).path == urlsplit(board_url).path and parse_qs(urlsplit(url).query) == base_q
         if len(text) >= 6 and POST_URL.search(url) and not PAGE_PARAM.search(url) and not same_list:
             out.append(url)
-        if len(out) >= limit:
-            break
-    return out
+    # 게시판 경로 아래 링크(실제 게시글)를 메뉴의 'detail' 류 링크보다 먼저
+    out.sort(key=lambda u: not urlsplit(u).path.startswith(board_dir))
+    return out[:limit]
 
 
 def attachments(html: str) -> tuple[set[str], str, list[str]]:
@@ -160,10 +163,11 @@ def classify(client: HttpClient, inst: dict, board_url: str, start: date, end: d
         r["crawl_grade"] = "A"
     else:
         r["crawl_grade"] = "B"
-    collectable = r["crawl_grade"] in ("A", "B") and r["terms_ok"] != "no" and r["license"] == "공공누리 1유형"
+    licensed = r["license"] in USABLE_LICENSES
+    collectable = r["crawl_grade"] in ("A", "B") and r["terms_ok"] != "no" and licensed
     notes.append("수집 가능" if collectable else "수집 보류(" + ", ".join(
         x for x, bad in [("등급 C", r["crawl_grade"] == "C"), ("약관", r["terms_ok"] == "no"),
-                         (f"라이선스 {r['license'] or '미표시'}", r["license"] != "공공누리 1유형")] if bad) + ")")
+                         ("공공누리 미표시", not licensed)] if bad) + ")")
     r["note"] = " · ".join(n for n in notes if n)
     return r
 
