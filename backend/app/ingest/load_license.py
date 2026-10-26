@@ -252,12 +252,13 @@ def load_license(conn: sqlite3.Connection, csv_paths, crs: str = DEFAULT_CRS, ou
     index = RestaurantIndex(conn)
     by_license = {r[0]: r[1] for r in conn.execute(
         "SELECT license_id, id FROM restaurants WHERE license_id IS NOT NULL")}
-    info = {r[0]: {"status": r[1], "sigungu_code": r[2], "license_id": r[3], "opened_at": r[4]}
-            for r in conn.execute("SELECT id, status, sigungu_code, license_id, opened_at FROM restaurants")}
+    info = {r[0]: {"status": r[1], "sigungu_code": r[2], "license_id": r[3], "opened_at": r[4], "license_type": r[5]}
+            for r in conn.execute(
+                "SELECT id, status, sigungu_code, license_id, opened_at, license_type FROM restaurants")}
 
     stats = {"total": 0, "excluded": 0, "matched": 0, "updated": 0, "new": 0, "closed_applied": 0,
              "reopened": 0, "ignored_closed": 0, "stale_ignored": 0, "duplicate": 0, "unmatched": 0,
-             "rest_not_created": 0}
+             "rest_not_created": 0, "general_kept": 0}
     groups: dict[str, list] = {}       # 가게 id → [best 행, 행 수]
     new_groups: dict[tuple, list] = {}  # (상호, 도로명키|좌표) → [best 행, 행 수]
     unmatched: list[tuple[dict, str]] = []
@@ -325,10 +326,15 @@ def _apply(conn: sqlite3.Connection, groups: dict, new_groups: dict, info: dict,
     for rid, (best, _n) in groups.items():
         cur = info[rid]
         closed = best["status"] == "closed"
-        if (closed and cur["status"] == "open" and cur["license_id"] and best["license_id"] != cur["license_id"]
-                and cur["opened_at"] and not (best["opened_at"] and best["opened_at"] >= cur["opened_at"])):
-            # 이미 영업 중 인허가가 붙은 가게에, 그보다 오래된 다른 관리번호의 폐업 행(이전 실행·다른 파일) → 무시
+        other_open = cur["status"] == "open" and cur["license_id"] and best["license_id"] != cur["license_id"]
+        if other_open and (closed or best.get("_excluded")):
+            # 영업 중 인허가가 붙은 가게를 다른 관리번호의 폐업 행·제외 업태 행(같은 상호·주소의 다른 업소)으로 닫지 않음.
+            # 붙은 인허가가 실제로 폐업했다면 그 관리번호의 행이 직접 반영함(다른 파일·이전 실행이어도)
             stats["stale_ignored"] += 1
+            continue
+        if other_open and best["license_type"] == REST_TYPE and cur["license_type"] != REST_TYPE:
+            # 일반음식점으로 영업 중인 가게를 같은 자리의 휴게 인허가로 덮지 않음(주류 가능 → 불가 오표시 방지)
+            stats["general_kept"] += 1
             continue
         if closed and cur["status"] == "open":
             stats["closed_applied"] += 1
@@ -354,7 +360,8 @@ def _apply(conn: sqlite3.Connection, groups: dict, new_groups: dict, info: dict,
                 " closed_at=CASE WHEN ?='closed' THEN COALESCE(closed_at, ?) END, area_m2=COALESCE(?, area_m2),"
                 " phone=CASE WHEN phone IS NULL OR TRIM(phone)='' THEN ? ELSE phone END,"
                 " alcohol=CASE WHEN ?=1 THEN 0"
-                "  WHEN ?=1 AND alcohol_src='license' AND alcohol=0 THEN NULL ELSE alcohol END,"
+                "  WHEN ?=1 AND alcohol_src='license' AND alcohol=0 THEN CASE WHEN genre='주점' THEN 1 END"
+                "  ELSE alcohol END,"
                 " alcohol_src=CASE WHEN ?=1 THEN 'license' WHEN ?=1 AND alcohol_src='license' THEN NULL"
                 "  ELSE alcohol_src END,"
                 " updated_at=? WHERE id=?",
@@ -515,7 +522,8 @@ def main() -> None:
     tag = "[dry]" if res["dry_run"] else "[ok] "
     print(f"{tag} 전체 {res['total']}건: 매칭 {res['matched']}건(가게 {res['updated']}곳 갱신), 신규 {res['new']}곳,"
           f" 폐업 반영 {res['closed_applied']}곳, 재개업 {res['reopened']}곳, 업태 제외 {res['excluded']}건,"
-          f" 미매칭 폐업 무시 {res['ignored_closed']}건, 휴게 미생성 {res['rest_not_created']}건, 오래된 폐업 무시 {res['stale_ignored']}건, 중복 {res['duplicate']}건, 미매칭 {res['unmatched']}건")
+          f" 미매칭 폐업 무시 {res['ignored_closed']}건, 휴게 미생성 {res['rest_not_created']}건,"
+          f" 다른 인허가 폐업 무시 {res['stale_ignored']}건, 일반 유지(휴게 무시) {res['general_kept']}건, 중복 {res['duplicate']}건, 미매칭 {res['unmatched']}건")
     if not res["dry_run"]:
         print(f"[ok]   재계산 시군구 {len(res['regions'])}곳")
     for h in res["pii_dropped"]:

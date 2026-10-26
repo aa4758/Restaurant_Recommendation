@@ -300,3 +300,41 @@ def test_merged_sido_gets_region_and_fix_regions(tmp_path, no_rebuild):
     assert r["fixed"] == 1 and r["still_none"] == 0
     assert _q(conn, "SELECT sido, sigungu, sigungu_code FROM restaurants WHERE id='L1'") == (
         "전남광주통합특별시", "서구", "N:전남광주 서구")
+
+
+# --- 회귀: 일반음식점 파일 → 휴게음식점 파일 순서 적재 시 영업 중 일반 가게가 닫히거나 휴게로 바뀜 ------------------
+def test_rest_file_after_general_file_keeps_general_store(tmp_path, no_rebuild):
+    conn = make_db(tmp_path)
+    road, xy = "서울특별시 중구 다동길 7", tm(37.5680, 126.9800)
+    # 1) 일반음식점 파일: 영업 중 호프 → 신규 가게(주점, 음주 가능)
+    _load(conn, tmp_path, [row("G1", "일반음식점", "다동호프", "호프/통닭", "20150101", road=road, xy=xy)], "g.csv")
+    assert _q(conn, "SELECT status, license_type, alcohol FROM restaurants WHERE id='LG1'") == ("open", "일반음식점", 1)
+    # 2) 휴게음식점 파일: 같은 상호·주소의 (a) 더 늦게 연 휴게 폐업, (b) 영업 중 휴게, (c) 폐업한 커피숍(제외 업태)
+    for rows in (
+        [row("R1", "휴게음식점", "다동호프", "기타 휴게음식점", "20200101", status="폐업", closed="20230101",
+             road=road, xy=xy)],
+        [row("R2", "휴게음식점", "다동호프", "기타 휴게음식점", "20210101", road=road, xy=xy)],
+        [row("R3", "휴게음식점", "다동호프", "커피숍", "20220101", status="폐업", closed="20240101", road=road, xy=xy)],
+    ):
+        res = _load(conn, tmp_path, rows, "r.csv")
+        assert res["closed_applied"] == 0
+        assert _q(conn, "SELECT status, license_id, license_type, alcohol FROM restaurants WHERE id='LG1'") == (
+            "open", "G1", "일반음식점", 1)
+    # 3) 붙은 일반 인허가 자체가 폐업하면 닫힘
+    res = _load(conn, tmp_path, [row("G1", "일반음식점", "다동호프", "호프/통닭", "20150101", status="폐업",
+                                     closed="20250101", road=road, xy=xy)], "g2.csv")
+    assert res["closed_applied"] == 1 and _q(conn, "SELECT status FROM restaurants WHERE id='LG1'") == ("closed",)
+
+
+def test_general_reload_repairs_store_wrongly_switched_to_rest(tmp_path, no_rebuild):
+    """이전 버전으로 휴게 파일을 적재해 휴게로 덮이고 닫힌 가게 → 일반 파일 재적재로 복구(주점은 음주 가능 복원)."""
+    conn = make_db(tmp_path)
+    road, xy = "서울특별시 중구 다동길 9", tm(37.5681, 126.9801)
+    _load(conn, tmp_path, [row("G2", "일반음식점", "다동포차", "정종/대포집/소주방", "20150101", road=road, xy=xy)])
+    conn.execute("UPDATE restaurants SET license_id='R9', license_type='휴게음식점', status='closed',"
+                 " closed_at='2023-01-01', alcohol=0, alcohol_src='license' WHERE id='LG2'")
+    res = _load(conn, tmp_path, [row("G2", "일반음식점", "다동포차", "정종/대포집/소주방", "20150101",
+                                     road=road, xy=xy)], "g.csv")
+    assert res["reopened"] == 1
+    assert _q(conn, "SELECT status, license_id, license_type, alcohol, alcohol_src FROM restaurants WHERE id='LG2'") == (
+        "open", "G2", "일반음식점", 1, None)
