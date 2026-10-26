@@ -240,8 +240,50 @@ def test_check_files_reports_header_pii_and_coords(tmp_path, capsys):
     bad.write_text("관리번호,사업장명\nX1,가게\n", encoding="utf-8")
     missing = tmp_path / "none.csv"
     r_bad, r_none = ll.check_files([bad, missing])
-    assert "좌표정보(x)" in r_bad["missing_columns"] and r_none["exists"] is False
+    assert r_bad["missing_columns"] == ["인허가일자", "영업상태명", "업태구분명"] and r_none["exists"] is False
     ll._print_check([res, r_bad, r_none])
     out = capsys.readouterr().out
-    assert "필수 컬럼 모두 있음" in out and "누락 컬럼" in out and "파일 없음" in out
+    assert "필수 컬럼 모두 있음" in out and "필수 컬럼 없음" in out and "파일 없음" in out
     assert "홍길동" not in out
+
+
+NEW_HEADER = ["개방자치단체코드", "관리번호", "인허가일자", "영업상태명", "상세영업상태명", "폐업일자", "전화번호",
+              "소재지면적", "지번주소", "도로명주소", "사업장명", "최종수정시점", "업태구분명",
+              "좌표정보X(EPSG5174)", "좌표정보Y(EPSG5174)", "대표자명"]
+
+
+def test_alias_header_and_license_type_override(tmp_path):
+    x, y = tm(37.5665, 126.9780)
+    p = tmp_path / "food_restaurant.csv"
+    with open(p, "w", encoding="cp949", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(NEW_HEADER)
+        w.writerow(["3000000", "N1", "20100105", "영업/정상", "영업", "", "02-000-0000", "33.3",
+                    "서울특별시 중구 태평로1가 31", "서울특별시 중구 세종대로 110", "가상식당", "2024-01-02 10:00:00",
+                    "한식", f"{x:.3f}", f"{y:.3f}", "홍길동"])
+    ad = LicenseCSVAdapter(p)
+    (r,) = list(ad.iter_records())
+    assert ad.missing_columns == [] and "개방서비스명" in ad.missing_optional
+    assert r["license_type"] is None  # 파일명으로 추정 불가
+    assert r["address_road"] == "서울특별시 중구 세종대로 110" and r["phone"] == "02-000-0000"
+    assert haversine_m(r["lat"], r["lng"], 37.5665, 126.9780) < 1.0
+    assert "홍길동" not in str(r)
+    (r2,) = list(LicenseCSVAdapter(p, license_type="일반음식점").iter_records())
+    assert r2["license_type"] == "일반음식점"
+    (chk,) = ll.check_files([p], license_type="휴게음식점")
+    assert chk["license_types"] == {"휴게음식점": 1} and chk["coords_ok"] == 1
+    assert chk["colmap"]["x"] == "좌표정보X(EPSG5174)"
+
+
+def test_missing_required_columns_raise(tmp_path):
+    p = tmp_path / "bad.csv"
+    p.write_text("관리번호,사업장명\nX1,가게\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="필수 컬럼"):
+        list(ll.iter_records([p]))
+
+
+def test_infer_license_type_from_filename():
+    from app.ingest.license import infer_license_type
+    assert infer_license_type("휴게음식점_2026.csv") == "휴게음식점"
+    assert infer_license_type("행정안전부_일반음식점.csv") == "일반음식점"
+    assert infer_license_type("food_restaurant.csv") is None

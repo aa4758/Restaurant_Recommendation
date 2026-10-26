@@ -48,11 +48,19 @@ CALIBRATE_SAMPLE = 200
 CALIBRATE_MIN_N = 30  # 이보다 적으면 calibrate 결과 경고
 
 
-def iter_records(paths, crs: str = DEFAULT_CRS, pii: list[str] | None = None) -> Iterator[dict]:
-    """파일들을 행 단위로 스트리밍. pii 목록이 주어지면 파일별 폐기 PII 헤더를 채움."""
+def iter_records(paths, crs: str = DEFAULT_CRS, pii: list[str] | None = None,
+                 license_type: str | None = None) -> Iterator[dict]:
+    """파일들을 행 단위로 스트리밍. pii 목록이 주어지면 파일별 폐기 PII 헤더를 채움.
+    필수 컬럼이 없는 파일은 ValueError(잘못된 파일을 조용히 0건 적재하지 않음)."""
     for p in paths:
-        ad = LicenseCSVAdapter(p, crs)
-        yield from ad.iter_records()
+        ad = LicenseCSVAdapter(p, crs, license_type)
+        gen = ad.iter_records()
+        first = next(gen, None)
+        if ad.missing_columns:
+            raise ValueError(f"{p}: 필수 컬럼 없음 {ad.missing_columns} — --check 로 헤더 확인")
+        if first is not None:
+            yield first
+        yield from gen
         if pii is not None:
             pii.extend(f"{Path(p).name}:{h}" for h in ad.pii_dropped)
 
@@ -185,7 +193,7 @@ def _keep_best(d: dict, key, r: dict) -> None:
 
 
 def load_license(conn: sqlite3.Connection, csv_paths, crs: str = DEFAULT_CRS, out_dir: Path | str = OUT_DIR,
-                 dry_run: bool = False) -> dict:
+                 dry_run: bool = False, license_type: str | None = None) -> dict:
     if isinstance(csv_paths, (str, Path)):
         csv_paths = [csv_paths]
     pii: list[str] = []
@@ -200,7 +208,7 @@ def load_license(conn: sqlite3.Connection, csv_paths, crs: str = DEFAULT_CRS, ou
     groups: dict[str, list] = {}       # 가게 id → [best 행, 행 수]
     new_groups: dict[tuple, list] = {}  # (상호, 도로명키|좌표) → [best 행, 행 수]
     unmatched: list[tuple[dict, str]] = []
-    for r in iter_records(csv_paths, crs, pii):
+    for r in iter_records(csv_paths, crs, pii, license_type):
         stats["total"] += 1
         excluded = is_excluded(r["biz_type"])
         if excluded:
@@ -330,7 +338,7 @@ def _apply(conn: sqlite3.Connection, groups: dict, new_groups: dict, info: dict,
     return regions
 
 
-def check_files(paths, crs: str = DEFAULT_CRS) -> list[dict]:
+def check_files(paths, crs: str = DEFAULT_CRS, license_type: str | None = None) -> list[dict]:
     """적재 전 파일 점검(DB 불필요): 인코딩, 헤더 누락, 개인정보 컬럼, 행 수, 인허가 종류·영업상태·업태 분포, 좌표 변환."""
     from collections import Counter
 
@@ -348,7 +356,7 @@ def check_files(paths, crs: str = DEFAULT_CRS) -> list[dict]:
             info["encoding"] = f.encoding
             sample = f.read(200_000)
         info["broken_chars"] = sample.count("\ufffd")  # 인코딩 깨짐 의심
-        ad = LicenseCSVAdapter(path, crs)
+        ad = LicenseCSVAdapter(path, crs, license_type)
         types, status, biz = Counter(), Counter(), Counter()
         n = conv = excluded = 0
         lat_rng, lng_rng = [90.0, -90.0], [180.0, -180.0]
@@ -363,6 +371,7 @@ def check_files(paths, crs: str = DEFAULT_CRS) -> list[dict]:
                 lat_rng = [min(lat_rng[0], r["lat"]), max(lat_rng[1], r["lat"])]
                 lng_rng = [min(lng_rng[0], r["lng"]), max(lng_rng[1], r["lng"])]
         info.update(
+            header=ad.header, colmap=ad.colmap, missing_optional=ad.missing_optional,
             missing_columns=ad.missing_columns, pii_columns=ad.pii_dropped, rows=n, license_types=dict(types),
             status=dict(status), top_biz=biz.most_common(12), excluded=excluded, coords_ok=conv,
             lat_range=lat_rng if conv else None, lng_range=lng_rng if conv else None,
@@ -380,10 +389,18 @@ def _print_check(results: list[dict]) -> None:
         print(f"[info] 인코딩 {i['encoding']}, 행 {i['rows']:,}건")
         if i["broken_chars"]:
             print(f"[warn] 깨진 문자 {i['broken_chars']}개(앞부분 기준) — 인코딩 확인 필요")
+        print(f"[info] 헤더: {', '.join(i['header'])}")
+        print(f"[info] 매핑: {', '.join(f'{k}←{v}' for k, v in i['colmap'].items())}")
         if i["missing_columns"]:
-            print(f"[err]  누락 컬럼: {', '.join(i['missing_columns'])} → app/ingest/license.py 의 COL 수정 필요")
+            print(f"[err]  필수 컬럼 없음: {', '.join(i['missing_columns'])} → app/ingest/license.py 의 ALIASES 추가 필요")
         else:
             print("[ok]   필수 컬럼 모두 있음")
+        if i["missing_optional"]:
+            print(f"[warn] 선택 컬럼 없음(비워서 적재): {', '.join(i['missing_optional'])}")
+        if "x" not in i["colmap"] or "y" not in i["colmap"]:
+            print("[warn] 좌표 컬럼 없음 → 주소로만 매칭, 상가정보에 없는 신규 가게는 만들지 못함")
+        if "(없음)" in i["license_types"]:
+            print("[warn] 일반/휴게 구분 불가 → --license-type 일반음식점|휴게음식점 지정 필요(휴게 = 주류 불가 판별)")
         for h in i["pii_columns"]:
             print(f"[info] 개인정보 컬럼(적재 시 폐기): {h}")
         print(f"[info] 인허가 종류: {i['license_types']}")
@@ -404,16 +421,18 @@ def main() -> None:
     ap.add_argument("--calibrate", action="store_true", help="후보 CRS 별 매칭 표본 거리 중앙값만 보고(적재 안 함)")
     ap.add_argument("--dry-run", action="store_true", help="DB 변경 없이 통계만")
     ap.add_argument("--check", action="store_true", help="파일 점검만(헤더·인코딩·분포·좌표, DB 불필요)")
+    ap.add_argument("--license-type", choices=["일반음식점", "휴게음식점"], default=None,
+                    help="개방서비스명 컬럼이 없는 파일의 인허가 종류(파일 하나씩 실행)")
     ap.add_argument("--db", default=None, help="SQLite 경로 (기본: JJINMAT_DB 또는 data/jjinmat.db)")
     ap.add_argument("--out-dir", default=str(OUT_DIR))
     args = ap.parse_args()
     if args.check:
-        _print_check(check_files(args.csv, args.crs))
+        _print_check(check_files(args.csv, args.crs, args.license_type))
         return
     conn = connect(args.db or db_path())
     init_schema(conn)
     if args.calibrate:
-        res = calibrate(conn, iter_records(args.csv, args.crs))
+        res = calibrate(conn, iter_records(args.csv, args.crs, license_type=args.license_type))
         print(f"[info] 표본 {res['n']}건 (상호+도로명주소 단일 매칭, 모든 후보 CRS 변환 성공)")
         if res["warning"]:
             print(f"[warn] {res['warning']}")
@@ -425,7 +444,7 @@ def main() -> None:
             print("[warn] 표본 없음 — 상가정보 적재 후 다시 실행")
         conn.close()
         return
-    res = load_license(conn, args.csv, args.crs, args.out_dir, args.dry_run)
+    res = load_license(conn, args.csv, args.crs, args.out_dir, args.dry_run, args.license_type)
     tag = "[dry]" if res["dry_run"] else "[ok] "
     print(f"{tag} 전체 {res['total']}건: 매칭 {res['matched']}건(가게 {res['updated']}곳 갱신), 신규 {res['new']}곳,"
           f" 폐업 반영 {res['closed_applied']}곳, 재개업 {res['reopened']}곳, 업태 제외 {res['excluded']}건,"
