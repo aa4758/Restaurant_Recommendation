@@ -160,15 +160,39 @@ MIGRATIONS = {
 }
 
 
-def _migrate(conn: sqlite3.Connection) -> None:
+def _migrate(conn: sqlite3.Connection) -> set[str]:
+    """없는 컬럼을 ALTER 로 추가. 반환: 컬럼이 추가된 테이블."""
+    changed: set[str] = set()
     for table, cols in MIGRATIONS.items():
         have = {r[1] for r in conn.execute(f"PRAGMA table_info({table})")}
         for name, typ in cols:
             if name not in have:
                 conn.execute(f"ALTER TABLE {table} ADD COLUMN {name} {typ}")
+                changed.add(table)
+    return changed
+
+
+def _dedupe_signals(conn: sqlite3.Connection) -> None:
+    """기존 DB 의 restaurant_signals 중복(재적재 누적) 정리 후 UNIQUE 인덱스 생성."""
+    if conn.execute("SELECT 1 FROM sqlite_master WHERE name = 'uq_signals'").fetchone():
+        return
+    conn.execute(
+        "DELETE FROM restaurant_signals WHERE id NOT IN (SELECT MIN(id) FROM restaurant_signals"
+        " GROUP BY restaurant_id, kind, IFNULL(value, ''), IFNULL(base_date, ''))"
+    )
+    conn.execute(
+        "CREATE UNIQUE INDEX IF NOT EXISTS uq_signals ON restaurant_signals"
+        "(restaurant_id, kind, IFNULL(value, ''), IFNULL(base_date, ''))"  # NULL 도 같은 값으로 취급
+    )
 
 
 def init_schema(conn: sqlite3.Connection) -> None:
     conn.executescript(SCHEMA)
-    _migrate(conn)
+    changed = _migrate(conn)
+    _dedupe_signals(conn)
     conn.commit()
+    # scores 에 v2 컬럼을 막 추가했다면 기존 행은 NULL → 즉시 재계산(근거 부족 오표시 방지)
+    if "scores" in changed and conn.execute("SELECT 1 FROM scores LIMIT 1").fetchone():
+        from app.service import rebuild_scores  # 순환 import 회피
+
+        rebuild_scores(conn)

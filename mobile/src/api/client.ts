@@ -91,8 +91,8 @@ export interface ScoreBreakdown {
   gov_bonus: number;
   ad_penalty: number;
   /** v2 추가 — 구버전 서버 호환을 위해 optional */
-  components?: ScoreComponents;
-  evidence?: Evidence;
+  components?: ScoreComponents | null; // null = 재계산 전 → 기존 표시 fallback
+  evidence?: Evidence | null;
 }
 
 export interface RestaurantDetail extends RestaurantItem {

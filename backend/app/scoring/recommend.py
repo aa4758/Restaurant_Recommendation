@@ -185,7 +185,7 @@ def make_reasons(s: Scored, q: Query) -> list[str]:
         line3 = " · ".join([f"공공기관 업무추진비 기록 {c.gov_visits}회{src}"] + facts[:1])
     elif facts:
         line3 = " · ".join(facts)
-    elif c.evidence == "low":
+    elif c.evidence == "low" and c.review_count <= 0:  # 자체 리뷰가 있으면 리뷰 수 문구 우선
         line3 = LOW_EVIDENCE_TEXT
     elif c.review_count > 0:
         line3 = f"찐맛 자체 리뷰 {c.review_count}개 반영"

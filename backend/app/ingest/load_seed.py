@@ -95,7 +95,10 @@ def _load_signals(conn: sqlite3.Connection, recs: list[dict]) -> int:
         if r.get("restaurant_id") in ids  # 매칭 실패 레코드는 버림
     ]
     conn.executemany(
-        "INSERT INTO restaurant_signals(restaurant_id,kind,value,detail,base_date,source) VALUES(?,?,?,?,?,?)", rows
+        # UNIQUE(restaurant_id,kind,value,base_date) → 재적재 시 중복 무시
+        "INSERT OR IGNORE INTO restaurant_signals(restaurant_id,kind,value,detail,base_date,source)"
+        " VALUES(?,?,?,?,?,?)",
+        rows,
     )
     return len(rows)
 

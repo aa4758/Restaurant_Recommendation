@@ -5,16 +5,18 @@ prior_raw = 0.30 * 업력      min(log1p(영업연수)/log1p(20), 1)     # opene
           + 0.15 * 위생등급    매우우수 1 / 우수 0.7 / 좋음 0.4 / 없음 0
           + 0.10 * 지정업소    모범·착한가격·안심식당·백년가게 중 1개 이상이면 1
           + 0.20 * 제휴 평점   0~1 정규화, 없으면 0.5(중립)
-          - 행정처분           기준일로부터 최근 3년 건당 0.05, 상한 0.15
+          - 행정처분           기준일로부터 최근 3년(정확히 3년 전 당일 포함) 건당 0.05, 상한 0.15
           - 광고 감점          0.30 * clamp((ad_ratio-0.15)/0.5, 0, 1) * ad_conf
                                하한: 광고 감점 ≤ 가점 합계의 50% (오분류 시 소상공인 보호)
-근거 수준(evidence) = 0이 아닌 신호 수 (제휴 평점은 실제 값이 있을 때만): 0 low / 1~2 mid / 3+ high
+근거 수준(evidence) = 데이터가 존재하는 신호 수 (가점은 값이 있으면 — 제휴 평점은 실제 값이 있으면 1.0 이어도 포함,
+                   결측 중립 0.5 제외 — 감점은 0보다 클 때만): 0 low / 1~2 mid / 3+ high
 
 모든 함수는 순수 함수(DB·현재 시각 비의존). 영업연수·처분 기간은 기준일 인자 now 로 계산.
 """
 from __future__ import annotations
 
 import math
+import re
 from dataclasses import dataclass
 from datetime import date, datetime
 from typing import Iterable, Sequence
@@ -48,6 +50,10 @@ AD_SPAN = 0.5
 AD_FLOOR_RATIO = 0.5  # 광고 감점 ≤ 가점 합계 × 50%
 AD_CONF_FULL_N = 10  # 자체 리뷰 10개면 판별 신뢰도 1
 AD_KEYWORDS = ("체험단", "협찬", "제공받아", "원고료", "소정의")
+# 광고 키워드 매칭. 키워드 직후 부정 표현("협찬 아님", "원고료 받지 않았", "광고·협찬 없이")이면 제외
+AD_RE = re.compile(
+    "(?:" + "|".join(AD_KEYWORDS) + r")(?!\s*(?:[은는이가을를도]\s*)?(?:아님|아닙|아니|없이|없음|없었|않|안\s*받|받지\s*않))"
+)
 
 COMPONENT_KEYS = ("tenure", "gov", "hygiene", "designation", "partner", "sanction", "ad")
 
@@ -133,12 +139,12 @@ def partner_score(rating: float | None) -> float:
 
 
 def recent_sanctions(dates: Iterable[str | date | None], now: date, years: int = SANCTION_YEARS) -> int:
-    """기준일로부터 최근 years 년 이내(미래 날짜 제외) 처분 건수. 날짜 미상은 제외."""
+    """기준일로부터 최근 years 년 이내(정확히 years 년 전 당일 포함, 미래 제외) 처분 건수. 날짜 미상은 제외."""
     since = _years_ago(now, years)
     n = 0
     for s in dates or ():
         d = parse_date(s)
-        if d is not None and since < d <= now:
+        if d is not None and since <= d <= now:  # 정확히 years 년 전 당일 포함
             n += 1
     return n
 
@@ -149,7 +155,7 @@ def sanction_penalty(count: int) -> float:
 
 # --- 광고 리뷰 ------------------------------------------------------------
 def is_ad_text(text: str | None) -> bool:
-    return bool(text) and any(k in text for k in AD_KEYWORDS)
+    return bool(text) and AD_RE.search(text) is not None
 
 
 def ad_conf_from_count(n: int) -> float:

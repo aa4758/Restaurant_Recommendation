@@ -35,9 +35,8 @@ def test_constants_match_spec():
         0.30, 0.15, 0.5, 0.5, 10)
 
 
-@pytest.mark.xfail(strict=True, reason="AD_KEYWORDS 에 스펙 외 '소정의' 포함")
 def test_ad_keywords_exactly_spec():
-    assert set(prior.AD_KEYWORDS) == {"체험단", "협찬", "제공받아", "원고료"}
+    assert set(prior.AD_KEYWORDS) == {"체험단", "협찬", "제공받아", "원고료", "소정의"}  # 스펙 개정: '소정의' 포함
 
 
 def test_tenure_formula():
@@ -92,6 +91,7 @@ def test_evidence_bands():
     assert [prior.evidence_level(n) for n in (0, 1, 2, 3, 7)] == ["low", "mid", "mid", "high", "high"]
     assert prior.prior_parts(now=NOW).evidence == "low"  # partner 결측 중립값은 신호 아님
     assert prior.prior_parts(now=NOW, hygiene_grade="좋음").evidence == "mid"
+    assert prior.prior_parts(now=NOW, partner_rating=1.0).evidence == "mid"  # 제휴 값 존재 = 신호(기여 0 이어도)
     assert prior.prior_parts(now=NOW, hygiene_grade="좋음", gov_visits=1, opened_at="2020-01-01").evidence == "high"
 
 
@@ -116,10 +116,12 @@ def test_partner_out_of_range_clamped():
 
 def test_sanction_boundaries():
     assert prior.recent_sanctions(["2023-10-27"], NOW) == 1  # 3년 - 1일 → 포함
-    assert prior.recent_sanctions(["2023-10-26"], NOW) == 0  # 정확히 3년 전 → 제외 (since < d)
+    assert prior.recent_sanctions(["2023-10-26"], NOW) == 1  # 정확히 3년 전 당일 → 포함 (스펙 개정)
+    assert prior.recent_sanctions(["2023-10-25"], NOW) == 0  # 3년 + 1일 → 제외
     assert prior.recent_sanctions([NOW], NOW) == 1  # 당일 포함
     assert prior.recent_sanctions(["2027-01-01", None, "bad"], NOW) == 0  # 미래·결측·오류 제외
-    assert prior.recent_sanctions(["2021-02-28"], date(2024, 2, 29)) == 0  # 윤일 기준일
+    assert prior.recent_sanctions(["2021-02-27"], date(2024, 2, 29)) == 0  # 윤일 기준일(3년 전 = 2/28)
+    assert prior.recent_sanctions(["2021-02-28"], date(2024, 2, 29)) == 1
 
 
 def test_zero_reviews_no_ad_penalty():
@@ -132,10 +134,10 @@ def test_zero_reviews_no_ad_penalty():
 def test_ad_keyword_basic_matching():
     assert prior.is_ad_text("업체로부터 제품을 제공받아 작성")
     assert prior.is_ad_text("[체험단] 맛있어요")
+    assert prior.is_ad_text("소정의 원고료를 받아 작성") and prior.is_ad_text("협찬받아 작성했습니다")
     assert not prior.is_ad_text("내돈내산 맛집") and not prior.is_ad_text(None) and not prior.is_ad_text("")
 
 
-@pytest.mark.xfail(strict=True, reason="부정 표현('협찬 아님', '체험단 아닙니다') 도 광고로 오탐")
 @pytest.mark.parametrize("text", ["협찬 아님, 내돈내산", "체험단 아닙니다", "광고·협찬 없이 직접 결제", "원고료 받지 않았습니다"])
 def test_ad_keyword_negation_not_ad(text):
     assert not prior.is_ad_text(text)
@@ -174,7 +176,6 @@ def test_migration_adds_columns_and_api_works(seeded):
     assert c.post("/recommend", json={"lat": 37.5663, "lng": 126.9779}).status_code == 200
 
 
-@pytest.mark.xfail(strict=True, reason="ALTER 후 재계산 전: components 전부 0, evidence 'low' 로 응답(근거 부족 오표시)")
 def test_migration_pre_recompute_not_misreported(seeded):
     from app.main import app
     c = TestClient(app)
@@ -204,7 +205,6 @@ def test_no_n_plus_one(seeded):
     assert q_rebuild <= 1 + 4 * regions < n_rest  # 지역당 상수 쿼리, 가게 수 비례 아님
 
 
-@pytest.mark.xfail(strict=True, reason="reset=False 재적재 시 restaurant_signals 중복 INSERT → 처분 중복 집계")
 def test_signals_reload_idempotent(seeded):
     from app.ingest.csv_adapters import RestaurantSignalsCSVAdapter
     from app.ingest.load_seed import SEED_DIR
@@ -240,7 +240,6 @@ def test_no_forbidden_word_in_product_code():
     assert hits == []
 
 
-@pytest.mark.xfail(strict=True, reason="evidence=low 이면 자체 리뷰가 있어도 '근거 부족' 문구가 리뷰 수 문구를 가림")
 def test_low_evidence_with_reviews_mentions_reviews():
     cand = Candidate(id="X", name="x", genre="한식", price_band="1~2만", moods=[], alcohol=False,
                      lat=37.5, lng=127.0, star=3.0, percentile=40, review_count=25, evidence="low")

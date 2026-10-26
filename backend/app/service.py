@@ -142,11 +142,16 @@ def _rebuild_region(conn: sqlite3.Connection, region, now: str, today: date) -> 
     return len(rows)
 
 
+def utc_today() -> date:
+    """점수 재계산·표시용 업력의 공통 기준일(UTC 날짜)."""
+    return datetime.now(timezone.utc).date()
+
+
 def rebuild_scores(conn: sqlite3.Connection, region=ALL, today: date | None = None) -> int:
     """점수 재계산. region: 시군구 코드(None = 코드 없는 행), 기본은 전체. today: 업력·처분 기준일(기본 오늘)."""
     ts = datetime.now(timezone.utc)
     now = ts.isoformat()
-    today = today or ts.date()
+    today = today or ts.date()  # = utc_today()
     regions = (
         [r[0] for r in conn.execute("SELECT DISTINCT sigungu_code FROM restaurants")] if region is ALL else [region]
     )
@@ -168,7 +173,7 @@ _SELECT = (
 
 def _candidate(r: sqlite3.Row, sig: Signals | None = None, today: date | None = None) -> Candidate:
     sig = sig or Signals()
-    years = prior.tenure_years(r["opened_at"], today or date.today())
+    years = prior.tenure_years(r["opened_at"], today or utc_today())  # rebuild_scores 와 같은 기준일
     return Candidate(
         id=r["id"],
         name=r["name"],
@@ -192,7 +197,9 @@ def _candidate(r: sqlite3.Row, sig: Signals | None = None, today: date | None = 
     )
 
 
-def candidates_near(conn: sqlite3.Connection, lat: float, lng: float, radius_m: float) -> list[Candidate]:
+def candidates_near(
+    conn: sqlite3.Connection, lat: float, lng: float, radius_m: float, today: date | None = None
+) -> list[Candidate]:
     """반경을 감싸는 위경도 사각형 안의 영업 중 가게 (정확한 거리 필터는 recommend 에서)."""
     dlat = radius_m / M_PER_DEG_LAT
     dlng = radius_m / (M_PER_DEG_LAT * max(math.cos(math.radians(lat)), 0.01))
@@ -200,20 +207,22 @@ def candidates_near(conn: sqlite3.Connection, lat: float, lng: float, radius_m: 
     params = (lat - dlat, lat + dlat, lng - dlng, lng + dlng)
     rows = conn.execute(_SELECT + " WHERE " + where, params).fetchall()
     sigs = _signals(conn, where, params)  # 반경 사각형 단위 1회 조회
-    return [_candidate(r, sigs.get(r["id"])) for r in rows]
+    today = today or utc_today()
+    return [_candidate(r, sigs.get(r["id"]), today) for r in rows]
 
 
-def get_scored(conn: sqlite3.Connection, rid: str) -> tuple[Candidate, dict] | None:
+def get_scored(conn: sqlite3.Connection, rid: str, today: date | None = None) -> tuple[Candidate, dict] | None:
     r = conn.execute(_SELECT + " WHERE r.id = ?", (rid,)).fetchone()
     if r is None:
         return None
     breakdown = {k: r[k] for k in ("prior_star", "user_mean", "n", "gov_bonus")}
     breakdown["k"] = bayes.K
     breakdown["ad_penalty"] = r["ad_penalty"] or 0.0
-    comps = json.loads(r["components"]) if r["components"] else {}
-    breakdown["components"] = {k: float(comps.get(k, 0.0)) for k in prior.COMPONENT_KEYS}
-    breakdown["evidence"] = r["evidence"] or "low"
-    return _candidate(r, _signals(conn, "r.id = ?", (rid,)).get(rid)), breakdown
+    # 재계산 전(NULL)이면 null 로 응답 → 클라이언트는 기존 표시로 fallback
+    comps = json.loads(r["components"]) if r["components"] else None
+    breakdown["components"] = {k: float(comps.get(k, 0.0)) for k in prior.COMPONENT_KEYS} if comps else None
+    breakdown["evidence"] = r["evidence"]
+    return _candidate(r, _signals(conn, "r.id = ?", (rid,)).get(rid), today or utc_today()), breakdown
 
 
 if __name__ == "__main__":

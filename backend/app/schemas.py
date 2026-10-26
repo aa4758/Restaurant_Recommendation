@@ -58,8 +58,8 @@ class ScoreBreakdown(BaseModel):
     k: int
     gov_bonus: float
     ad_penalty: float
-    components: ScoreComponents
-    evidence: Literal["low", "mid", "high"]
+    components: Optional[ScoreComponents] = None  # NULL(재계산 전) → null
+    evidence: Optional[Literal["low", "mid", "high"]] = None
 
 
 class RestaurantDetail(Item):
