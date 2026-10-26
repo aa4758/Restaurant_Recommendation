@@ -170,13 +170,28 @@ def test_duplicate_license_rows_across_files_no_unique_error(tmp_path, no_rebuil
 
 
 # --- 신규 가게 시군구코드 -----------------------------------------------------------------
-def test_new_store_unknown_region_code_none(tmp_path, no_rebuild):
-    conn = make_db(tmp_path)  # 서울 중구만 존재
+def test_new_store_unknown_region_gets_name_key(tmp_path, no_rebuild):
+    conn = make_db(tmp_path)  # 서울 중구만 존재 → 부산 중구 공식 코드 모름
     res = _load(conn, tmp_path, [row("B1", "일반음식점", "부산밀면", "냉면집", "20200101",
                                      road="부산광역시 중구 중앙대로 10", xy=tm(35.1030, 129.0360))])
     assert res["new"] == 1
-    assert _q(conn, "SELECT sido, sigungu, sigungu_code FROM restaurants WHERE id='LB1'") == ("부산광역시", "중구", None)
-    assert None in res["regions"]
+    # 이름 기반 지역 키: 전국이 한 지역(None)으로 뭉치지 않고, 서울 중구(11140)와도 섞이지 않음
+    assert _q(conn, "SELECT sido, sigungu, sigungu_code FROM restaurants WHERE id='LB1'") == (
+        "부산광역시", "중구", "N:부산 중구")
+    assert "N:부산 중구" in res["regions"] and None not in res["regions"]
+
+
+def test_name_keys_reconciled_to_official_codes(tmp_path):
+    conn = make_db(tmp_path)
+    conn.execute("INSERT INTO restaurants(id,name,genre,lat,lng,sido,sigungu,sigungu_code) VALUES"
+                 "('L1','인허가먼저','한식',35.1,129.0,'부산광역시','중구','N:부산 중구'),"
+                 "('L2','세종집','한식',36.5,127.3,'세종특별자치시',NULL,'N:세종')")
+    assert ll.reconcile_region_keys(conn) == set()  # 공식 코드 아직 없음 → 유지
+    conn.execute("INSERT INTO restaurants(id,name,genre,lat,lng,sido,sigungu,sigungu_code) VALUES"
+                 "('S9','상가정보','한식',35.1,129.0,'부산광역시','중구','26110')")
+    assert ll.reconcile_region_keys(conn) == {"26110"}
+    assert _q(conn, "SELECT sigungu_code FROM restaurants WHERE id='L1'") == ("26110",)
+    assert _q(conn, "SELECT sigungu_code FROM restaurants WHERE id='L2'") == ("N:세종",)
 
 
 # --- dry-run ------------------------------------------------------------------------
@@ -242,7 +257,7 @@ def test_general_keeps_alcohol_zero_from_other_source(tmp_path, no_rebuild):
 # --- 회귀: L5 시도 없는 모호 시군구 ---------------------------------------------------------
 def test_sigungu_code_ambiguous_without_sido():
     regions = {("서울", "중구"): "11140", ("부산", "중구"): "26110"}
-    assert ll._sigungu_code(regions, "중구 세종대로 1") == (None, "중구", None)
+    assert ll._sigungu_code(regions, "중구 세종대로 1") == (None, "중구", None)  # 시도 없으면 이름 키도 못 만듦
     assert ll._sigungu_code({("서울", "중구"): "11140"}, "중구 세종대로 1") == (None, "중구", "11140")
     assert ll._sigungu_code(regions, "부산광역시 중구 중앙대로 1") == ("부산광역시", "중구", "26110")
 

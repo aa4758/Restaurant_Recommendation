@@ -128,6 +128,10 @@ def load(db: Path | str | None = None, adapters: list[SourceAdapter] | None = No
         n = LOADERS[ad.kind](conn, ad.fetch())
         counts[ad.name] = n
         print(f"[ok]   {ad.name}: {n}건")
+    from .load_license import reconcile_region_keys  # 인허가로 먼저 만든 가게의 이름 기반 지역 키 → 공식 코드
+
+    if reconcile_region_keys(conn):
+        print("[ok]   지역 키 → 공식 시군구코드 치환")
     conn.commit()
     print(f"[ok]   scores: {rebuild_scores(conn)}건 계산")
     conn.close()

@@ -115,10 +115,39 @@ def _priority(r: dict) -> tuple:
             r["license_id"])
 
 
+# 공식 시군구코드를 모를 때(상가정보 미적재) 쓰는 이름 기반 지역 키. 예: 'N:서울 중구', 'N:경기 성남시분당구', 'N:세종'
+# → 엄격 별점·상위 N% 가 전국 한 지역으로 뭉치지 않게. 상가정보 적재 후 reconcile_region_keys 가 공식 코드로 치환.
+NAME_KEY_PREFIX = "N:"
+
+
+def region_name_key(short_sido: str | None, gu: str | None) -> str | None:
+    s = (short_sido or "").strip()
+    g = re.sub(r"\s+", "", gu or "")
+    if not s:
+        return None  # 시도 없는 주소는 동명 시군구(중구 등) 구분 불가
+    return f"{NAME_KEY_PREFIX}{s} {g}" if g else f"{NAME_KEY_PREFIX}{s}"
+
+
+def reconcile_region_keys(conn: sqlite3.Connection) -> set[str]:
+    """이름 기반 지역 키를 같은 (시도, 시군구)의 공식 코드로 치환. 반환: 바뀐 공식 코드(점수 재계산 대상)."""
+    official = _region_map(conn)
+    changed: set[str] = set()
+    for (key,) in conn.execute(
+        f"SELECT DISTINCT sigungu_code FROM restaurants WHERE sigungu_code LIKE '{NAME_KEY_PREFIX}%'"
+    ).fetchall():
+        short, _, gu = key[len(NAME_KEY_PREFIX):].partition(" ")
+        code = official.get((short, gu))
+        if code:
+            conn.execute("UPDATE restaurants SET sigungu_code=? WHERE sigungu_code=?", (code, key))
+            changed.add(code)
+    return changed
+
+
 def _region_map(conn: sqlite3.Connection) -> dict[tuple[str, str], str]:
     out: dict[tuple[str, str], str] = {}
     for sido, gu, code in conn.execute(
-        "SELECT DISTINCT sido, sigungu, sigungu_code FROM restaurants WHERE sigungu_code IS NOT NULL"
+        "SELECT DISTINCT sido, sigungu, sigungu_code FROM restaurants"
+        f" WHERE sigungu_code IS NOT NULL AND sigungu_code NOT LIKE '{NAME_KEY_PREFIX}%'"
     ):
         s = _sido((sido or "").strip()) or ""
         g = re.sub(r"\s+", "", gu or "")
@@ -146,7 +175,7 @@ def parse_region(addr: str | None) -> tuple[str | None, str | None, str | None]:
 def _sigungu_code(regions: dict, addr: str | None) -> tuple[str | None, str | None, str | None]:
     sido, gu, short = parse_region(addr)
     if not gu:
-        return sido, None, None
+        return sido, None, region_name_key(short, None)  # 세종처럼 시군구 없는 시도
     parts = gu.split()
     for key in ("".join(parts), parts[-1]):
         if short:
@@ -159,7 +188,7 @@ def _sigungu_code(regions: dict, addr: str | None) -> tuple[str | None, str | No
             code = next(iter(codes), None)
         if code:
             return sido, gu, code
-    return sido, gu, None
+    return sido, gu, region_name_key(short, gu)
 
 
 def _write_unmatched(out_dir: Path, rows: list[tuple[dict, str]]) -> Path:
