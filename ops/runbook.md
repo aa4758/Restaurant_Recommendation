@@ -50,6 +50,26 @@ curl http://localhost:8000/health   # {"status":"ok"}
 5. 미매칭 가게는 `data\out\unmatched_<출처>.csv` (PII 없음) — 분기마다 수기 검토.
 6. 목록 갱신 주기: 모범음식점·착한가격 반기, 백년가게는 새 목록 공개 시 교체.
 
+## 업무추진비 적재 (서울시 본청 Open API)
+1. 인증키: 열린데이터광장(data.seoul.go.kr) 로그인 → 인증키 신청 → `$env:SEOUL_API_KEY = "<키>"`.
+2. backend 에서:
+   ```powershell
+   python -m app.ingest.load_gov_expense --fetch-seoul                       # → data\raw\gov_expense\seoul_odExpense_<날짜>.csv (PII 없음)
+   python -m app.ingest.load_gov_expense data\raw\gov_expense\seoul_odExpense_<날짜>.csv --check
+   python -m app.ingest.load_gov_expense data\raw\gov_expense\seoul_odExpense_<날짜>.csv --dry-run
+   python -m app.ingest.load_gov_expense data\raw\gov_expense\seoul_odExpense_<날짜>.csv
+   ```
+3. 재적재는 같은 source 전체 교체(멱등). 매달 다음 달 중순 공개분 반영.
+4. 자치구 파일은 같은 열(exec_dt,agency,dept,place,amount,category,source)로 정규화한 CSV 를 같은 명령으로 적재.
+5. 구청 게시판(관악·구로, 01 크롤링 예외 조건): 사이트당 3초 간격이라 관악 약 30분, 구로 1시간 이상 걸림. 첨부(PDF)는 `data\raw\gov_expense\cache\<구>\` 에 캐시돼 재실행 때 새 글 첨부만 받음(목록은 매번 새로 받음).
+   ```powershell
+   pip install pdfplumber   # 구로 PDF 파싱(수집 전용)
+   python -m app.ingest.collect_gov_boards gwanak   # → data\raw\gov_expense\gwanak_<날짜>.csv
+   python -m app.ingest.collect_gov_boards guro
+   python -m app.ingest.load_gov_expense data\raw\gov_expense\gwanak_<날짜>.csv data\raw\gov_expense\guro_<날짜>.csv --dry-run
+   ```
+   `robots.txt 금지` 오류가 나면 사이트 정책이 바뀐 것 → 수집 중단하고 01 문서 시범 조사 행을 고칠 것(우회 금지).
+
 ## 이의제기·정보 오류 신고
 - 사용자 신고는 `reports` 테이블에 쌓임: `sqlite3 /data/jjinmat.db "SELECT * FROM reports ORDER BY created_at DESC LIMIT 50"`
 - 업주 이의제기는 이메일로 접수(MVP). 처리: 사실 확인 → CSV 수정 → 위 "데이터 갱신" 절차.
