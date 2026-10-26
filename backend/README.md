@@ -17,6 +17,7 @@ python -m pytest -q                      # 테스트
   # 1) 좌표계 확인(적재 안 함): 후보 CRS별 매칭 표본 거리 중앙값 → "권장 --crs" 확인
   python -m app.ingest.load_license data\raw\license\일반음식점.csv data\raw\license\휴게음식점.csv --check      # 파일 점검(DB 불필요, 헤더·매핑 출력)
   # 개방서비스명 컬럼이 없는 업종별 파일: 파일 하나씩 --license-type 일반음식점 / 휴게음식점 지정
+  # 휴게음식점 파일은 신규 가게를 만들지 않음 — 매칭된 기존 가게의 음주 불가·폐업 판별에만 사용
   python -m app.ingest.load_license data\raw\license\일반음식점.csv data\raw\license\휴게음식점.csv --calibrate
   # 2) 미리보기(DB 변경 없음) → 3) 적재 (권장 CRS가 기본 EPSG:5174와 다르면 --crs 지정)
   python -m app.ingest.load_license data\raw\license\일반음식점.csv data\raw\license\휴게음식점.csv --dry-run

@@ -204,7 +204,8 @@ def load_license(conn: sqlite3.Connection, csv_paths, crs: str = DEFAULT_CRS, ou
             for r in conn.execute("SELECT id, status, sigungu_code, license_id, opened_at FROM restaurants")}
 
     stats = {"total": 0, "excluded": 0, "matched": 0, "updated": 0, "new": 0, "closed_applied": 0,
-             "reopened": 0, "ignored_closed": 0, "stale_ignored": 0, "duplicate": 0, "unmatched": 0}
+             "reopened": 0, "ignored_closed": 0, "stale_ignored": 0, "duplicate": 0, "unmatched": 0,
+             "rest_not_created": 0}
     groups: dict[str, list] = {}       # 가게 id → [best 행, 행 수]
     new_groups: dict[tuple, list] = {}  # (상호, 도로명키|좌표) → [best 행, 행 수]
     unmatched: list[tuple[dict, str]] = []
@@ -224,6 +225,10 @@ def load_license(conn: sqlite3.Connection, csv_paths, crs: str = DEFAULT_CRS, ou
             stats["matched"] += 1
             continue
         if excluded:
+            continue
+        if r["license_type"] == REST_TYPE and r["status"] == "open":
+            # 휴게음식점은 추천 대상 신규 가게로 만들지 않음(01 결정, 2026-10). 매칭된 기존 가게의 음주 불가·폐업 판별에만 사용
+            stats["rest_not_created"] += 1
             continue
         if r["status"] != "open":
             stats["ignored_closed"] += 1
@@ -448,7 +453,7 @@ def main() -> None:
     tag = "[dry]" if res["dry_run"] else "[ok] "
     print(f"{tag} 전체 {res['total']}건: 매칭 {res['matched']}건(가게 {res['updated']}곳 갱신), 신규 {res['new']}곳,"
           f" 폐업 반영 {res['closed_applied']}곳, 재개업 {res['reopened']}곳, 업태 제외 {res['excluded']}건,"
-          f" 미매칭 폐업 무시 {res['ignored_closed']}건, 오래된 폐업 무시 {res['stale_ignored']}건, 중복 {res['duplicate']}건, 미매칭 {res['unmatched']}건")
+          f" 미매칭 폐업 무시 {res['ignored_closed']}건, 휴게 미생성 {res['rest_not_created']}건, 오래된 폐업 무시 {res['stale_ignored']}건, 중복 {res['duplicate']}건, 미매칭 {res['unmatched']}건")
     if not res["dry_run"]:
         print(f"[ok]   재계산 시군구 {len(res['regions'])}곳")
     for h in res["pii_dropped"]:

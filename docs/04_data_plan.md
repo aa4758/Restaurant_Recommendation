@@ -137,7 +137,7 @@ final = (k·prior_star + Σ w_i·s_i') / (k + Σ w_i),  k = 20
 |---|---|---|
 | D0 | 스키마 v2(메뉴·영업시간·신호·외부ID·상태), 상가정보 어댑터, upsert 적재 | ✅ 이번 세팅 |
 | D1 | 점수 배치 계산(`scores`, 시군구 단위) + 반경 조회. 서울 10.7만 곳 기준 추천 50~230ms (이전 247초) | ✅ |
-| D2 | 인허가(B) 어댑터 + 좌표 변환 + 엔티티 매칭 → 폐업·일반/휴게·업력 (`app/ingest/license.py`, `load_license`, CRS `--calibrate`) | ✅ |
+| D2 | 인허가(B) 어댑터 + 좌표 변환 + 엔티티 매칭 → 폐업·일반/휴게·업력 (`app/ingest/license.py`, `load_license`, CRS `--calibrate`) | ✅ | 휴게음식점은 신규 생성 안 함(매칭 가게 판별만, 01 결정).
 | D3 | prior v2·v2.1 — 구현·QA 완료(`docs/qa/report_prior_v2.md`, `report_prior_v21.md`) | ✅ |
 | D4 | TourAPI(C)·착한가격(D)·식품안전나라(F) → 메뉴·영업시간·위생 | ⏳ (API 키 필요) |
 | D5 | API/앱: 지도 링크·메뉴·영업시간 표시, "정보 미확인" 처리 | ⏳ (01 API 계약 개정) |

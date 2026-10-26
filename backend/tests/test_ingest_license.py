@@ -165,7 +165,8 @@ def test_load_license(tmp_path, monkeypatch):
     res = ll.load_license(conn, [p], out_dir=out)
     q = lambda sql, *a: tuple(conn.execute(sql, a).fetchone())  # noqa: E731
 
-    assert res["excluded"] == 1 and res["new"] == 2 and res["unmatched"] == 2 and res["ignored_closed"] == 1
+    assert res["excluded"] == 1 and res["new"] == 1 and res["unmatched"] == 2 and res["ignored_closed"] == 1
+    assert res["rest_not_created"] == 1  # 미매칭 영업 중 휴게음식점(A12 신규분식)은 신규 가게로 만들지 않음
     assert res["matched"] == 6 and res["updated"] == 5 and res["closed_applied"] == 1
     # 매칭 갱신: 업력·인허가·면적, 전화는 비어 있을 때만
     r = q("SELECT license_id, opened_at, license_type, area_m2, phone, status FROM restaurants WHERE id='S1'")
@@ -179,8 +180,7 @@ def test_load_license(tmp_path, monkeypatch):
     # 신규: 영업 중 + 좌표 있음만, 시군구코드는 기존 (시도, 시군구) 매핑
     new = conn.execute("SELECT id, genre, sigungu_code, alcohol, sigungu, opened_at FROM restaurants"
                        " WHERE id LIKE 'L%' ORDER BY id").fetchall()
-    assert [tuple(x) for x in new] == [("LA12", "분식", "11140", 0, "중구", "2020-01-01"),
-                                       ("LA8", "한식", "11140", None, "중구", "2019-01-01")]
+    assert [tuple(x) for x in new] == [("LA8", "한식", "11140", None, "중구", "2019-01-01")]
     assert q("SELECT COUNT(*) FROM restaurants WHERE name IN ('망한집','별다방','좌표없는집')")[0] == 0
     # 재계산: 영향받은 시군구
     assert set(calls) == {"11140"}
@@ -194,23 +194,23 @@ def test_load_license(tmp_path, monkeypatch):
     # 멱등 재적재: 행 수·값 동일, 신규 생성 없음
     snap = conn.execute("SELECT * FROM restaurants ORDER BY id").fetchall()
     res2 = ll.load_license(conn, [p], out_dir=out)
-    assert res2["new"] == 0 and res2["closed_applied"] == 0 and res2["matched"] == 8
+    assert res2["new"] == 0 and res2["closed_applied"] == 0 and res2["matched"] == 7 and res2["rest_not_created"] == 1
     snap2 = conn.execute("SELECT * FROM restaurants ORDER BY id").fetchall()
     strip = lambda rs: [tuple(v for k, v in zip(r.keys(), r) if k != "updated_at") for r in rs]  # noqa: E731
     assert strip(snap) == strip(snap2)
-    assert q("SELECT COUNT(*) FROM restaurants")[0] == len(RESTAURANTS) + 2
+    assert q("SELECT COUNT(*) FROM restaurants")[0] == len(RESTAURANTS) + 1
 
 
 def test_dry_run_and_real_rebuild(tmp_path):
     conn = make_db(tmp_path)
     p = write_csv(tmp_path / "l.csv", fixture_rows())
     res = ll.load_license(conn, [p], out_dir=tmp_path / "out", dry_run=True)
-    assert res["new"] == 2
+    assert res["new"] == 1
     assert conn.execute("SELECT COUNT(*) FROM restaurants").fetchone()[0] == len(RESTAURANTS)
     assert conn.execute("SELECT license_id FROM restaurants WHERE id='S1'").fetchone()[0] is None
     ll.load_license(conn, [p], out_dir=tmp_path / "out")
     ids = {r[0] for r in conn.execute("SELECT restaurant_id FROM scores")}
-    assert "S5" not in ids and {"S1", "LA8", "LA12"} <= ids  # 폐업 제외, 신규 포함
+    assert "S5" not in ids and {"S1", "LA8"} <= ids and "LA12" not in ids  # 폐업 제외, 신규 포함
 
 
 def test_tenure_uses_opened_at():

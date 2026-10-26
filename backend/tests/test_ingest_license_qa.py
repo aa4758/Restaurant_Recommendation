@@ -164,9 +164,9 @@ def test_duplicate_license_rows_across_files_no_unique_error(tmp_path, no_rebuil
     p1 = write_csv(tmp_path / "a.csv", rows)
     p2 = write_csv(tmp_path / "b.csv", rows)  # 전국 + 서울 파일 겹침
     res = ll.load_license(conn, [p1, p2], out_dir=tmp_path / "out")
-    assert res["new"] == 2
-    assert _q(conn, "SELECT COUNT(*) FROM restaurants")[0] == len(RESTAURANTS) + 2
-    assert _q(conn, "SELECT COUNT(DISTINCT license_id), COUNT(license_id) FROM restaurants") == (7, 7)
+    assert res["new"] == 1  # 휴게음식점 신규는 만들지 않음
+    assert _q(conn, "SELECT COUNT(*) FROM restaurants")[0] == len(RESTAURANTS) + 1
+    assert _q(conn, "SELECT COUNT(DISTINCT license_id), COUNT(license_id) FROM restaurants") == (6, 6)
 
 
 # --- 신규 가게 시군구코드 -----------------------------------------------------------------
