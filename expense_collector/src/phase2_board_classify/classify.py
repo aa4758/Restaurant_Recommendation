@@ -128,9 +128,9 @@ def classify(client: HttpClient, inst: dict, board_url: str, start: date, end: d
     if adapter:  # CMS 어댑터가 있으면 게시글 목록·첨부를 정확히 읽는다
         r["cms_id"] = adapter.ID
         posts = adapter.list_posts(html, board_url)
-        r["list_pagination"] = f"currPage (마지막 {adapter.last_page(html)}쪽)"
+        r["list_pagination"] = f"{adapter.page_url(board_url, 2)} (보이는 마지막 {adapter.last_page(html)}쪽)"
         dates = [d for p in posts if p["date"] and start <= (d := date.fromisoformat(p["date"])) <= end]
-        targets = [p["url"] for p in posts[:2]]
+        targets = [] if adapter.INLINE else [p["url"] for p in posts[:2]]
     else:
         r["list_pagination"] = pagination(html)
         dates = in_period(re.sub(r"<[^>]+>", " ", html), start, end)
@@ -139,6 +139,8 @@ def classify(client: HttpClient, inst: dict, board_url: str, start: date, end: d
     r["posts_in_period"] = len(dates)
     login = bool(LOGIN.search(html)) and not dates
     exts, method, pdfs = (set(), "", []) if adapter else attachments(html)  # 어댑터면 게시글 첨부만 본다
+    if adapter and adapter.INLINE:  # 목록 HTML 자체가 원본(첨부 없음)
+        exts, method = {"html"}, "direct"
     lic = kogl_type(html)
     for p in targets:
         ph = fetch_followed(client, p, cache)
@@ -160,7 +162,8 @@ def classify(client: HttpClient, inst: dict, board_url: str, start: date, end: d
         pdfs += pp
         lic = lic or kogl_type(ph)
     if adapter and not lic:
-        notes.append(f"게시글 {len(targets)}건 확인 — 공공누리 표시 없음")
+        notes.append("목록 본문(INLINE) 확인 — 공공누리 표시 없음" if adapter.INLINE
+                     else f"게시글 {len(targets)}건 확인 — 공공누리 표시 없음")
     r["file_formats"] = ",".join(sorted(exts))
     r["download_method"] = method or ("js" if exts else None)  # 첨부 흔적 없으면 미확인(NULL)
     r["license"] = lic
