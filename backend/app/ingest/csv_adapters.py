@@ -1,4 +1,4 @@
-"""CSV 어댑터 3종. '#' 로 시작하는 줄은 주석(가상 데이터 표기 등)으로 무시."""
+"""CSV 어댑터 4종. '#' 로 시작하는 줄은 주석(가상 데이터 표기 등)으로 무시."""
 from __future__ import annotations
 
 import csv
@@ -56,6 +56,7 @@ class RestaurantsCSVAdapter(_CSVAdapter):
                     "lng": float(r["lng"]),
                     "address": r.get("address") or None,
                     "updated_at": r.get("updated_at") or None,
+                    "opened_at": r.get("opened_at") or None,
                 }
             )
         return out
@@ -107,4 +108,20 @@ class GovExpenseCSVAdapter(_CSVAdapter):
             rec["amount"] = _int(rec["amount"])
             rec["base_year"] = _int(rec["base_year"])
             out.append(rec)
+        return out
+
+
+class RestaurantSignalsCSVAdapter(_CSVAdapter):
+    """공공 신호: 위생등급·지정업소(모범/착한가격/안심/백년가게)·행정처분."""
+
+    kind = "restaurant_signals"
+    name = "restaurant_signals_csv"
+    KINDS = ("hygiene_grade", "sanction", "model_restaurant", "good_price", "safe_restaurant", "century_store")
+
+    def fetch(self) -> list[Record]:
+        out = []
+        for r in read_csv(self.path):
+            if r.get("kind") not in self.KINDS:
+                continue
+            out.append({k: r.get(k) or None for k in ("restaurant_id", "kind", "value", "detail", "base_date", "source")})
         return out
