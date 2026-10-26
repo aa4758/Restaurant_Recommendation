@@ -65,6 +65,7 @@ def _item_dict(s: RecScored) -> dict:
         "gov_source": c.gov_source,
         "reasons": s.reasons,
         "updated_at": c.updated_at,
+        "address": c.address,
         "evidence": c.evidence,
     }
 

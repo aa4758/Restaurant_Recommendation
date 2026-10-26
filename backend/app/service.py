@@ -170,7 +170,7 @@ def region_of(conn: sqlite3.Connection, rid: str):
 
 
 _SELECT = (
-    "SELECT r.id, r.name, r.genre, r.price_band, r.moods, r.alcohol, r.lat, r.lng, r.updated_at,"
+    "SELECT r.id, r.name, r.genre, r.price_band, r.moods, r.alcohol, r.lat, r.lng, r.updated_at, COALESCE(r.address, r.address_jibun) AS address,"
     " sc.prior_star, sc.user_mean, sc.n, sc.star, sc.percentile, sc.gov_visits, sc.gov_source,"
     " sc.gov_bonus, sc.ad_penalty, sc.components, sc.evidence, r.opened_at FROM restaurants r JOIN scores sc ON sc.restaurant_id = r.id"
 )
@@ -211,6 +211,7 @@ def _candidate(r: sqlite3.Row, sig: Signals | None = None, today: date | None = 
         gov_source=r["gov_source"],
         ad_penalty=r["ad_penalty"],
         updated_at=r["updated_at"] or "",
+        address=r["address"],
         tenure_years=int(years) if years is not None else None,
         hygiene_grade=sig.hygiene,
         designations=[prior.DESIGNATION_LABELS[k] for k in prior.DESIGNATION_KINDS if k in sig.designations],

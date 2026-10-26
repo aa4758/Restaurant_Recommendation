@@ -50,6 +50,7 @@ class Candidate:
     gov_source: str | None = None
     ad_penalty: float | None = None  # None = 광고 리뷰 통계 없음
     updated_at: str = ""
+    address: str | None = None
     tenure_years: int | None = None  # 인허가일 기준 영업연수
     hygiene_grade: str | None = None  # 매우우수 | 우수 | 좋음
     designations: list[str] = field(default_factory=list)  # 표시명 (예: 모범음식점)

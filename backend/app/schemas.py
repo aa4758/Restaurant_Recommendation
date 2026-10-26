@@ -34,6 +34,7 @@ class Item(BaseModel):
     gov_source: Optional[str] = None
     reasons: list[str]
     updated_at: str
+    address: Optional[str] = None  # 도로명 우선 (공유 문구·지도 링크용)
     evidence: Optional[Literal["low", "mid", "high"]] = None  # scores.evidence (재계산 전 null)
 
 

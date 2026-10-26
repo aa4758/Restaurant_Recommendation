@@ -218,3 +218,10 @@ def test_existing_db_gets_reactions_table(tmp_path):
     dbm.init_schema(conn)  # 멱등
     cols = {r[1] for r in conn.execute("PRAGMA table_info(reactions)")}
     assert cols == {"device_id", "restaurant_id", "value", "reason", "updated_at"}
+
+
+def test_recommend_items_include_address(client):
+    r = client.post("/recommend", json={"lat": 37.5663, "lng": 126.9779, "radius_m": 1500})
+    assert r.status_code == 200
+    items = r.json()["items"]
+    assert items and all(it.get("address") for it in items)
