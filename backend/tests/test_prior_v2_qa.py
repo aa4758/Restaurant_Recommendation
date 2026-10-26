@@ -25,11 +25,11 @@ REPO = Path(__file__).resolve().parents[2]
 
 # --- 1. 식·상수 ----------------------------------------------------------------
 def test_constants_match_spec():
-    assert (prior.W_TENURE, prior.W_GOV, prior.W_HYGIENE, prior.W_DESIGNATION, prior.W_PARTNER) == (
+    assert (prior.W_TENURE, prior.W_GOV, prior.W_HYGIENE, prior.W_DESIGNATION, prior.W_REPUTATION) == (
         0.30, 0.25, 0.15, 0.10, 0.20)
     assert prior.TENURE_CAP_YEARS == 20 and prior.GOV_CAP == 30
     assert prior.HYGIENE_SCORES == {"매우우수": 1.0, "우수": 0.7, "좋음": 0.4}
-    assert prior.PARTNER_NEUTRAL == 0.5
+    assert prior.REPUTATION_NEUTRAL == 0.4  # v2.1
     assert (prior.SANCTION_UNIT, prior.SANCTION_CAP, prior.SANCTION_YEARS) == (0.05, 0.15, 3)
     assert (prior.W_AD, prior.AD_THRESHOLD, prior.AD_SPAN, prior.AD_FLOOR_RATIO, prior.AD_CONF_FULL_N) == (
         0.30, 0.15, 0.5, 0.5, 10)
@@ -56,10 +56,10 @@ def test_gov_formula_and_cap():
 
 def test_hygiene_designation_partner():
     assert [prior.hygiene_score(g) for g in ("매우우수", "우수", "좋음", None, "", "기타")] == [1, 0.7, 0.4, 0, 0, 0]
-    assert prior.designation_score(["good_price"]) == 1.0
+    assert prior.designation_score(["good_price"]) == 0.0  # v2.1: 착한가격은 점수 무관
     assert prior.designation_score(["good_price", "century_store", "model_restaurant"]) == 1.0
     assert prior.designation_score([]) == 0.0 and prior.designation_score(["unknown"]) == 0.0
-    assert prior.partner_score(None) == 0.5
+    assert prior.partner_score(None) is None and prior.reputation_score([], None) == 0.4  # v2.1 중립
     assert prior.partner_score(5.0) == 1.0 and prior.partner_score(1.0) == 0.0
 
 
@@ -76,9 +76,9 @@ def test_ad_formula_conf_and_floor():
     assert prior.ad_penalty_raw(0.15, 1) == 0
     assert prior.ad_penalty_raw(0.40, 1) == pytest.approx(0.30 * 0.25 / 0.5)
     assert prior.ad_penalty_raw(0.90, 0.5) == pytest.approx(0.15)
-    # 하한: 가점 합계 = partner 중립 0.1 → 감점 ≤ 0.05
+    # 하한: 가점 합계 = 외부 평판 중립 0.08 → 감점 ≤ 0.04 (v2.1)
     p = prior.prior_parts(now=NOW, ad_ratio=1.0, ad_conf=1.0)
-    assert p.ad_penalty == pytest.approx(0.05) and p.prior_raw == pytest.approx(0.05)
+    assert p.ad_penalty == pytest.approx(0.04) and p.prior_raw == pytest.approx(0.04)
     # 합계 일관성
     p = prior.prior_parts(now=NOW, opened_at="2010-01-01", gov_visits=4, hygiene_grade="우수",
                           designations=["safe_restaurant"], partner_rating=4.0, sanction_dates=["2025-05-01"],
@@ -89,7 +89,7 @@ def test_ad_formula_conf_and_floor():
 
 def test_evidence_bands():
     assert [prior.evidence_level(n) for n in (0, 1, 2, 3, 7)] == ["low", "mid", "mid", "high", "high"]
-    assert prior.prior_parts(now=NOW).evidence == "low"  # partner 결측 중립값은 신호 아님
+    assert prior.prior_parts(now=NOW).evidence == "low"  # 외부 평판 결측 중립값은 신호 아님
     assert prior.prior_parts(now=NOW, hygiene_grade="좋음").evidence == "mid"
     assert prior.prior_parts(now=NOW, partner_rating=1.0).evidence == "mid"  # 제휴 값 존재 = 신호(기여 0 이어도)
     assert prior.prior_parts(now=NOW, hygiene_grade="좋음", gov_visits=1, opened_at="2020-01-01").evidence == "high"

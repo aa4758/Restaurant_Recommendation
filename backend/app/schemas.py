@@ -41,12 +41,12 @@ class RecommendResponse(BaseModel):
 
 
 class ScoreComponents(BaseModel):
-    """점수 모델 v2 구성요소별 prior_raw 기여분(가중 적용, 감점은 음수)."""
+    """점수 모델 v2.1 구성요소별 prior_raw 기여분(가중 적용, 감점은 음수). reputation = 외부 평판."""
     tenure: float
     gov: float
     hygiene: float
     designation: float
-    partner: float
+    reputation: float
     sanction: float
     ad: float
 

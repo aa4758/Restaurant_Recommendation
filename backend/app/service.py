@@ -1,4 +1,4 @@
-"""점수 배치 계산(prior v2 → strict → bayes) → scores 테이블, 그리고 반경 후보 조회.
+"""점수 배치 계산(prior v2.1 → strict → bayes) → scores 테이블, 그리고 반경 후보 조회.
 
 - 신호(업무추진비·공공 신호·자체 리뷰)는 시군구 단위로 한 번에 조회 → 가게별 쿼리 없음.
 - 행정처분은 기준일(today) 기준 최근 3년, 자체 리뷰 광고 비율은 본문 키워드(prior.AD_KEYWORDS) 집계.
@@ -50,7 +50,8 @@ def _gov_info(conn: sqlite3.Connection, region) -> dict[str, tuple[int, str | No
 @dataclass
 class Signals:
     hygiene: str | None = None  # 최신 위생등급 (매우우수|우수|좋음)
-    designations: set[str] = field(default_factory=set)
+    designations: set[str] = field(default_factory=set)  # 지정업소·가이드·백년가게·착한가격 kind
+    guide_years: dict[str, int | None] = field(default_factory=dict)  # 가이드 kind → 최신 기준연도
     sanction_dates: list[str | None] = field(default_factory=list)
 
 
@@ -72,8 +73,12 @@ def _signals(conn: sqlite3.Connection, where: str, params: tuple) -> dict[str, S
                 sig.hygiene = grade
         elif kind == "sanction":
             sig.sanction_dates.append(r["base_date"])
-        elif kind in prior.DESIGNATION_KINDS:
+        elif kind in prior.SIGNAL_KINDS:
             sig.designations.add(kind)
+            if kind in prior.GUIDE_SCORES:
+                d = prior.parse_date(r["base_date"])
+                prev = sig.guide_years.get(kind)
+                sig.guide_years[kind] = max(filter(None, (prev, d.year if d else None)), default=None)
     return out
 
 
@@ -171,6 +176,22 @@ _SELECT = (
 )
 
 
+def guide_labels(sig: Signals) -> list[str]:
+    """가이드 선정 문구(점수 높은 순): '서울미식 100선 선정(2025)' — 연도는 base_date 기준."""
+    kinds = sorted(sig.guide_years, key=lambda k: (-prior.GUIDE_SCORES[k], k))
+    return [
+        f"{prior.GUIDE_LABELS[k]} 선정" + (f"({sig.guide_years[k]})" if sig.guide_years[k] else "") for k in kinds
+    ]
+
+
+def display_moods(raw: str | None, sig: Signals) -> list[str]:
+    """원본 moods + 착한가격업소면 '가성비' 합성(원본 컬럼은 수정하지 않음, 필터 매칭에도 사용)."""
+    moods = [m for m in (raw or "").split("|") if m]
+    if prior.GOOD_PRICE_KIND in sig.designations and prior.GOOD_PRICE_MOOD not in moods:
+        moods.append(prior.GOOD_PRICE_MOOD)
+    return moods
+
+
 def _candidate(r: sqlite3.Row, sig: Signals | None = None, today: date | None = None) -> Candidate:
     sig = sig or Signals()
     years = prior.tenure_years(r["opened_at"], today or utc_today())  # rebuild_scores 와 같은 기준일
@@ -179,7 +200,7 @@ def _candidate(r: sqlite3.Row, sig: Signals | None = None, today: date | None = 
         name=r["name"],
         genre=r["genre"],
         price_band=r["price_band"] or PRICE_UNKNOWN,
-        moods=[m for m in (r["moods"] or "").split("|") if m],
+        moods=display_moods(r["moods"], sig),
         alcohol=bool(r["alcohol"]),
         lat=r["lat"],
         lng=r["lng"],
@@ -193,6 +214,8 @@ def _candidate(r: sqlite3.Row, sig: Signals | None = None, today: date | None = 
         tenure_years=int(years) if years is not None else None,
         hygiene_grade=sig.hygiene,
         designations=[prior.DESIGNATION_LABELS[k] for k in prior.DESIGNATION_KINDS if k in sig.designations],
+        guides=guide_labels(sig),
+        century_store=prior.CENTURY_KIND in sig.designations,
         evidence=r["evidence"],
     )
 

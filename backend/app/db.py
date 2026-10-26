@@ -71,7 +71,9 @@ CREATE TABLE IF NOT EXISTS opening_hours (
     updated_at TEXT,
     PRIMARY KEY (restaurant_id, weekday)
 );
--- 공공 신호: hygiene_grade | sanction | model_restaurant | good_price | safe_restaurant | century_store
+-- 공공 신호: hygiene_grade | sanction | model_restaurant | safe_restaurant | origin_label_excellent (지정업소)
+--   | century_store (업력 보정) | good_price (점수 무관, 가성비 태그)
+--   | taste_of_seoul | seoul_future_heritage | local_food | michelin_* (외부 평판 가이드) — app/scoring/prior.py SIGNAL_KINDS
 CREATE TABLE IF NOT EXISTS restaurant_signals (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     restaurant_id TEXT NOT NULL REFERENCES restaurants(id),
@@ -95,13 +97,13 @@ CREATE TABLE IF NOT EXISTS scores (
     gov_source TEXT,
     gov_bonus REAL NOT NULL,
     ad_penalty REAL,                   -- NULL = 광고 리뷰 통계 없음
-    components TEXT,                   -- JSON: 점수 모델 v2 구성요소 7개(가중 기여분, 감점은 음수)
+    components TEXT,                   -- JSON: 점수 모델 v2.1 구성요소 7개(가중 기여분, 감점은 음수)
     evidence TEXT,                     -- low | mid | high
     computed_at TEXT NOT NULL
 );
 CREATE TABLE IF NOT EXISTS review_stats (
     restaurant_id TEXT PRIMARY KEY REFERENCES restaurants(id),
-    ext_rating REAL,                   -- 제휴 평점(1~5), NULL = 없음 → prior v2 partner 중립 0.5
+    ext_rating REAL,                   -- 제휴 평점(1~5), NULL = 없음 → 외부 평판(reputation)에서 제외, 가이드도 없으면 중립 0.4
     ext_review_count INTEGER,
     ad_ratio REAL NOT NULL DEFAULT 0,
     ad_conf REAL NOT NULL DEFAULT 0,
@@ -192,7 +194,9 @@ def init_schema(conn: sqlite3.Connection) -> None:
     _dedupe_signals(conn)
     conn.commit()
     # scores 에 v2 컬럼을 막 추가했다면 기존 행은 NULL → 즉시 재계산(근거 부족 오표시 방지)
-    if "scores" in changed and conn.execute("SELECT 1 FROM scores LIMIT 1").fetchone():
+    # v2 → v2.1: components 에 구 키 partner 가 남아 있으면 재계산(reputation 키로 갱신)
+    stale = conn.execute("SELECT 1 FROM scores WHERE components LIKE '%\"partner\"%' LIMIT 1").fetchone()
+    if stale or ("scores" in changed and conn.execute("SELECT 1 FROM scores LIMIT 1").fetchone()):
         from app.service import rebuild_scores  # 순환 import 회피
 
         rebuild_scores(conn)

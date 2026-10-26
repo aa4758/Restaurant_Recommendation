@@ -47,7 +47,7 @@ def test_seed_star_distribution(client):
 
 def test_detail_breakdown_v2_keys(client):
     keys = {"prior_star", "user_mean", "n", "k", "gov_bonus", "ad_penalty", "components", "evidence"}
-    comp_keys = {"tenure", "gov", "hygiene", "designation", "partner", "sanction", "ad"}
+    comp_keys = {"tenure", "gov", "hygiene", "designation", "reputation", "sanction", "ad"}
     evidences = set()
     for i in range(1, 49):
         b = client.get(f"/restaurants/R{i:03d}").json()["score_breakdown"]

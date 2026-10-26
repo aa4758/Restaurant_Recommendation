@@ -22,11 +22,11 @@ function Bar({ label, value, color }: { label: string; value: number; color: str
 }
 
 const COMPONENT_ROWS: { key: keyof ScoreComponents; label: string }[] = [
-  { key: 'tenure', label: '업력(영업 연수)' },
+  { key: 'tenure', label: '업력(영업 연수·백년가게 보정)' },
   { key: 'gov', label: '공공기관 업무추진비 기록' },
   { key: 'hygiene', label: '위생등급' },
-  { key: 'designation', label: '지정업소(모범·착한가격·안심·백년가게)' },
-  { key: 'partner', label: '제휴 평점' },
+  { key: 'designation', label: '지정업소(모범·안심·원산지표시 우수)' },
+  { key: 'reputation', label: '외부 평판' },
   { key: 'sanction', label: '행정처분(최근 3년)' },
   { key: 'ad', label: '광고성 리뷰' },
 ];

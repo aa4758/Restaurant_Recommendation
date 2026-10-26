@@ -41,15 +41,15 @@ def test_hygiene_mapping():
 
 
 def test_designation_duplicates_count_once():
-    one = prior.prior_parts(now=NOW, designations=["good_price"])
-    many = prior.prior_parts(now=NOW, designations=["good_price", "model_restaurant", "safe_restaurant", "century_store"])
+    one = prior.prior_parts(now=NOW, designations=["model_restaurant"])
+    many = prior.prior_parts(now=NOW, designations=["origin_label_excellent", "model_restaurant", "safe_restaurant"])
     assert one.components["designation"] == many.components["designation"] == prior.W_DESIGNATION
     assert prior.designation_score([]) == 0 and prior.designation_score(["sanction"]) == 0
 
 
 def test_partner_missing_is_neutral():
     p = prior.prior_parts(now=NOW)
-    assert abs(p.components["partner"] - prior.W_PARTNER * 0.5) < 1e-9
+    assert abs(p.components["reputation"] - prior.W_REPUTATION * 0.4) < 1e-9
     assert prior.partner_score(5.0) == 1.0 and prior.partner_score(1.0) == 0.0
     assert prior.partner_score(3.0) == 0.5
 
@@ -72,7 +72,7 @@ def test_ad_penalty_monotonic_conf_and_floor():
     pens = [prior.ad_penalty_raw(r / 100, 1.0) for r in range(0, 101)]
     assert all(a <= b for a, b in zip(pens, pens[1:]))
     assert prior.ad_penalty_raw(0.9, 0.5) < prior.ad_penalty_raw(0.9, 1.0)  # 신뢰도 반영
-    # 하한: 감점 ≤ 가점 합계의 50% (가점 = 제휴 중립 0.1 뿐)
+    # 하한: 감점 ≤ 가점 합계의 50% (가점 = 외부 평판 중립 0.08 뿐)
     p = prior.prior_parts(now=NOW, ad_ratio=1.0, ad_conf=1.0)
     plus = sum(v for v in p.components.values() if v > 0)
     assert abs(p.ad_penalty - plus * prior.AD_FLOOR_RATIO) < 1e-9
@@ -101,7 +101,7 @@ def test_evidence_levels():
     assert prior.prior_parts(now=NOW).evidence == "low"  # 제휴 중립값은 신호 아님
     assert prior.prior_parts(now=NOW, partner_rating=4.0).evidence == "mid"
     assert prior.prior_parts(now=NOW, gov_visits=3, hygiene_grade="좋음").evidence == "mid"
-    assert prior.prior_parts(now=NOW, gov_visits=3, hygiene_grade="좋음", designations=["good_price"]).evidence == "high"
+    assert prior.prior_parts(now=NOW, gov_visits=3, hygiene_grade="좋음", designations=["safe_restaurant"]).evidence == "high"
     assert prior.prior_parts(now=NOW, sanction_dates=["2019-01-01"]).evidence == "low"  # 3년 밖 처분 무시
     assert [prior.evidence_level(n) for n in (0, 1, 2, 3, 7)] == ["low", "mid", "mid", "high", "high"]
 
@@ -192,9 +192,9 @@ def test_reasons_no_ad_claim_without_stats():
 
 def test_reasons_public_facts_and_low_evidence():
     q = Query(lat=37.5663, lng=126.9779)
-    s = Scored(_cand(3, tenure_years=12, hygiene_grade="매우우수", designations=["착한가격업소"], evidence="high"), 0, 2.5)
+    s = Scored(_cand(3, tenure_years=12, hygiene_grade="매우우수", designations=["모범음식점"], evidence="high"), 0, 2.5)
     line3 = make_reasons(s, q)[2]
-    assert "업력 12년" in line3 and "위생등급 매우우수" in line3 and "착한가격업소 지정" in line3
+    assert "업력 12년" in line3 and "위생등급 매우우수" in line3 and "모범음식점 지정" in line3
     s = Scored(_cand(4, evidence="low", ad_penalty=0.0), 0, 2.5)
     r = make_reasons(s, q)
     assert len(r) == 3 and r[2].startswith("근거 부족")

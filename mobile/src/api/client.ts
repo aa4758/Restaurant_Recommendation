@@ -70,13 +70,14 @@ export interface RecommendResponse {
   relaxed: string[];
 }
 
-/** 점수 모델 v2 구성요소별 사전 점수 기여분 (감점 항목 sanction·ad 는 음수) */
+/** 점수 모델 v2.1 구성요소별 사전 점수 기여분 (감점 항목 sanction·ad 는 음수) */
 export interface ScoreComponents {
   tenure: number;
   gov: number;
   hygiene: number;
   designation: number;
-  partner: number;
+  /** 외부 평판 = max(가이드 선정 점수, 제휴 평점), 둘 다 없으면 중립 */
+  reputation: number;
   sanction: number;
   ad: number;
 }
