@@ -26,5 +26,13 @@ hwp = ["pyhwp>=0.1b15"]
 camelot = ["camelot-py>=0.11"]
 dev = ["pytest>=8"]
 
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+# 코드 패키지는 src/ 만 (data·logs·tests 는 패키지 아님). 실행은 python -m src.cli
+[tool.setuptools.packages.find]
+include = ["src*"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]

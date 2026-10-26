@@ -10,8 +10,9 @@ git checkout claude/upbeat-gauss-m8wec0
 git pull
 
 cd expense_collector
-python -m venv .venv; .venv\Scripts\activate
-pip install -e ".[dev]"
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned   # 최초 1회: activate 스크립트 실행 허용 (Y 입력)
+python -m venv .venv; .venv\Scripts\activate          # 프롬프트 앞에 (.venv) 가 보여야 함
+python -m pip install -e ".[dev]"
 copy .env.example .env          # 공공데이터포털 서비스 키가 있으면 입력
 notepad config.yaml             # http.user_agent 의 연락처(CHANGE_ME) 를 실제 이메일로
 claude                          # docs/prompts.md 의 P0 부터 붙여넣기
