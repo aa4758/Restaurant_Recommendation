@@ -227,9 +227,68 @@ def _dedupe_signals(conn: sqlite3.Connection) -> None:
 SCHEMA_VERSION = 1
 
 
+def _table_info(conn: sqlite3.Connection, table: str) -> dict[str, tuple]:
+    """컬럼명 → (type, notnull, default, pk)."""
+    return {r[1]: (r[2], r[3], r[4], r[5]) for r in conn.execute(f"PRAGMA table_info({table})")}
+
+
+def _unique_cols(conn: sqlite3.Connection, table: str) -> set[str]:
+    out: set[str] = set()
+    for idx in conn.execute(f"PRAGMA index_list({table})"):
+        if idx[3] == "u":  # 컬럼 정의의 UNIQUE 제약
+            out.update(r[2] for r in conn.execute(f"PRAGMA index_info({idx[1]})"))
+    return out
+
+
+def _upgrade_tables(conn: sqlite3.Connection) -> set[str]:
+    """구버전 DB(v1 등)를 현재 SCHEMA 로 맞춤. SCHEMA 실행 전에 호출(없는 컬럼에 인덱스를 만들다 실패하지 않게).
+
+    - 없는 컬럼이 ALTER 로 추가 가능하면(UNIQUE 아님, NOT NULL 이면 기본값 있음) ALTER.
+    - 아니면(예: v1 restaurants 의 price_band·alcohol NOT NULL, sbiz_id UNIQUE 추가) 테이블 재생성 후 공통 컬럼 복사.
+    반환: 바뀐 테이블.
+    """
+    ref = sqlite3.connect(":memory:")
+    ref.executescript(SCHEMA)
+    have_tables = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+    changed: set[str] = set()
+    for table, ddl in ref.execute("SELECT name, sql FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"):
+        if table not in have_tables:
+            continue
+        want, have = _table_info(ref, table), _table_info(conn, table)
+        missing = [c for c in want if c not in have]
+        uniq = _unique_cols(ref, table)
+        notnull_mismatch = any(have[c][1] and not want[c][1] for c in want if c in have)
+        alterable = all(c not in uniq and (not want[c][1] or want[c][2] is not None) for c in missing)
+        if not missing and not notnull_mismatch:
+            continue
+        if alterable and not notnull_mismatch:
+            for c in missing:
+                typ, notnull, dflt, _ = want[c]
+                conn.execute(f"ALTER TABLE {table} ADD COLUMN {c} {typ}"
+                             + (f" NOT NULL DEFAULT {dflt}" if notnull else (f" DEFAULT {dflt}" if dflt is not None else "")))
+        else:
+            common = ",".join(c for c in want if c in have)
+            conn.commit()
+            conn.execute("PRAGMA foreign_keys = OFF")
+            conn.execute("PRAGMA legacy_alter_table = ON")  # 다른 테이블의 FK 참조가 __old 로 바뀌지 않게
+            try:
+                conn.execute(f"ALTER TABLE {table} RENAME TO {table}__old")
+                conn.execute(ddl)
+                conn.execute(f"INSERT INTO {table}({common}) SELECT {common} FROM {table}__old")
+                conn.execute(f"DROP TABLE {table}__old")
+                conn.commit()
+            finally:
+                conn.execute("PRAGMA legacy_alter_table = OFF")
+                conn.execute("PRAGMA foreign_keys = ON")
+        changed.add(table)
+    ref.close()
+    return changed
+
+
 def init_schema(conn: sqlite3.Connection) -> None:
+    upgraded = _upgrade_tables(conn)  # 구버전 DB 보강(현재 DB 면 PRAGMA 몇 번으로 끝남)
     conn.executescript(SCHEMA)
-    changed = _migrate(conn)  # PRAGMA table_info 만(저렴) — 누락 컬럼 보강
+    changed = _migrate(conn) | upgraded  # PRAGMA table_info 만(저렴) — 누락 컬럼 보강
     for ddl in POST_MIGRATION_INDEXES:
         conn.execute(ddl)
     backfill_ad_disclosed(conn)  # 부분 인덱스로 미계산 행만 조회
