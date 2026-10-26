@@ -21,6 +21,7 @@ curl http://localhost:8000/health   # {"status":"ok"}
      INSERT INTO user_reviews SELECT * FROM old.user_reviews WHERE restaurant_id IN (SELECT id FROM restaurants);
      INSERT INTO reports SELECT * FROM old.reports WHERE restaurant_id IN (SELECT id FROM restaurants);"
    ```
+   이관 후 점수 재계산: `JJINMAT_DB=new.db python -m app.service`
 5. 서버 중지 → `new.db` 를 `/data/jjinmat.db` 로 교체 → 재기동 → `/health`, `/recommend` 확인.
 
 ## 이의제기·정보 오류 신고

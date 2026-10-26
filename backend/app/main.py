@@ -19,8 +19,8 @@ from app.schemas import (
     ReviewIn,
     ReviewOut,
 )
-from app.scoring.recommend import Query, Scored as RecScored, make_reasons, recommend
-from app.service import load_scored
+from app.scoring.recommend import DISTANCE_RELAX_FACTOR, Query, Scored as RecScored, make_reasons, recommend
+from app.service import candidates_near, get_scored, rebuild_scores, region_of
 
 app = FastAPI(title="JJINMAT API", version="0.1.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
@@ -73,9 +73,10 @@ def meta_filters() -> dict:
 
 @app.post("/recommend", response_model=RecommendResponse)
 def post_recommend(req: RecommendRequest, conn=Depends(get_conn), day: date = Depends(today)) -> dict:
-    scored = load_scored(conn)
     q = Query(**req.model_dump())
-    items, relaxed = recommend([s.cand for s in scored.values()], q, day=day)
+    # 완화 시 반경이 DISTANCE_RELAX_FACTOR 배까지 늘어나므로 그만큼 조회
+    cands = candidates_near(conn, q.lat, q.lng, q.radius_m * DISTANCE_RELAX_FACTOR)
+    items, relaxed = recommend(cands, q, day=day)
     return {"items": [_item_dict(s) for s in items], "relaxed": relaxed}
 
 
@@ -86,28 +87,29 @@ def _require(conn, rid: str) -> None:
 
 @app.get("/restaurants/{rid}", response_model=RestaurantDetail)
 def get_restaurant(rid: str, conn=Depends(get_conn)) -> dict:
-    scored = load_scored(conn)
-    if rid not in scored:
+    found = get_scored(conn, rid)
+    if found is None:
         raise HTTPException(status_code=404, detail="restaurant not found")
-    s = scored[rid]
-    rs = RecScored(s.cand, None, s.cand.star)  # 위치 미지정 상세 조회 → distance_m=null
-    rs.reasons = make_reasons(rs, Query(lat=s.cand.lat, lng=s.cand.lng))
+    cand, breakdown = found
+    rs = RecScored(cand, None, cand.star)  # 위치 미지정 상세 조회 → distance_m=null
+    rs.reasons = make_reasons(rs, Query(lat=cand.lat, lng=cand.lng))
     d = _item_dict(rs)
-    d["score_breakdown"] = s.breakdown
+    d["score_breakdown"] = breakdown
     return d
 
 
 @app.post("/restaurants/{rid}/reviews", response_model=ReviewOut, status_code=201)
 def post_review(rid: str, body: ReviewIn, conn=Depends(get_conn)) -> dict:
-    _require(conn, rid)
+    if get_scored(conn, rid) is None:  # 없는 가게·폐업 가게
+        raise HTTPException(status_code=404, detail="restaurant not found")
     cur = conn.execute(
         "INSERT INTO user_reviews(restaurant_id,stars,text,tags,created_at) VALUES(?,?,?,?,?)",
         (rid, body.stars, body.text, json.dumps(body.tags, ensure_ascii=False),
          datetime.now(timezone.utc).isoformat()),
     )
     conn.commit()
-    final = load_scored(conn)[rid].cand.star
-    return {"id": cur.lastrowid, "final_star": final}
+    rebuild_scores(conn, region_of(conn, rid))  # ponytail: 리뷰마다 시군구 재계산(수천 건, ms 단위). 트래픽 커지면 큐/주기 배치
+    return {"id": cur.lastrowid, "final_star": get_scored(conn, rid)[0].star}
 
 
 @app.post("/restaurants/{rid}/report", status_code=202)

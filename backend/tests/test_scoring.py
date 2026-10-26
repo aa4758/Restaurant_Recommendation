@@ -2,7 +2,7 @@ from datetime import date
 from statistics import mean
 
 from app.scoring import bayes, prior, strict
-from app.scoring.recommend import Candidate, Query, recommend, rotate_ties, Scored
+from app.scoring.recommend import Candidate, Query, make_reasons, recommend, rotate_ties, Scored
 
 
 def test_gov_bonus_monotonic_and_capped():
@@ -35,10 +35,12 @@ def test_strict_map_ties_equal():
     assert len(set(strict.strict_map([1, 1, 1]))) == 1
 
 
-def test_top_percent():
-    pop = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    assert strict.top_percent(10, pop) == 10
-    assert strict.top_percent(1, pop) == 100
+def test_top_percents():
+    pcts = strict.top_percents([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    assert pcts[9] == 10 and pcts[0] == 100
+    assert strict.top_percents([3, 3]) == [100, 100]  # 동점은 묶음의 최저 순위
+    assert strict.top_percents([5, 3, 3]) == [34, 100, 100]
+    assert strict.top_percents([]) == []
 
 
 def test_bayes_half_at_k():
@@ -78,3 +80,11 @@ def test_rotate_ties_deterministic_per_day():
     assert a == b and sorted(a) == sorted(s.cand.id for s in items)
     orders = {tuple(s.cand.id for s in rotate_ties(items, date(2026, 1, d))) for d in range(1, 11)}
     assert len(orders) > 1  # 날짜별 로테이션
+
+
+def test_reasons_no_ad_claim_without_stats():
+    q = Query(lat=37.5663, lng=126.9779)
+    s = Scored(_cand(1), 0, 2.5)
+    assert "광고" not in make_reasons(s, q)[2]  # 통계 없으면 광고 비율 주장 금지
+    s = Scored(_cand(2, ad_penalty=0.0), 0, 2.5)
+    assert "광고" in make_reasons(s, q)[2]
