@@ -71,3 +71,18 @@ def test_dom_board():
     <a href="/board/download.do?dataSid=1&amp;fileSid=8">내역.pdf(10 kb)</a><a href="/board/download.do?fileSid=9" title="표.hwpx 다운받기">x</a>"""
     assert [(f["name"], f["ext"]) for f in dom_board.list_attachments(det, "https://www.edu.example/board/view.jbe")] == [
         ("2026.9. 사용내역.xlsx", "xlsx"), ("내역.pdf", "pdf"), ("표.hwpx", "hwpx")]
+
+
+def test_kedufine():
+    from src.phase3_collect.boards import kedufine
+    board = "https://www.edu.example/kedufine/ir/selectJobPrtnCtList.do?mi=17708&orgCode=R1"
+    assert adapter_for(board) is kedufine
+    html = """<table><tbody><tr><td>33</td><td>2026</td><td>가교육지원청 행정과</td>
+    <td><a href="#none" onclick="selectDetailView('669019','603816');">간담회비 지급</a></td><td>1,760,000</td><td>2026-09-14</td></tr></tbody></table>
+    <a onclick="goPaging(8)">8</a>"""
+    post = kedufine.list_posts(html, board)[0]
+    assert post == {"title": "간담회비 지급", "date": "2026-09-14", "ntt_sn": "669019",
+                    "url": "https://www.edu.example/kedufine/ir/selectJobPrtnCtView.do?mi=17708&jobPrtnCtSn=669019&ifEsbSeqNo=603816"}
+    assert kedufine.last_page(html) == 8
+    assert "inpBdt=2000%2F01%2F01" in kedufine.page_url(board, 2) and kedufine.page_url(board, 2).endswith("currPage=2")
+    assert kedufine.list_attachments("", post["url"]) == [{"name": "669019.html", "url": post["url"], "ext": "html", "size": 0}]
