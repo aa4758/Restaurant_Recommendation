@@ -2,7 +2,8 @@
 
 - 목록: `goTo.view('list','글번호','ptIdx','mId')` → `/portal/bbs/view.do?mId=&bIdx=&ptIdx=` (GET 확인, 2026-10-27)
 - 페이지: `goPage(n)` → `page=n` (GET 확인)
-- 첨부: `fn_egov_downFile('id','sn')` → `/cmm/fms/FileDown.do` (외부 EgovFileUtils.js, 직접 다운로드 확인) — egov_bbs 와 같은 방식
+- 첨부: `fn_egov_downFile('id','sn')` → `/cmm/fms/FileDown.do` (외부 EgovFileUtils.js, 직접 다운로드 확인) — egov_bbs 와 같은 방식.
+  경기 광주는 `yhLib.file.download(id, sn)` → `/common/file/download.do` (lib.js, 직접 다운로드 확인)
 작성자 칸(담당부서)은 읽지 않는다.
 """
 import re
