@@ -103,7 +103,8 @@ def test_bbs_ntt():
     assert bbs_ntt.list_attachments(det, "https://www.gu.example/www/selectBbsNttView.do") == [
         {"name": "1. 사용내역(3분기).xlsx", "url": "https://www.gu.example/www/downloadBbsFile.do?atchmnflNo=55050", "ext": "xlsx", "size": 0}]
     det = """<div><span><img alt="xlsx"/>1동 업무추진비(9월).xlsx</span><a href="/www/downloadBbsFile.do?atchmnflNo=2">다운로드</a></div>
-    <a href="downloadBbsFileStr.do?bbsNo=31&amp;atchmnflStr=X"><span class="p-icon">pdf 파일</span><span>9월 내역.pdf (pdf, 40.5 KB)</span></a>"""
+    <a href="downloadBbsFileStr.do?bbsNo=31&amp;atchmnflStr=X"><span class="p-icon">pdf 파일</span><span>9월 내역.pdf (pdf, 40.5 KB)</span><svg><title>파일다운로드</title></svg></a>
+    <a href="/staff/downloadBbsFile.do?atchmnflNo=9">안내서</a>"""
     assert [(f["name"], f["ext"]) for f in bbs_ntt.list_attachments(det, "https://www.gu.example/www/v")] == [
         ("1동 업무추진비(9월).xlsx", "xlsx"), ("9월 내역.pdf", "pdf")]
 

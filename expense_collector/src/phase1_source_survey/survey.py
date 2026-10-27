@@ -4,24 +4,25 @@
   검색 페이지를 반복 조회하지 않는다. 제공기관코드 = 행정기관코드라 기관 매칭은 코드로 정확히.
   데이터셋별 이용허락범위는 상세 페이지 1회 조회로 기록.
 - BOARD: 홈페이지(리다이렉트 추적) 메뉴에서 '업무추진비' 링크 → 목록 페이지에 수집 기간 내 날짜가 있으면 found.
-  없으면 사이트맵·사전정보공표 페이지에서 한 번 더 찾는다. 기관당 요청 수를 작게 유지(9절).
+  없으면 사이트맵·사전정보공표 페이지(2단계까지)에서 찾는다. 인트로 첫 화면이면 메인 페이지로 옮겨 본다. 기관당 요청 수를 작게 유지(9절).
 - OPENGOKR: open.go.kr robots 가 루트 외 전부 비허용 → 자동 조회 안 하고 needs_review 로 기록.
 """
 import csv
 import re
 from datetime import date
 from pathlib import Path
+from urllib.parse import urlsplit
 
 import pandas as pd
 from bs4 import BeautifulSoup
 
 from src import db
 from src.http_client import HttpClient
-from src.web import anchors, blocked_reason, fetch_followed, final_url, robots_blocked
+from src.web import anchors, blocked_reason, fetch_followed, final_url, main_candidates, robots_blocked
 
 META_URL = "https://www.data.go.kr/cmm/cmm/fileDownload.do?atchFileId=FILE_000000003671255&fileDetailSn=1&insertDataPrcus=N"
 META_FILE = "datagokr_meta_15121937.csv"
-EXPENSE = re.compile(r"업무추진비|업추비")
+EXPENSE = re.compile(r"업무\s*추진비|업추비")
 SCOPES = [  # 제목 → 공개 범위 (위에서부터 첫 일치)
     (r"지방재정365", "지방재정365 예산 편성·비율(집행내역 아님)"),
     (r"의회|의원", "의회"),
@@ -30,7 +31,8 @@ SCOPES = [  # 제목 → 공개 범위 (위에서부터 첫 일치)
     (r"단체장|기관장|장·차관", "기관장"),
     (r"임원", "임원"),
 ]
-NAV = re.compile(r"사이트\s*맵|사전\s*정보\s*공[표개]|정보\s*공개")
+NAV = re.compile(r"사이트\s*맵|전체\s*메뉴|사전\s*정보\s*공[표개]|정보\s*공개|재정\s*공개")
+NAV_SKIP = re.compile(r"청구|제도|서식|법령|이용\s*안내|학원|교습소|계약|신고|시스템")  # 업무추진비 목록이 아닌 정보공개 하위 메뉴
 KOGL = re.compile(r"공공누리\s*(?:제\s*)?([1-4])\s*유형|(?:opentype|kogl_?type|img_open_?type)_?0?([1-4])", re.I)
 DATE = re.compile(r"(20\d{2})[.\-/년]\s*(\d{1,2})[.\-/월]\s*(\d{1,2})")
 EXT = re.compile(r"\.(xlsx|xls|csv|pdf|hwpx|hwp|zip|jpg|png)\b", re.I)
@@ -102,12 +104,29 @@ def kogl_type(html: str) -> str:
 
 
 def expense_links(html: str) -> list[tuple[str, str]]:
+    """'업무추진비' 링크. 사전정보공표 목록처럼 링크 문구가 '바로가기'뿐이면 짧은 행(tr/li) 글자로 판단."""
     seen, out = set(), []
-    for text, url, _ in anchors(html):
-        if url and EXPENSE.search(text) and url not in seen and "open.go.kr" not in url:
+    for text, url, a in anchors(html):
+        if not url or url in seen or "open.go.kr" in url:
+            continue
+        if not EXPENSE.search(text) and (row := a.find_parent(["tr", "li"])):
+            text = row.get_text(" ", strip=True)
+            text = text if len(text) < 150 else ""
+        if EXPENSE.search(text):
             seen.add(url)
             out.append((text, url))
     return out
+
+
+def nav_links(html: str) -> list[str]:
+    """같은 호스트의 사이트맵·사전정보공표·정보공개 링크(사이트맵 > 사전정보공표 > 그 외 순)."""
+    host = urlsplit(final_url(html) or "").hostname
+    found = {}
+    for text, url, _ in anchors(html):
+        if url and NAV.search(text) and not NAV_SKIP.search(text) and urlsplit(url).hostname == host:
+            rank = 0 if re.search(r"사이트\s*맵|전체\s*메뉴", text) else 1 if re.search(r"사전\s*정보", text) else 2
+            found[url] = min(rank, found.get(url, 9))
+    return sorted(found, key=found.get)
 
 
 def find_board(client: HttpClient, inst: dict, cache: Path, start: date, end: date, max_pages: int = 6) -> dict:
@@ -115,10 +134,27 @@ def find_board(client: HttpClient, inst: dict, cache: Path, start: date, end: da
     if robots_blocked(home):
         return {"available": "unknown", "url": inst["homepage_url"], "status": "needs_review",
                 "note": f"홈페이지 접근 불가: {blocked_reason(home)} — 자동 조사 안 함 (등급 C 후보)"}
+    if sum(1 for _ in anchors(home)) < 30:  # 인트로·JS 첫 화면이면 실제 메인 페이지로
+        for url in main_candidates(home)[:2]:
+            page = fetch_followed(client, url, cache)
+            if not robots_blocked(page) and sum(1 for _ in anchors(page)) >= 30:
+                home = page
+                break
     queue = expense_links(home)
-    if not queue:  # 메뉴에 없으면 사이트맵·사전정보공표에서
-        for _, url in [(t, u) for t, u, _ in anchors(home) if u and NAV.search(t)][:3]:
-            queue += expense_links(fetch_followed(client, url, cache))
+    if not queue:  # 메뉴에 없으면 사이트맵·사전정보공표에서, 그래도 없으면 그 페이지들의 하위 메뉴 한 단계 더
+        todo, seen = nav_links(home)[:4], set()
+        for depth in (1, 2):
+            nxt = []
+            for url in todo:
+                seen.add(url)
+                page = fetch_followed(client, url, cache)
+                if robots_blocked(page):
+                    continue
+                queue += [l for l in expense_links(page) if l[1] not in {u for _, u in queue}]
+                nxt += [u for u in nav_links(page)[:3] if u not in seen and u not in nxt]
+            if queue:
+                break
+            todo = nxt[:3]
     tried, best = 0, None
     while queue and tried < max_pages:
         text, url = queue.pop(0)

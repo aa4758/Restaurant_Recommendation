@@ -101,3 +101,20 @@ def test_url_signature_clusters():
     b = url_signature("https://b.go.kr/bbs/list.do?menu=9&bbsId=77")
     assert a == b == "/bbs/list.do?bbsId&menu"
     assert url_signature("https://x.kr/site/gu/BD_board.list.do?bbsCd=1") != a
+
+
+def test_nav_and_row_context():
+    from src.phase1_source_survey.survey import nav_links
+    from src.web import PAGE_SEP, blocked_reason, main_candidates, robots_blocked
+    home = """<!-- url: https://www.gu.example/main.do -->
+    <a href="/info.do">정보공개</a><a href="https://www.open.go.kr">정보공개청구</a><a href="/req.do">정보공개 청구</a>
+    <a href="/pre.do">사전정보공표</a><a href="/sitemap.do">사이트맵</a><a href="https://other.example/x">정보공개</a>"""
+    assert nav_links(home) == ["https://www.gu.example/sitemap.do", "https://www.gu.example/pre.do", "https://www.gu.example/info.do"]
+    pre = """<!-- url: https://www.gu.example/pre.do --><table><tr><td>재정</td><td>업무 추진비 사용내역</td>
+    <td><a href="/go.do?id=7">바로가기</a></td></tr></table><ul><li><a href="/x.do">바로가기</a> 새소식</li></ul>"""
+    assert expense_links(pre) == [("재정 업무 추진비 사용내역 바로가기", "https://www.gu.example/go.do?id=7")]
+    intro = """<!-- url: https://www.gu.example -->
+    <meta property="og:url" content="https://www.gu.example/gu/index.do"><link href="/css/main.css"><a href="https://other.example/main.do">x</a>"""
+    assert main_candidates(intro) == ["https://www.gu.example/gu/index.do"]
+    redirected = "<!-- url: https://a.example/ -->x" + PAGE_SEP + "<!-- robots disallow https://a.example/m | robots.txt 응답 없음(X) -->"
+    assert robots_blocked(redirected) and blocked_reason(redirected) == "robots.txt 응답 없음(X)"

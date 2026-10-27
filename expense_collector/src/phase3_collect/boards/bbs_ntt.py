@@ -43,10 +43,11 @@ def list_posts(html: str, board_url: str) -> list[dict]:
 def list_attachments(html: str, post_url: str) -> list[dict]:
     out = []
     for a in BeautifulSoup(html, "lxml").select("a[href*='downloadBbsFile.do'], a[href*='downloadBbsFileStr.do']"):
-        for icon in a.select(".p-icon, .skip"):
+        for icon in a.select(".p-icon, .skip, svg"):  # 구로: svg 안 '파일다운로드' 글자
             icon.decompose()
         name = a.get_text(" ", strip=True)
         if "." not in name and (span := a.find_previous_sibling("span")):  # 양주: 링크 문구가 '다운로드'
             name = span.get_text(" ", strip=True)
-        out.append(file_entry(name, a["href"], post_url))
+        if (f := file_entry(name, a["href"], post_url))["ext"]:  # 확장자 없는 메뉴 링크(구로 '안내서') 제외
+            out.append(f)
     return out
