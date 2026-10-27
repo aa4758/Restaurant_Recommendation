@@ -177,3 +177,21 @@ def test_portal_bbs():
     yh = """<a href="#" onclick=" yhLib.file.download('7cb3','f9a1'); return false;" class="download"><span> 사용내역(2026.9.).pdf </span></a>"""
     assert [(f["name"], f["url"]) for f in portal_bbs.list_attachments(yh, board)] == [
         ("사용내역(2026.9.).pdf", "https://www.gun.example/common/file/download.do?atchFileId=7cb3&fileSn=f9a1")]
+
+
+def test_dom_board_variants():
+    from src.phase3_collect.boards import dom_board
+    board = "https://www.gun.example/board/list.gun?boardId=BBS_0000141&menuCd=DOM_0001"
+    card = """<ul><li><a href="/board/view.gun?boardId=BBS_0000141&amp;dataSid=760249"><strong> 3분기 업무추진비 공개(총무과장) <img alt="첨부"/></strong>
+    <span>붙임과 같이 공개합니다.</span><em class="info">부서 : 총무과<span>|</span>홍길동<span>|</span>작성일 : 2026-10-02</em></a></li></ul>"""
+    posts = dom_board.list_posts(card, board)
+    assert [(p["title"], p["date"], p["ntt_sn"]) for p in posts] == [("3분기 업무추진비 공개(총무과장)", "2026-10-02", "760249")]
+    assert "홍길동" not in str(posts)
+    rows = """<table><tr><td> <!-- 주석 --> 2026년 9월 업무추진비 내역</td><td>행정과</td>
+    <td><a href="/board/download.gun?boardId=BBS_0000022&amp;dataSid=216838&amp;fileSid=1" title="9월 내역.pdf 다운받기">다운받기</a></td></tr></table>"""
+    assert dom_board.list_posts(rows, board) == [{"title": "2026년 9월 업무추진비 내역", "date": "2026-09-01", "url": board, "ntt_sn": "216838"}]
+    assert [f["name"] for f in dom_board.list_attachments(rows, board)] == ["9월 내역.pdf"]
+    inline = """<table><tbody><tr><td> 가과(군수) </td><td> 군수 홍길동 </td><td> 2026. 9. 3. </td><td> 가게 </td><td> 200,000 </td></tr></tbody></table>"""
+    posts = dom_board.list_posts(inline, board)
+    assert [(p["date"], p["url"]) for p in posts] == [("2026-09-03", board)] and "홍길동" not in str(posts)
+    assert dom_board.list_attachments(inline, board) == [{"name": "list.html", "url": board, "ext": "html", "size": 0}]

@@ -2,7 +2,7 @@
 import re
 from urllib.parse import parse_qs, urlencode, urljoin, urlsplit
 
-DATE = re.compile(r"(20\d{2})[.\-](\d{1,2})[.\-](\d{1,2})")
+DATE = re.compile(r"(20\d{2})\s*[.\-]\s*(\d{1,2})\s*[.\-]\s*(\d{1,2})")  # 2026-10-08 · 2026. 9. 3.
 
 
 def iso_date(text: str) -> str | None:
