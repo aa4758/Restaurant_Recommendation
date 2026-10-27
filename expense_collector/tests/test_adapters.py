@@ -121,3 +121,22 @@ def test_board_cnts():
     <li> 6월 사용 내역.xlsx [ 13.6 KB ] <a href="/boardCnts/fileDown.do?m=1&amp;s=x&amp;fileSeq=b2" title="다운로드"><span>다운로드</span></a></li>"""
     assert [(f["name"], f["ext"]) for f in board_cnts.list_attachments(det, board)] == [
         ("(가)2026년 9월 사용내역.hwp", "hwp"), ("6월 사용 내역.xlsx", "xlsx")]
+
+
+def test_egov_variants():
+    board = "https://www.gun.example/cop/bbs/BBSMSTR_000000000096/selectBoardList.do"
+    assert adapter_for(board) is egov_bbs
+    html = """<table><tr><td>2636</td><td><a href="/cop/bbs/BBSMSTR_000000000096/selectBoardArticle.do?nttId=212545&amp;pageIndex=1">관광과 업무추진비(7월~9월)</a></td>
+    <td>관광과</td><td class="date">2026-10-23</td></tr></table><a onclick="linkPage(264)">끝</a>"""
+    assert [(p["ntt_sn"], p["date"]) for p in egov_bbs.list_posts(html, board)] == [("212545", "2026-10-23")]
+    assert egov_bbs.last_page(html) == 264
+    det = """<script>function fn_egov_downFile(a, s){ window.open("/np/cmm/fms/FileDown.do;jsessionid=AB.c1?atchFileId="+a+"&fileSn="+s); }</script>
+    <a href="#" onclick="fn_egov_downFile('FILE_1','0'); return false;" title="첨부파일 다운로드, 파일명 : 9월 집행현황.pdf"> 9월 집행현황.pdf(0.06MB)</a>
+    <a href="javascript:fn_egov_downFile('FILE_2','1')">3분기 내역.hwp &nbsp;[0.086&nbsp;mbyte]</a>
+    <a href="/kfsweb/cmm/fms/FileDown.do;jsessionid=Z.e5?atchFileId=AF_3&amp;fileSn=0" aria-label="차장 내역.xlsx 다운로드">다운로드</a>
+    <a alt="위원장 내역.xlsx" href="#LINK" onclick="javascript:fn_egov_downFile('FILE_4','1','xlsx')" title="첨부파일 다운로드">다운로드</a>"""
+    assert [(f["name"], f["url"]) for f in egov_bbs.list_attachments(det, "https://www.gun.example/np/x")] == [
+        ("9월 집행현황.pdf", "https://www.gun.example/np/cmm/fms/FileDown.do?atchFileId=FILE_1&fileSn=0"),
+        ("3분기 내역.hwp", "https://www.gun.example/np/cmm/fms/FileDown.do?atchFileId=FILE_2&fileSn=1"),
+        ("차장 내역.xlsx", "https://www.gun.example/kfsweb/cmm/fms/FileDown.do?atchFileId=AF_3&fileSn=0"),
+        ("위원장 내역.xlsx", "https://www.gun.example/np/cmm/fms/FileDown.do?atchFileId=FILE_4&fileSn=1")]
