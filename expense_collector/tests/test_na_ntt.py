@@ -52,3 +52,24 @@ def test_attachments():
         {"name": "2026년 9월 업무추진비.xlsx", "url": "https://www.edu.example/upload/site/na/bbs_7/2026/10/x.xlsx", "ext": "xlsx", "size": 11889},
         {"name": "증빙.pdf", "url": "https://www.edu.example/upload/site/na/bbs_7/2026/10/y.pdf", "ext": "pdf", "size": 0},
     ]
+
+
+def test_variants():
+    # 관세청형: data-url → nttSnUrl / 해양경찰청형: 일반 링크(작성자 칸은 읽지 않음)
+    html = """<table><tr><td><a href="javascript:" data-id="9" data-url="k9" class="nttInfoBtn">3분기 사용내역</a></td><td>2026.10.01</td></tr>
+    <tr><td><a href="/x/na/ntt/selectNttInfo.do?nttSn=72">9월 집행내역</a></td><td>홍길동</td><td>2026.10.19</td></tr></table>"""
+    posts = na_ntt.list_posts(html, BOARD)
+    assert [p["url"] for p in posts] == [
+        "https://www.edu.example/site/na/ntt/selectNttInfo.do?mi=100&bbsId=7&nttSn=9&nttSnUrl=k9",
+        "https://www.edu.example/x/na/ntt/selectNttInfo.do?nttSn=72"]
+    assert [p["date"] for p in posts] == ["2026-10-01", "2026-10-19"] and "홍길동" not in str(posts)
+    # RAONK 업로더(작은따옴표) · 백틱 · nttFileDownload 직접 링크(중복 제거)
+    det = """RAONKUPLOAD.AddUploadedFile('1', '집행 내역.xlsx', '/upload/a.xlsx', '14958', x);
+    DEXT5UPLOAD.AddUploadedFile(`h`, `내역.pdf`, `/upload/b.pdf`, `10`, x);
+    <a href="/common/nttFileDownload.do?fileKey=f1" title="공개자료.xlsx 다운로드">공개자료.xlsx</a>
+    <a href="/common/nttFileDownload.do?fileKey=f1">공개자료.xlsx</a>"""
+    files = na_ntt.list_attachments(det, "https://www.edu.example/p")
+    assert [(f["name"], f["url"], f["size"]) for f in files] == [
+        ("집행 내역.xlsx", "https://www.edu.example/upload/a.xlsx", 14958),
+        ("내역.pdf", "https://www.edu.example/upload/b.pdf", 10),
+        ("공개자료.xlsx", "https://www.edu.example/common/nttFileDownload.do?fileKey=f1", 0)]

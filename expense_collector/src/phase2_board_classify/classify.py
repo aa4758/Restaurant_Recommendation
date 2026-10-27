@@ -164,7 +164,7 @@ def classify(client: HttpClient, inst: dict, board_url: str, start: date, end: d
     if adapter and not lic:
         notes.append("목록 본문(INLINE) 확인 — 공공누리 표시 없음" if adapter.INLINE
                      else f"게시글 {len(targets)}건 확인 — 공공누리 표시 없음")
-    r["file_formats"] = ",".join(sorted(exts))
+    r["file_formats"] = ",".join(sorted(e for e in exts if e))
     r["download_method"] = method or ("js" if exts else None)  # 첨부 흔적 없으면 미확인(NULL)
     r["license"] = lic
     r["pdf_kind"] = "n/a"
