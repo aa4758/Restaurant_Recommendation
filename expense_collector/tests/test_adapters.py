@@ -141,3 +141,19 @@ def test_egov_variants():
         ("3분기 내역.hwp", "https://www.gun.example/np/cmm/fms/FileDown.do?atchFileId=FILE_2&fileSn=1"),
         ("차장 내역.xlsx", "https://www.gun.example/kfsweb/cmm/fms/FileDown.do?atchFileId=AF_3&fileSn=0"),
         ("위원장 내역.xlsx", "https://www.gun.example/np/cmm/fms/FileDown.do?atchFileId=FILE_4&fileSn=1")]
+
+
+def test_scms_web():
+    from src.phase3_collect.boards import scms_web
+    board = "https://www.gun.example/00099/00146/00171.web"
+    assert adapter_for(board) is scms_web
+    html = """<ul><li><a href="https://www.gun.example/06996.web?amode=view">나의 맞춤정보</a></li>
+    <li class="li1"><div><a class="a1" href="?gcode=2&amp;idx=172&amp;amode=view&amp;"><span><strong class="t1"> 2026년 9월 업무추진비 <img alt="xlsx"/></strong>
+    <i><span class="t3"><b>게시물번호 : 201</b></span><span class="t3">2026-10-08</span><span class="t3"> 행정과 </span></i></span></a></div></li></ul>
+    <a href="?gcode=2&amp;cpage=21" title="맨끝 페이지">»</a>"""
+    assert scms_web.list_posts(html, board) == [{"title": "2026년 9월 업무추진비", "date": "2026-10-08", "ntt_sn": "172",
+        "url": "https://www.gun.example/00099/00146/00171.web?gcode=2&idx=172&amode=view&"}]
+    assert scms_web.last_page(html) == 21 and scms_web.page_url(board, 3) == board + "?cpage=3"
+    det = """<a class="filename" href="/board/download.do?idx=172&amp;fnum=1&amp;gcode=2">업무추진비 2026. 9.(군수).xlsx(15.3 KB)</a>"""
+    assert scms_web.list_attachments(det, board) == [{"name": "업무추진비 2026. 9.(군수).xlsx", "ext": "xlsx", "size": 0,
+        "url": "https://www.gun.example/board/download.do?idx=172&fnum=1&gcode=2"}]
