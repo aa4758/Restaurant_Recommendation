@@ -15,7 +15,7 @@ from src.phase3_collect.boards._common import file_entry, iso_date, max_call_arg
 ID = "egov_bbs"
 INLINE = False
 LIST_PATH = re.compile(r"(?:commonS|/s)electBoardList\.do")
-DOWN_FN = re.compile(r"fn_egov_downFile\(\s*'([^']+)'\s*,\s*'(\d+)'")
+DOWN_FN = re.compile(r"fn_egov_downFile\(\s*'([^']+)'\s*,\s*'(\w+)'")  # fileSn 은 숫자 또는 해시(칠곡)
 DOWN_PATH = re.compile(r"""["']([\w/]*/cmm/fms/FileDown\.do)""")
 SESSION = re.compile(r";jsessionid=[^?#]*")
 HAS_EXT = re.compile(r"\.\w{2,5}(\s*[\[(].*)?$")

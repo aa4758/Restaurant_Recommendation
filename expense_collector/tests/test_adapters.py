@@ -160,3 +160,20 @@ def test_scms_web():
     table = """<table><tr><td>17454</td><td><a class="cv3" href="?gcode=1036&amp;idx=886399&amp;amode=view&amp;">(국) 7월~9월 업무추진비 <i class="ic1 new"><span class="t1">새 글</span></i></a></td>
     <td> 추진단 </td><td>2026-10-26</td></tr></table>"""
     assert [(p["title"], p["date"], p["ntt_sn"]) for p in scms_web.list_posts(table, board)] == [("(국) 7월~9월 업무추진비", "2026-10-26", "886399")]
+
+
+def test_portal_bbs():
+    from src.phase3_collect.boards import portal_bbs
+    board = "https://www.gun.example/portal/bbs/list.do?ptIdx=226&mId=0305010000"
+    assert adapter_for(board) is portal_bbs
+    html = """<table><tr><td>685</td><td><a href="#" onclick="goTo.view('list','204431','226','0305010000'); return false;"> 3/4분기 업무추진비 </a></td>
+    <td>총무과</td><td>2026-10-22</td></tr></table><a onclick="goPage(69)">끝</a>"""
+    assert portal_bbs.list_posts(html, board) == [{"title": "3/4분기 업무추진비", "date": "2026-10-22", "ntt_sn": "204431",
+        "url": "https://www.gun.example/portal/bbs/view.do?mId=0305010000&bIdx=204431&ptIdx=226"}]
+    assert portal_bbs.last_page(html) == 69 and portal_bbs.page_url(board, 3).endswith("page=3")
+    det = """<a href="#" onclick="fn_egov_downFile('6bcd','f9a1'); return false;"><span>총무과 사용내역.pdf</span>&nbsp;[48.8 KByte]</a>"""
+    assert portal_bbs.list_attachments(det, board) == [{"name": "총무과 사용내역.pdf", "ext": "pdf", "size": 0,
+        "url": "https://www.gun.example/cmm/fms/FileDown.do?atchFileId=6bcd&fileSn=f9a1"}]
+    yh = """<a href="#" onclick=" yhLib.file.download('7cb3','f9a1'); return false;" class="download"><span> 사용내역(2026.9.).pdf </span></a>"""
+    assert [(f["name"], f["url"]) for f in portal_bbs.list_attachments(yh, board)] == [
+        ("사용내역(2026.9.).pdf", "https://www.gun.example/common/file/download.do?atchFileId=7cb3&fileSn=f9a1")]
