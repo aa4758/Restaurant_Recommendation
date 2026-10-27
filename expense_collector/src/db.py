@@ -54,7 +54,29 @@ CREATE TABLE IF NOT EXISTS files (
     sha256 TEXT UNIQUE,
     size INTEGER,
     downloaded_at TEXT,
-    status TEXT
+    status TEXT,                      -- ok / duplicate(같은 내용 이미 있음) / failed / blocked(robots) / link(외부 링크만) / needs_key
+    license TEXT,                     -- 게시글·데이터셋마다 다시 읽은 공공누리 유형(출처 표기용)
+    path TEXT,
+    note TEXT
+);
+CREATE TABLE IF NOT EXISTS posts (     -- Phase 3 게시판: 처리한 게시글(이어하기용)
+    institution_id TEXT NOT NULL,
+    post_url TEXT NOT NULL,
+    title TEXT, post_date TEXT,
+    n_files INTEGER,
+    status TEXT,                      -- ok / failed / blocked
+    note TEXT,
+    collected_at TEXT,
+    PRIMARY KEY (institution_id, post_url)
+);
+CREATE TABLE IF NOT EXISTS collect_status (  -- Phase 3 기관·출처 단위 결과
+    institution_id TEXT NOT NULL,
+    source TEXT NOT NULL,
+    status TEXT,                      -- done / failed
+    pages INTEGER, posts INTEGER, files INTEGER,
+    note TEXT,
+    finished_at TEXT,
+    PRIMARY KEY (institution_id, source)
 );
 CREATE TABLE IF NOT EXISTS parsed_tables (
     file_id INTEGER NOT NULL REFERENCES files(file_id),
@@ -85,10 +107,15 @@ def now() -> str:
 
 def connect(path: Path | str) -> sqlite3.Connection:
     Path(path).parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(path)
+    conn = sqlite3.connect(path, timeout=60)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
+    conn.execute("PRAGMA journal_mode = WAL")  # Phase 3 는 호스트별 작업자가 동시에 기록
     conn.executescript(SCHEMA)
+    have = {r[1] for r in conn.execute("PRAGMA table_info(files)")}
+    for col in ("license", "path", "note"):  # 이전 스키마 DB 이어 쓰기
+        if col not in have:
+            conn.execute(f"ALTER TABLE files ADD COLUMN {col} TEXT")
     return conn
 
 
