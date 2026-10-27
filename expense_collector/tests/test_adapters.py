@@ -106,3 +106,18 @@ def test_bbs_ntt():
     <a href="downloadBbsFileStr.do?bbsNo=31&amp;atchmnflStr=X"><span class="p-icon">pdf 파일</span><span>9월 내역.pdf (pdf, 40.5 KB)</span></a>"""
     assert [(f["name"], f["ext"]) for f in bbs_ntt.list_attachments(det, "https://www.gu.example/www/v")] == [
         ("1동 업무추진비(9월).xlsx", "xlsx"), ("9월 내역.pdf", "pdf")]
+
+
+def test_board_cnts():
+    from src.phase3_collect.boards import board_cnts
+    board = "https://www.edu.example/boardCnts/listRenew.do?boardID=10150&m=041209&s=moe"
+    assert adapter_for(board) is board_cnts
+    html = """<table><tbody><tr><td>205</td><td><a href="#" onclick="javascript:goView('10150', '107066', '0', null, 'W', '1', 'N', '');">
+    2026년 6월 업무추진비 사용내역 </a></td><td>정**</td><td>2026-08-28</td></tr></tbody></table><a href="?page=21&amp;m=1">끝</a>"""
+    assert board_cnts.list_posts(html, board) == [{"title": "2026년 6월 업무추진비 사용내역", "date": "2026-08-28", "ntt_sn": "107066",
+        "url": "https://www.edu.example/boardCnts/viewRenew.do?boardID=10150&boardSeq=107066&lev=0&statusYN=W&m=041209&s=moe"}]
+    assert board_cnts.last_page(html) == 21
+    det = """<a href='/boardCnts/fileDown.do?m=1&s=x&fileSeq=a1'>(가)2026년 9월 사용내역.hwp</a>
+    <li> 6월 사용 내역.xlsx [ 13.6 KB ] <a href="/boardCnts/fileDown.do?m=1&amp;s=x&amp;fileSeq=b2" title="다운로드"><span>다운로드</span></a></li>"""
+    assert [(f["name"], f["ext"]) for f in board_cnts.list_attachments(det, board)] == [
+        ("(가)2026년 9월 사용내역.hwp", "hwp"), ("6월 사용 내역.xlsx", "xlsx")]
