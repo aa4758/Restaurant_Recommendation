@@ -86,3 +86,23 @@ def test_kedufine():
     assert kedufine.last_page(html) == 8
     assert "inpBdt=2000%2F01%2F01" in kedufine.page_url(board, 2) and kedufine.page_url(board, 2).endswith("currPage=2")
     assert kedufine.list_attachments("", post["url"]) == [{"name": "669019.html", "url": post["url"], "ext": "html", "size": 0}]
+
+
+def test_bbs_ntt():
+    from src.phase3_collect.boards import bbs_ntt
+    board = "https://www.gu.example/www/selectBbsNttList.do?bbsNo=14&key=331"
+    assert adapter_for(board) is bbs_ntt
+    html = """<table><tbody><tr><td>315</td><td class="p-subject"><a href="./selectBbsNttView.do?key=331&amp;bbsNo=14&amp;nttNo=149439&amp;pageIndex=1">
+    2026년 9월 업무추진비 </a></td><td><span class="p-icon">xlsx 파일 첨부</span></td><td> 2026.10.21 </td></tr></tbody></table>
+    <a href="?pageIndex=32">끝</a>"""
+    assert bbs_ntt.list_posts(html, board) == [{"title": "2026년 9월 업무추진비", "date": "2026-10-21", "ntt_sn": "149439",
+        "url": "https://www.gu.example/www/selectBbsNttView.do?key=331&bbsNo=14&nttNo=149439&pageIndex=1"}]
+    assert bbs_ntt.last_page(html) == 32
+    det = """<a href="./downloadBbsFile.do?atchmnflNo=55050" class="p-attach__link"><span class="p-icon p-icon__xlsx">xlsx 문서</span>
+    1. 사용내역(3분기).xlsx &nbsp;</a><a href="./downloadBbsFileAll.do?atchmnflNo=1">전체 압축 파일 받기</a>"""
+    assert bbs_ntt.list_attachments(det, "https://www.gu.example/www/selectBbsNttView.do") == [
+        {"name": "1. 사용내역(3분기).xlsx", "url": "https://www.gu.example/www/downloadBbsFile.do?atchmnflNo=55050", "ext": "xlsx", "size": 0}]
+    det = """<div><span><img alt="xlsx"/>1동 업무추진비(9월).xlsx</span><a href="/www/downloadBbsFile.do?atchmnflNo=2">다운로드</a></div>
+    <a href="downloadBbsFileStr.do?bbsNo=31&amp;atchmnflStr=X"><span class="p-icon">pdf 파일</span><span>9월 내역.pdf (pdf, 40.5 KB)</span></a>"""
+    assert [(f["name"], f["ext"]) for f in bbs_ntt.list_attachments(det, "https://www.gu.example/www/v")] == [
+        ("1동 업무추진비(9월).xlsx", "xlsx"), ("9월 내역.pdf", "pdf")]

@@ -25,6 +25,6 @@ def max_call_arg(html: str, func: str) -> int:
 
 
 def file_entry(name: str, url: str, base: str, size: int = 0) -> dict:
-    name = re.sub(r"\s+", " ", name).strip()
+    name = re.sub(r"\s*[\[(](\w+,)?[\d.,\s]*[kmg]?b[\])]$", "", re.sub(r"\s+", " ", name).strip(), flags=re.I)  # '(15 kb)'·'(xlsx, 28.1KB)'
     ext = name.rsplit(".", 1)[-1].lower() if "." in name else ""
     return {"name": name, "url": urljoin(base, url), "ext": ext, "size": size}
