@@ -157,3 +157,6 @@ def test_scms_web():
     det = """<a class="filename" href="/board/download.do?idx=172&amp;fnum=1&amp;gcode=2">업무추진비 2026. 9.(군수).xlsx(15.3 KB)</a>"""
     assert scms_web.list_attachments(det, board) == [{"name": "업무추진비 2026. 9.(군수).xlsx", "ext": "xlsx", "size": 0,
         "url": "https://www.gun.example/board/download.do?idx=172&fnum=1&gcode=2"}]
+    table = """<table><tr><td>17454</td><td><a class="cv3" href="?gcode=1036&amp;idx=886399&amp;amode=view&amp;">(국) 7월~9월 업무추진비 <i class="ic1 new"><span class="t1">새 글</span></i></a></td>
+    <td> 추진단 </td><td>2026-10-26</td></tr></table>"""
+    assert [(p["title"], p["date"], p["ntt_sn"]) for p in scms_web.list_posts(table, board)] == [("(국) 7월~9월 업무추진비", "2026-10-26", "886399")]
