@@ -36,6 +36,15 @@ claude                          # docs/prompts.md 의 P0 부터 붙여넣기
 - 첨부 형식을 못 읽은 곳 119/181 (어댑터 없는 CMS는 상세 진입 실패) → 형식·공공누리 유형은 어댑터 구현 후 재분류 필요. 읽은 형식: pdf 36 · xlsx 28 · jpg 8 · hwp 6 · hwpx 3 · xls 3.
 - na_ntt 39곳 중 26곳 형식 미확인 → 어댑터 매칭 실패 원인 확인 필요.
 
+### 어댑터 확장 후 (2026-10-27)
+- 어댑터 8종(`src/phase3_collect/boards/`): na_ntt(보완: RAONK·백틱 업로더, 관세청 `nttSnUrl`, 해경 일반 링크, `nttFileDownload`) · dom_board(`/board/list.*?boardId=BBS_&menuCd=DOM_`, 전북교육청 13곳 등) · kedufine(K-에듀파인 집행 건 목록, 상세 HTML 이 원본) · bbs_ntt(`selectBbsNttList.do`) · board_cnts(`/boardCnts/`, 강원교육청·교육부) · egov_bbs(`selectBoardList.do` 계열로 확장) · sen_fus · gwanak_estimate.
+- 게시판 181곳: 등급 A 157 · B 7 · C 17 → 수집 가능 164. 어댑터로 읽는 A·B 86곳. A·B 중 첨부 형식 미확인 41곳(대부분 1~2곳짜리 구조).
+- 새로 C 가 된 곳: robots 가 모든 봇에 `/upload/` 금지(대구교육청·교육지원청 5, 인천·충북교육청), 임실 `/board/download.imsil` 금지.
+- 형식: xlsx 75 · pdf 44 · html 13 · jpg 8 · hwp 7 · hwpx 7 · xls 5. 공공누리: 표시 없음 154 · 4유형 9 · 1유형 8 · 3유형 4 · 2유형 1.
+- 수원 robots `/upload/` 는 특정 봇(Yeti 등)만 금지 → 우리 수집기엔 허용(2026-10-27 사용자 확인). 경북교육청(gbe.kr)도 같은 형태라 허용.
+- 보류: 의성·군위·울릉 `/ko/page.do?mnu_uid`(상세를 GET 으로 열면 본문이 비어 있음 — 세션·폼 의존 추정), 상주 상세 robots 금지.
+- `data/*.csv` 커밋 여부는 사용자 결정 대기(로컬 보관 중).
+
 ### Phase 0 출처 (2026-10-26)
 - 기관 목록: code.go.kr 기관코드 전체자료(공공데이터포털 15092039 링크) → `data/raw/_phase0/` 캐시. 존폐여부=0, 차수·유형분류로 선별.
 - 홈페이지: 정부24 `gov.kr/portal/orgSite`(robots 명시 허용, 92쪽). 교육지원청은 목록에 없음.
