@@ -118,3 +118,16 @@ def test_nav_and_row_context():
     assert main_candidates(intro) == ["https://www.gu.example/gu/index.do"]
     redirected = "<!-- url: https://a.example/ -->x" + PAGE_SEP + "<!-- robots disallow https://a.example/m | robots.txt 응답 없음(X) -->"
     assert robots_blocked(redirected) and blocked_reason(redirected) == "robots.txt 응답 없음(X)"
+
+
+def test_foi_includes_blocked_board(tmp_path):
+    from src import db
+    from src.phase1_source_survey.survey import export
+    conn = db.connect(tmp_path / "s.db")
+    for i in "123":
+        conn.execute("INSERT INTO institutions (institution_id, name, type, updated_at) VALUES (?, '가', 'LOCAL_GOV', 'x')", (i,))
+    for i, src_ in [("1", "BOARD"), ("2", "BOARD"), ("3", "BOARD"), ("3", "DATAGOKR")]:
+        conn.execute("INSERT INTO source_survey (institution_id, source, status) VALUES (?, ?, 'found')", (i, src_))
+    for i, g in [("1", "A"), ("2", "C"), ("3", "C")]:
+        conn.execute("INSERT INTO board_registry (institution_id, crawl_grade, note) VALUES (?, ?, '접근권한 오류')", (i, g))
+    assert export(conn, tmp_path, tmp_path, None)["foi"] == ["2"]  # 3 은 공공데이터포털 출처가 있어 제외
