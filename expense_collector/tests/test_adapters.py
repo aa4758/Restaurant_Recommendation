@@ -212,6 +212,7 @@ def test_generic():
     assert g.last_page(html) == 14 and g.page_url(board, 3).endswith("menu=7&page=3")
     detail = """<div id="footer"><a href="/policy.pdf">개인정보처리방침.pdf</a></div><div id="contents">
       <a href="/down.do?fid=1">10월 내역.xlsx (12KB) 다운로드</a><a href="/viewer.do?fid=1">미리보기</a>
+      <a href="https://www.office.example/csDownload.do">한컴오피스바로가기</a><a href="/v/screen_print.jpg?idx=1">인쇄</a>
       <a href="/down.do?fid=2">첨부파일</a></div>"""
     assert [(f["name"], f["ext"]) for f in g.list_attachments(detail, "https://www.gun.example/board/view.jsp")] == [
         ("10월 내역.xlsx", "xlsx"), ("download", "")]

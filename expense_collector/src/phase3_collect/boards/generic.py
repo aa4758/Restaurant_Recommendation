@@ -18,7 +18,8 @@ from src.phase3_collect.boards._common import file_entry, iso_date, with_param
 
 EXTS = {"xlsx", "xls", "xlsm", "csv", "pdf", "hwp", "hwpx", "zip", "jpg", "png"}
 EXT_IN = re.compile(r"\.(xlsx|xlsm|xls|csv|pdf|hwpx|hwp|zip|jpg|png)\b", re.I)
-VIEWER = re.compile(r"미리\s*보기|바로\s*보기|뷰어|preview|viewer", re.I)
+# 미리보기·뷰어·프로그램 바로가기(한컴오피스 등)·화면 인쇄(목포 screen_print.jpg)는 첨부가 아님
+VIEWER = re.compile(r"미리\s*보기|바로\s*보기|바로\s*가기|뷰어|인쇄|preview|viewer|print", re.I)
 DROP_WORDS = re.compile(r"\s*(다운로드|내려받기|다운받기|첨부파일)\s*", re.I)
 EXPENSE_TABLE = re.compile(r"사용처|집행\s*(일자|장소|금액|내역)|사용\s*(일자|금액)")
 CHROME = "header, footer, nav, #header, #footer, #gnb, .gnb, #lnb, .lnb, #snb, .snb, .quick, #quick, .skip"
