@@ -360,7 +360,7 @@
 3690000,BOARD,yes,https://www.junggu.ulsan.kr/index.ulsan?menuCd?=DOM_000000104007000000,2026-10-21,2026-10-26,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 12건,2026-10-26T17:57:03+00:00
 3690000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:57:03+00:00
 3700000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T04:58:06+00:00
-3700000,BOARD,yes,https://www.ulsannamgu.go.kr/mayor/board/mayorPress2026/list.do,2026-10-18,2026-10-26,,,,2,found,메뉴 '구청장의 하루 활동 소식 활동 갤러리 업무추진비' · 1쪽 날짜 10건,2026-10-27T04:58:06+00:00
+3700000,BOARD,yes,https://www.ulsannamgu.go.kr/mayor/board/mayorPress2026/list.do,2026-10-18,2026-10-26,,,,2,needs_review,"업무추진비 게시판 아님(구청장 보도자료) — 2026-10-28 수집 파일 삭제, 게시판 URL 재확인 필요",2026-10-27T04:58:06+00:00
 3700000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T04:58:06+00:00
 3710000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:57:24+00:00
 3710000,BOARD,yes,https://www.donggu.ulsan.kr/cop/bbs/selectBoardList.do?bbsId=BBSMSTR_000000000361,2026-01-28,2026-10-10,,,,2,found,메뉴 '업무추진비 공개(국장)' · 1쪽 날짜 11건,2026-10-26T17:57:24+00:00

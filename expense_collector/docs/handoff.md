@@ -70,7 +70,14 @@ claude                          # docs/prompts.md 의 P0 부터 붙여넣기
   0개: 서울시(원문 다운로드 robots 비허용 405) · 단양(첨부 robots 비허용 231) · 대전 서구(첨부 13건 HTTP 404). 울산 남구는 보도자료 게시판으로 잘못 등록 → 파일 삭제, needs_review·등급 C.
   읽히지 않은 48곳: JS 목록·함수형 다운로드(문체부·농진청 등)·소개 페이지 URL(경북 교육지원청 5곳 등).
 - Phase 3 전체: 파일 ok 31,535(BOARD 31,530 · DATAGOKR 5, 1.94GB) · 기관 157곳 · 공공누리 표시 없음 17,659 · 4유형 9,131 · 1유형 4,388 · 3유형 257 · 2유형 100.
-- 실행: `phase3 --source board --scope adapter` 는 호스트별 작업자. 메모리 부족으로 세션이 백그라운드 작업을 죽인 적 있음 → 같은 명령 재실행으로 이어 받음. 게시판이 큰 곳(창원 3,167건·영등포 1,356건·전북 2,535건)은 3초 간격이라 각 반나절.
+- 실행: `phase3 --source board --scope adapter` 는 호스트별 작업자.
+
+### Phase 4 파싱 (2026-10-29)
+- `phase4 --workers 4`(프로세스 풀, 31,535개 약 30분). 형식은 확장자보다 머리 바이트로 판별(xls 라벨의 xlsx·html 등). 표 선별은 `phase4_parse/tables.py`(헤더 키워드: 금액 + 일자·사용처 → ok, 그 외 키워드 표 → flagged).
+- 결과(파일 기준 성공): xlsx 11,447/11,633 · xls 2,927/2,965 · pdf 10,600/10,698(+ 스캔 905) · html 2,100/2,124 · hwpx 1,624/1,725 · hwp 1,244/1,343 · csv 3/5.
+  표 ok 42,347(52만 행) · flagged 4,655(6만 행) · 신뢰도 0.7 미만 564표(PDF 글자 정렬 추출 등).
+- 실패 1,590: OCR 필요 1,033(스캔 PDF 905 — 창원 360·성북 116·전북 114·삼척 114 …, 이미지 128) · 업무추진비 표 없음 360 · DRM(SoftCamp) 105(전주) · 미지원·손상 92. 목록 `data/output/parse_failed.csv`.
+- 파싱 결과 `data/parsed/*.parquet` 는 원본 컬럼명·실명 칸 포함 가능 → git 제외, Phase 5 에서 PII 제거. 메모리 부족으로 세션이 백그라운드 작업을 죽인 적 있음 → 같은 명령 재실행으로 이어 받음. 게시판이 큰 곳(창원 3,167건·영등포 1,356건·전북 2,535건)은 3초 간격이라 각 반나절.
 
 ### Phase 0 출처 (2026-10-26)
 - 기관 목록: code.go.kr 기관코드 전체자료(공공데이터포털 15092039 링크) → `data/raw/_phase0/` 캐시. 존폐여부=0, 차수·유형분류로 선별.
@@ -86,10 +93,11 @@ claude                          # docs/prompts.md 의 P0 부터 붙여넣기
 | D-2 | 카페를 찐맛 신호에 포함할지 | ✅ 2026-10-26 승인: export 제외, 통합 CSV 엔 보존 |
 | — | `config.yaml` User-Agent 연락처 | ✅ 입력됨 |
 | — | 공공데이터포털 오픈API 서비스 키(`DATAGOKR_API_KEY`) | 필요 시 신청 |
-| — | Tesseract(kor)·LibreOffice 설치 | 스캔 PDF·HWP 확인 후 |
+| — | Tesseract(kor) 설치 — 스캔 PDF 905·이미지 128 | 사용자 확인 대기. `winget install UB-Mannheim.TesseractOCR` → 설치 중 'Additional language data'에서 Korean 선택(또는 `kor.traineddata` 를 `C:\Program Files\Tesseract-OCR\tessdata\` 에) → `.venv\Scripts\pip install pytesseract pypdfium2` |
+| — | LibreOffice | 불필요 — HWP5 는 `olefile` 로 직접 읽음(1,244/1,343) |
 
 ## 4. 다음 할 일
-1. ~~P0~~ → ~~P1~~ → ~~P2~~ → P3(공공데이터포털 ✅ · 어댑터 게시판 123곳 ✅) → 어댑터 없는 86곳 중 38곳 ✅ → **읽히지 않은 48곳·서울·단양 foi 처리 여부 사용자 확인** → P4 파싱 (`docs/prompts.md`)
+1. ~~P0~~ → ~~P1~~ → ~~P2~~ → P3(공공데이터포털 ✅ · 어댑터 게시판 123곳 ✅) → 어댑터 없는 86곳 중 38곳 ✅ → 51곳 foi ✅ → P4 파싱 ✅(OCR 미설치분 제외) → **OCR 설치 여부 확인 후 P5 통합** (`docs/prompts.md`)
 
 ### P2 파일럿에서 나온 수정 과제 (P3 전에)
 - 게시글 링크 대부분이 JS(onclick/form) → 상세 페이지를 못 열어 첨부 형식·공공누리 유형을 못 읽음(관악·행안부·서울시교육청·경기교육청). CMS별 어댑터 필요.
