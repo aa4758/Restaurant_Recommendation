@@ -42,14 +42,15 @@ def phase2(pilot: bool = typer.Option(False, "--pilot", help="config.pilot.insti
 @app.command()
 def phase3(source: str = typer.Option(..., "--source", help="datagokr | board"),
            scope: str = typer.Option("adapter", "--scope", help="board: adapter(어댑터 있는 곳) | rest(나머지)"),
-           workers: int = typer.Option(6, "--workers", help="board: 동시에 처리할 호스트 수(호스트당 접속 1)")):
+           workers: int = typer.Option(6, "--workers", help="board: 동시에 처리할 호스트 수(호스트당 접속 1)"),
+           probe: bool = typer.Option(False, "--probe", help="board: 목록 1쪽+게시글 1건만 시험 → data/output/probe_{scope}.csv")):
     """원본 수집 → data/raw/{기관}/{출처}/, files 테이블"""
     if source == "datagokr":
         from src.phase3_collect.datagokr import run
         run(load_config())
     elif source == "board":
-        from src.phase3_collect.board import run
-        run(load_config(), scope, workers)
+        from src.phase3_collect.board import run, run_probe
+        (run_probe if probe else run)(load_config(), scope, workers)
     else:
         raise typer.BadParameter("datagokr | board")
 

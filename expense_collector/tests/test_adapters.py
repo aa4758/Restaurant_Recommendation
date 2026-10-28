@@ -195,3 +195,39 @@ def test_dom_board_variants():
     posts = dom_board.list_posts(inline, board)
     assert [(p["date"], p["url"]) for p in posts] == [("2026-09-03", board)] and "홍길동" not in str(posts)
     assert dom_board.list_attachments(inline, board) == [{"name": "list.html", "url": board, "ext": "html", "size": 0}]
+
+
+def test_generic():
+    from src.phase3_collect.boards.generic import Generic
+    board = "https://www.gun.example/board/list.jsp?menu=7"
+    html = """<ul id="gnb"><li><a href="/intro">기관 소개</a><ul><li><a href="/x">하위 메뉴</a></li></ul></li></ul>
+    <div id="contents"><table><tbody>
+      <tr><td>2</td><td><a href="view.jsp?menu=7&amp;seq=12">10월 업무추진비 집행내역</a></td><td>2026.10.05</td></tr>
+      <tr><td>1</td><td><a href="javascript:fnView(11)">9월 업무추진비</a></td><td>2026.09.03</td></tr>
+    </tbody></table>
+    <a href="list.jsp?menu=7&amp;page=2">2</a><a href="list.jsp?menu=7&amp;page=14">끝</a></div>"""
+    g = Generic()
+    assert g.list_posts(html, board) == [{"title": "10월 업무추진비 집행내역", "date": "2026-10-05",
+                                          "url": "https://www.gun.example/board/view.jsp?menu=7&seq=12", "ntt_sn": None}]
+    assert g.last_page(html) == 14 and g.page_url(board, 3).endswith("menu=7&page=3")
+    detail = """<div id="footer"><a href="/policy.pdf">개인정보처리방침.pdf</a></div><div id="contents">
+      <a href="/down.do?fid=1">10월 내역.xlsx (12KB) 다운로드</a><a href="/viewer.do?fid=1">미리보기</a>
+      <a href="/down.do?fid=2">첨부파일</a></div>"""
+    assert [(f["name"], f["ext"]) for f in g.list_attachments(detail, "https://www.gun.example/board/view.jsp")] == [
+        ("10월 내역.xlsx", "xlsx"), ("download", "")]
+    inline = '<div class="content"><table><tr><th>집행일자</th><th>사용처</th></tr></table></div>'
+    assert g.list_attachments(inline, "https://www.gun.example/v")[0] == {"name": "본문.html", "url": "https://www.gun.example/v", "ext": "html", "size": 0}
+
+
+def test_generic_row_files_and_onclick():
+    from src.phase3_collect.boards.generic import Generic
+    board = "https://www.gun.example/list.do"
+    html = """<header><a href="/policy.pdf">방침.pdf</a></header><table><tr><td>2026-10-05</td><td>10월 업무추진비 집행내역</td>
+      <td><a href="/comm/getFile?fileNo=3">내역.xlsx</a></td></tr></table>"""
+    p = Generic().list_posts(html, board)
+    assert [(x["title"], x["url"], [f["name"] for f in x["files"]]) for x in p] == [
+        ("10월 업무추진비 집행내역", "https://www.gun.example/comm/getFile?fileNo=3", ["내역.xlsx"])]
+    detail = """<button onclick="window.open('/common/file_download/1/2/9%EC%9B%94.xlsx')">다운로드</button>
+      <button onclick="fn_download('a','1')">다운로드</button>"""
+    assert [(f["name"], f["url"]) for f in Generic().list_attachments(detail, "https://www.gun.example/v")] == [
+        ("9월.xlsx", "https://www.gun.example/common/file_download/1/2/9%EC%9B%94.xlsx")]
