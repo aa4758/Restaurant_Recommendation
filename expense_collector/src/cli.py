@@ -55,5 +55,13 @@ def phase3(source: str = typer.Option(..., "--source", help="datagokr | board"),
         raise typer.BadParameter("datagokr | board")
 
 
+@app.command()
+def phase4(workers: int = typer.Option(4, "--workers", help="동시에 파싱할 프로세스 수"),
+           limit: int = typer.Option(0, "--limit", help="시험용: 앞에서 N개만(0 = 전부)")):
+    """원본 → 업무추진비 표 → data/parsed/{file_id}_{table_index}.parquet, parsed_tables 테이블"""
+    from src.phase4_parse.run import run
+    run(load_config(), workers, limit or None)
+
+
 if __name__ == "__main__":
     app()
