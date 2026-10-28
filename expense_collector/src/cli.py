@@ -63,5 +63,19 @@ def phase4(workers: int = typer.Option(4, "--workers", help="동시에 파싱할
     run(load_config(), workers, limit or None)
 
 
+@app.command()
+def phase5():
+    """parsed 표 → data/output/expenses_merged.csv · unmapped_columns.csv · quality_report.md"""
+    from src.phase5_merge.merge import run
+    run(load_config())
+
+
+@app.command("export-jjinmat")
+def export_jjinmat():
+    """expenses_merged.csv → 찐맛 연동 CSV(13절)"""
+    from src.phase5_merge.merge import export_jjinmat
+    export_jjinmat(load_config())
+
+
 if __name__ == "__main__":
     app()
