@@ -130,4 +130,5 @@ def test_foi_includes_blocked_board(tmp_path):
         conn.execute("INSERT INTO source_survey (institution_id, source, status) VALUES (?, ?, 'found')", (i, src_))
     for i, g in [("1", "A"), ("2", "C"), ("3", "C")]:
         conn.execute("INSERT INTO board_registry (institution_id, crawl_grade, note) VALUES (?, ?, '접근권한 오류')", (i, g))
-    assert export(conn, tmp_path, tmp_path, None)["foi"] == ["2"]  # 3 은 공공데이터포털 출처가 있어 제외
+    conn.execute("INSERT INTO files (institution_id, source, source_url, status) VALUES ('3', 'DATAGOKR', 'u', 'ok')")
+    assert export(conn, tmp_path, tmp_path, None)["foi"] == ["2"]  # 3 은 공공데이터포털 파일을 받아 제외

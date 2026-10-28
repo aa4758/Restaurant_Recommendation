@@ -243,9 +243,10 @@ def export(conn, data_dir: Path, out_dir: Path, only: list[str] | None) -> dict:
     insts = {r["institution_id"]: dict(r) for r in conn.execute("SELECT * FROM institutions WHERE status='ok'")}
     surveyed = {r["institution_id"] for r in rows}
     found = {r["institution_id"] for r in rows if r["status"] == "found"}
-    # 게시판을 찾았어도 등급 C·약관 금지(Phase 2, Phase 3 접근권한 오류 포함)면 공공데이터포털 출처가 없는 한 후보
+    # 게시판을 찾았어도 등급 C·약관 금지(Phase 2, Phase 3 접근권한 오류·범용 어댑터로 못 읽음 포함)면 후보
     blocked = {r[0]: r[1] for r in conn.execute("SELECT institution_id, note FROM board_registry WHERE crawl_grade='C' OR terms_ok='no'")}
-    datagokr = {r["institution_id"] for r in rows if r["source"] == "DATAGOKR" and r["status"] == "found"}
+    # 공공데이터포털 파일을 실제로 받은 곳만 제외(키가 없어 못 받은 needs_key·link 는 후보로 남김)
+    datagokr = {r[0] for r in conn.execute("SELECT institution_id FROM files WHERE source='DATAGOKR' AND status IN ('ok','duplicate')")}
     foi = sorted((surveyed - found) | (set(blocked) - datagokr))
     with open(out_dir / "foi_candidates.csv", "w", newline="", encoding="utf-8-sig") as f:
         w = csv.writer(f)
