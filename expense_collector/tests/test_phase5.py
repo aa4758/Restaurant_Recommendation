@@ -112,3 +112,19 @@ def test_jjinmat_export_contract():
     text = ex.to_csv(index=False)
     assert "가나다" not in text and not re.search(r"01\d-?\d{3,4}-?\d{4}|\d{4}-\d{4}-\d{4}-\d{4}", text)
     assert "공직자" not in text
+
+
+def test_by_restaurant_clean_and_score():
+    from src.phase5_merge import by_restaurant as br
+    assert br.clean("닭장수 김밥(성신여") == ["닭장수 김밥"]
+    assert br.clean("미풍해장국 등 76개소") == ["미풍해장국"]
+    assert br.clean("어시장길 7, 제일전복횟집") == ["제일전복횟집"]
+    assert br.clean("스시진１호점") == ["스시진1호점"] and br.clean("메밀로43") == ["메밀로43"]
+    assert br.clean("성산구 용지로153번길 10") == [] and br.clean("성전세꼬시") == ["성전세꼬시"]
+    d = pd.DataFrame({"restaurant_name": ["가나식당", "가나 식당", "다라국밥", "선물가게", "가나식당, 마바카페"],
+                      "agency": ["A", "B", "A", "A", "A"], "purpose": ["오찬", "오찬", "만찬", "명절 선물", "간담회"]})
+    rows, p = br.pivot(d)
+    assert list(p.index) == ["가나식당", "다라국밥"] and p.loc["가나식당", "total_visits"] == 3
+    assert p.loc["가나식당", "A"] == 2 and p.loc["가나식당", "B"] == 1
+    assert p.loc["가나식당", "gov_score"] > p.loc["다라국밥", "gov_score"] and br.gov_score(500) == 1.0
+    assert p.loc["다라국밥", "gov_score"] == 0 and br.gov_score(2) > 0

@@ -77,5 +77,12 @@ def export_jjinmat():
     export_jjinmat(load_config())
 
 
+@app.command("by-restaurant")
+def by_restaurant():
+    """찐맛 export → 상호 정리 → gov_expense_by_restaurant.csv(음식점 × 기관 방문 횟수, gov_score)"""
+    from src.phase5_merge.by_restaurant import run
+    run(load_config())
+
+
 if __name__ == "__main__":
     app()
