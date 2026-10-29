@@ -72,7 +72,7 @@ claude
 | 폴더 | 내용 |
 |---|---|
 | `backend\data\raw\license\` | `식품_일반음식점.csv`(230만 행), `식품_휴게음식점.csv`(65만 행) — 적재 완료 |
-| `backend\data\raw\sbiz\` | 상가(상권)정보 — 아직 없음(선택) |
+| `backend\data\raw\sbiz\` | 상가(상권)정보 전국 16개 시도(2026-06-30판, 1.5GB). `python -m app.ingest.link_sbiz` → 기존 가게에 `sbiz_id`·`sbiz_category`(업종 소분류) 연결, 신규 생성 없음·점수 무관. 2026-10-29: 408,979곳 연결 |
 | `backend\data\raw\designations\` | 모범음식점·안심식당·백년가게·착한가격업소 등 — 받을 예정 |
 | `backend\data\raw\food_safety\` | 위생등급·행정처분 — 받을 예정 |
 
