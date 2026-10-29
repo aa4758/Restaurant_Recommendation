@@ -60,14 +60,15 @@ RULES = [
     ("도시락", "한식", r"도시락|한솥"),
     ("백반·가정식", "한식", r"한정식|백반|정식|밥상|반상|쌈밥|보리밥|비빔밥|기사식당|집밥|가정식|한상|솥밥|정찬"),
     ("죽", "한식", r"죽$|본죽|죽이야기"),
-    ("뷔페", "기타", r"뷔페|부페|애슐리|쿠우쿠우"),
+    ("뷔페", "뷔페", r"뷔페|부페|애슐리|쿠우쿠우"),  # 장르 칩 뷔페(세부 분류 없음)
     ("호프/포차", "주점", r"호프|포차|포장마차|맥주|비어|펍|pub|와인|bar$|주막|술집|소주|막걸리|전집|빈대떡|감성주점"),
 ]
 PATTERNS = [(t, re.compile(p, re.I)) for t, _, p in RULES]
 PARENT = {t: g for t, g, _ in RULES}
-GENRE_ORDER = ["한식", "중식", "일식", "양식", "분식", "고기/구이", "해산물", "아시안", "치킨", "주점", "기타"]
+GENRE_ORDER = ["한식", "중식", "일식", "양식", "분식", "고기/구이", "해산물", "아시안", "치킨", "주점", "뷔페", "기타"]
 SUBTYPES: dict[str, list[str]] = {g: [t for t, pg, _ in RULES if pg == g] for g in GENRE_ORDER}
-SUBTYPES = {g: ts for g, ts in SUBTYPES.items() if ts}
+SUBTYPES = {g: ts for g, ts in SUBTYPES.items() if ts and ts != [g]}  # 장르 = 세부 하나(뷔페)면 세부 칩 없음
+LICENSE_MAP = {"뷔페식": "뷔페"}  # 인허가 업태(genre_detail) → 세부 분류
 
 # 상가정보 업종 소분류 → 세부 분류(대응이 확실한 것만. '국/탕/찌개류'는 넓어서 제외)
 SBIZ_MAP = {
@@ -189,9 +190,11 @@ BROAD_SBIZ = {"백반·가정식"}  # 상가 소분류가 넓음 → 기존 장�
 
 
 def decide(name: str, sbiz_category: str | None, menus: list[str], model: Model | None,
-           genre: str = "기타") -> tuple[str | None, str | None]:
+           genre: str = "기타", genre_detail: str | None = None) -> tuple[str | None, str | None]:
     if t := classify(name):
         return t, "name"
+    if t := LICENSE_MAP.get(genre_detail or ""):
+        return t, "license"
     if (t := SBIZ_MAP.get(sbiz_category or "")) and (t not in BROAD_SBIZ or genre in ("한식", "기타")):
         return t, "sbiz"
     votes = Counter(t for m in menus if (t := classify(m)))
@@ -214,8 +217,9 @@ def assign(conn: sqlite3.Connection, model: Model | None = None, dry_run: bool =
     for rid, m in conn.execute("SELECT restaurant_id, name FROM menus"):
         menus[rid].append(m)
     stats, rows = Counter(), []
-    for rid, name, genre, cat in conn.execute("SELECT id, name, genre, sbiz_category FROM restaurants"):
-        t, src = decide(name, cat, menus.get(rid, []), model, genre)
+    for rid, name, genre, cat, detail in conn.execute(
+            "SELECT id, name, genre, sbiz_category, genre_detail FROM restaurants"):
+        t, src = decide(name, cat, menus.get(rid, []), model, genre, detail)
         stats[src or "none"] += 1
         new_genre = PARENT[t] if t else genre
         stats["genre_changed"] += new_genre != genre
@@ -246,8 +250,8 @@ def main() -> None:
     model = Model.load()
     print(f"모델: {'있음' if model else '없음(① ~ ③만)'}")
     st = assign(conn, model, args.dry_run)
-    n = sum(st[k] for k in ("name", "sbiz", "menu", "model_menu", "none"))
-    for k in ("name", "sbiz", "menu", "model_menu", "none"):
+    n = sum(st[k] for k in ("name", "license", "sbiz", "menu", "model_menu", "none"))
+    for k in ("name", "license", "sbiz", "menu", "model_menu", "none"):
         print(f"  {k}: {st[k]:,} ({st[k] / max(n, 1):.1%})")
     print(f"  genre 보정: {st['genre_changed']:,}{' (dry-run)' if args.dry_run else ''}")
 

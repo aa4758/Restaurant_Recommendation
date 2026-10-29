@@ -110,3 +110,12 @@ def test_relax_keeps_subtype_before_missing_price_mood():
     q = Query(lat=37.5, lng=127.0, subtype=["국밥/곰탕/설렁탕"], price=["~1만"], mood=["혼밥"], limit=3)
     items, relaxed = recommend(cs, q)
     assert relaxed == ["mood", "price"] and all(s.cand.subtype == "국밥/곰탕/설렁탕" for s in items)
+
+
+def test_buffet_is_genre_chip_without_subtypes():
+    from app.constants import GENRES
+    from app.subtype import SUBTYPES
+    assert GENRES[-2:] == ["뷔페", "기타"] and "뷔페" not in SUBTYPES and "기타" not in SUBTYPES
+    assert decide("애슐리 퀸즈", None, [], None) == ("뷔페", "name")
+    assert decide("한식당", None, [], None, "기타", "뷔페식") == ("뷔페", "license")
+    assert parse("부페 가고 싶어", use_model=False)["filters"] == {"genre": ["뷔페"], "alcohol": "any"}

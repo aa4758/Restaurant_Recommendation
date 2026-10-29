@@ -41,6 +41,7 @@ GENRE_SYN = {
     "아시안": r"아시안|동남아",
     "치킨": r"치킨|통닭",
     "주점": r"술집|주점",
+    "뷔페": r"뷔페|부페",
 }
 PARTICLES = ("에서는", "으로", "에서", "하고", "이랑", "까지", "부터", "은", "는", "이", "가", "을", "를", "에", "로", "랑",
              "도", "만", "의", "집", "요")
@@ -175,8 +176,8 @@ def parse(text: str, conn: sqlite3.Connection | None = None, use_model: bool = T
         take(p, lambda m, mood=mood: add("mood", mood))
     for genre, p in GENRE_SYN.items():
         take(p, lambda m, genre=genre: add("genre", genre))
-    for sub, p in PATTERNS:
-        take(p, lambda m, sub=sub: add("subtype", sub))
+    for sub, p in PATTERNS:  # 장르와 같은 이름의 세부 분류(뷔페)는 장르로
+        take(p, lambda m, sub=sub: add("genre" if sub in GENRE_SYN else "subtype", sub))
 
     unknown = []
     for tok in re.findall(r"[가-힣a-z]{2,}", t):

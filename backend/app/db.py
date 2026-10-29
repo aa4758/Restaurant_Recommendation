@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS restaurants (
     sbiz_id TEXT UNIQUE,               -- 소상공인 상가업소번호
     sbiz_category TEXT,                -- 상가정보 업종 소분류 (ingest/link_sbiz.py, 예: 냉면/밀면)
     subtype TEXT,                      -- 세부 분류 (app/subtype.py, docs/01 '세부 분류 필터')
-    subtype_src TEXT,                  -- name | sbiz | menu | model_menu
+    subtype_src TEXT,                  -- name | license | sbiz | menu | model_menu
     license_id TEXT UNIQUE,            -- 인허가 관리번호
     kakao_place_id TEXT UNIQUE,        -- 지도 링크 place.map.kakao.com/{id}
     tour_content_id TEXT UNIQUE,       -- 한국관광공사 TourAPI
