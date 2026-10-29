@@ -1,0 +1,597 @@
+﻿institution_id,name,type,parent,region,homepage_url,admin_code,status,note
+1052000,기획예산처,CENTRAL,,,https://www.mpb.go.kr,1052000,ok,
+1053000,재정경제부,CENTRAL,,,https://www.moef.go.kr,1053000,ok,
+1079960,원자력안전위원회,CENTRAL,,,https://www.nssc.go.kr,1079960,ok,
+1130000,공정거래위원회,CENTRAL,,,https://www.ftc.go.kr,1130000,ok,
+1140100,국민권익위원회,CENTRAL,,,https://www.acrc.go.kr,1140100,ok,
+1160100,금융위원회,CENTRAL,,,https://www.fsc.go.kr,1160100,ok,
+1170000,법제처,CENTRAL,,,,1170000,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1192000,해양수산부,CENTRAL,,,https://www.mof.go.kr,1192000,ok,
+1210000,국세청,CENTRAL,,,https://www.nts.go.kr,1210000,ok,
+1220000,관세청,CENTRAL,,,https://www.customs.go.kr,1220000,ok,
+1230000,조달청,CENTRAL,,,https://www.pps.go.kr,1230000,ok,
+1241000,국가데이터처,CENTRAL,,,https://mods.go.kr,1241000,ok,
+1250000,통일부,CENTRAL,,,http://www.unikorea.go.kr,1250000,ok,
+1262000,외교부,CENTRAL,,,http://www.mofa.go.kr,1262000,ok,
+1270000,법무부,CENTRAL,,,http://www.moj.go.kr,1270000,ok,
+1282000,공소청,CENTRAL,,,,1282000,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1290000,국방부,CENTRAL,,,https://www.mnd.go.kr,1290000,ok,
+1300000,병무청,CENTRAL,,,https://www.mma.go.kr,1300000,ok,
+1320000,경찰청,CENTRAL,,,http://www.police.go.kr,1320000,ok,
+1342000,교육부,CENTRAL,,,http://www.moe.go.kr,1342000,ok,
+1352000,보건복지부,CENTRAL,,,http://www.mohw.go.kr,1352000,ok,
+1360000,기상청,CENTRAL,,,https://www.kma.go.kr/kma/,1360000,ok,
+1371000,문화체육관광부,CENTRAL,,,http://www.mcst.go.kr,1371000,ok,
+1384000,성평등가족부,CENTRAL,,,https://www.mogef.go.kr,1384000,ok,
+1390000,농촌진흥청,CENTRAL,,,https://www.rda.go.kr,1390000,ok,
+1400000,산림청,CENTRAL,,,https://www.forest.go.kr,1400000,ok,
+1421000,중소벤처기업부,CENTRAL,,,http://www.mss.go.kr,1421000,ok,
+1431000,지식재산처,CENTRAL,,,http://www.moip.go.kr,1431000,ok,
+1451000,산업통상부,CENTRAL,,,http://www.motir.go.kr,1451000,ok,
+1471000,식품의약품안전처,CENTRAL,,,https://www.mfds.go.kr,1471000,ok,
+1482000,기후에너지환경부,CENTRAL,,,https://www.mcee.go.kr,1482000,ok,
+1492000,고용노동부,CENTRAL,,,https://www.moel.go.kr,1492000,ok,
+1515000,중대범죄수사청,CENTRAL,,,,1515000,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1532000,해양경찰청,CENTRAL,,,http://www.kcg.go.kr,1532000,ok,
+1543000,농림축산식품부,CENTRAL,,,https://www.mafra.go.kr,1543000,ok,
+1571000,방송미디어통신위원회,CENTRAL,,,https://www.kmcc.go.kr,1571000,ok,
+1613000,국토교통부,CENTRAL,,,http://www.molit.go.kr,1613000,ok,
+1661000,소방청,CENTRAL,,,http://www.nfa.go.kr,1661000,ok,
+1670000,행정중심복합도시건설청,CENTRAL,,,https://www.naacc.go.kr,1670000,ok,
+1690000,방위사업청,CENTRAL,,,https://www.dapa.go.kr,1690000,ok,
+1721000,과학기술정보통신부,CENTRAL,,,http://www.msit.go.kr,1721000,ok,
+1730000,새만금개발청,CENTRAL,,,http://www.saemangeum.go.kr,1730000,ok,
+1741000,행정안전부,CENTRAL,,,https://www.mois.go.kr,1741000,ok,
+1760000,인사혁신처,CENTRAL,,,http://www.mpm.go.kr,1760000,ok,
+1790365,개인정보보호위원회,CENTRAL,,,https://www.pipc.go.kr/,1790365,ok,
+1790387,질병관리청,CENTRAL,,,http://www.kdca.go.kr,1790387,ok,
+1790634,대통령직인수위원회,CENTRAL,,,,1790634,excluded,분류 '부'와 명칭 불일치(임시 기구 여부 확인); 홈페이지 미확보 (정부24 목록에서 못 찾음)
+1830000,국가보훈부,CENTRAL,,,https://www.mpva.go.kr,1830000,ok,
+1832000,재외동포청,CENTRAL,,,http://www.oka.go.kr,1832000,ok,
+1833100,국가유산청,CENTRAL,,,https://www.khs.go.kr,1833100,ok,
+1834100,우주항공청,CENTRAL,,,https://www.kasa.go.kr,1834100,ok,
+7021000,서울특별시동부교육지원청,LOCAL_EDU,서울특별시교육청,서울특별시,http://dbedu.sen.go.kr,7021000,ok,
+7031000,서울특별시서부교육지원청,LOCAL_EDU,서울특별시교육청,서울특별시,http://sbedu.sen.go.kr,7031000,ok,
+7041000,서울특별시남부교육지원청,LOCAL_EDU,서울특별시교육청,서울특별시,http://nbedu.sen.go.kr,7041000,ok,
+7051000,서울특별시북부교육지원청,LOCAL_EDU,서울특별시교육청,서울특별시,http://bbedu.sen.go.kr,7051000,ok,
+7061000,서울특별시중부교육지원청,LOCAL_EDU,서울특별시교육청,서울특별시,http://jbedu.sen.go.kr,7061000,ok,
+7081300,서울특별시강서양천교육지원청,LOCAL_EDU,서울특별시교육청,서울특별시,http://gsycedu.sen.go.kr,7081300,ok,
+7091300,서울특별시강남서초교육지원청,LOCAL_EDU,서울특별시교육청,서울특별시,http://gnscedu.sen.go.kr,7091300,ok,
+7121200,서울특별시성북강북교육지원청,LOCAL_EDU,서울특별시교육청,서울특별시,http://sbgbedu.sen.go.kr,7121200,ok,
+7130000,서울특별시강동송파교육지원청,LOCAL_EDU,서울특별시교육청,서울특별시,http://gdspedu.sen.go.kr,7130000,ok,
+7132000,서울특별시동작관악교육지원청,LOCAL_EDU,서울특별시교육청,서울특별시,http://dgedu.sen.go.kr/,7132000,ok,
+7134000,서울특별시성동광진교육지원청,LOCAL_EDU,서울특별시교육청,서울특별시,http://sdgjedu.sen.go.kr,7134000,ok,
+7171000,부산광역시서부교육지원청,LOCAL_EDU,부산광역시교육청,부산광역시,http://home.pen.go.kr/seobu/,7171000,ok,
+7181000,부산광역시남부교육지원청,LOCAL_EDU,부산광역시교육청,부산광역시,http://home.pen.go.kr/nambu/,7181000,ok,
+7191000,부산광역시동래교육지원청,LOCAL_EDU,부산광역시교육청,부산광역시,http://home.pen.go.kr/dongnae/,7191000,ok,
+7201000,부산광역시북부교육지원청,LOCAL_EDU,부산광역시교육청,부산광역시,http://home.pen.go.kr/bukbu/,7201000,ok,
+7211000,부산광역시해운대교육지원청,LOCAL_EDU,부산광역시교육청,부산광역시,http://home.pen.go.kr/haeundae/,7211000,ok,
+7251000,대구광역시동부교육지원청,LOCAL_EDU,대구광역시교육청,대구광역시,https://www.dge.go.kr/dgdbe/main.do,7251000,ok,
+7261000,대구광역시서부교육지원청,LOCAL_EDU,대구광역시교육청,대구광역시,https://www.dge.go.kr/dgsbe/main.do,7261000,ok,
+7271000,대구광역시남부교육지원청,LOCAL_EDU,대구광역시교육청,대구광역시,https://www.dge.go.kr/dgnbe/main.do,7271000,ok,
+7281000,대구광역시달성교육지원청,LOCAL_EDU,대구광역시교육청,대구광역시,https://www.dge.go.kr/dgdse/main.do,7281000,ok,
+7321000,인천광역시남부교육지원청,LOCAL_EDU,인천광역시교육청,인천광역시,http://nambu.ice.go.kr,7321000,ok,
+7331000,인천광역시북부교육지원청,LOCAL_EDU,인천광역시교육청,인천광역시,http://bukbu.ice.go.kr,7331000,ok,
+7341000,인천광역시동부교육지원청,LOCAL_EDU,인천광역시교육청,인천광역시,http://dongbu.ice.go.kr,7341000,ok,
+7351000,인천광역시강화교육지원청,LOCAL_EDU,인천광역시교육청,인천광역시,http://ganghwa.ice.go.kr,7351000,ok,
+7361000,인천광역시서부교육지원청,LOCAL_EDU,인천광역시교육청,인천광역시,http://seobu.ice.go.kr,7361000,ok,
+7392000,전남광주통합특별시광주동부교육지원청,LOCAL_EDU,전남광주통합특별시교육청,전남광주통합특별시,,7392000,excluded,시도교육청 누리집에서 링크 못 찾음
+7402000,전남광주통합특별시광주서부교육지원청,LOCAL_EDU,전남광주통합특별시교육청,전남광주통합특별시,,7402000,excluded,시도교육청 누리집에서 링크 못 찾음
+7441000,대전광역시동부교육지원청,LOCAL_EDU,대전광역시교육청,대전광역시,,7441000,excluded,시도교육청 누리집 robots 비허용 — 링크 확인 불가
+7451000,대전광역시서부교육지원청,LOCAL_EDU,대전광역시교육청,대전광역시,,7451000,excluded,시도교육청 누리집 robots 비허용 — 링크 확인 불가
+7491000,울산광역시강북교육지원청,LOCAL_EDU,울산광역시교육청,울산광역시,,7491000,excluded,시도교육청 누리집 robots 비허용 — 링크 확인 불가
+7501000,울산광역시강남교육지원청,LOCAL_EDU,울산광역시교육청,울산광역시,,7501000,excluded,시도교육청 누리집 robots 비허용 — 링크 확인 불가
+7541000,경기도수원교육지원청,LOCAL_EDU,경기도교육청,경기도,http://www.goesw.kr,7541000,ok,
+7551000,경기도성남교육지원청,LOCAL_EDU,경기도교육청,경기도,http://www.goesn.kr,7551000,ok,
+7561000,경기도의정부교육지원청,LOCAL_EDU,경기도교육청,경기도,http://www.goeujb.kr,7561000,ok,
+7569000,경기도안양과천교육지원청,LOCAL_EDU,경기도교육청,경기도,http://www.goeay.kr,7569000,ok,
+7581000,경기도부천교육지원청,LOCAL_EDU,경기도교육청,경기도,http://www.goebc.kr,7581000,ok,
+7591000,경기도광명교육지원청,LOCAL_EDU,경기도교육청,경기도,https://www.goegm.kr/goegm/main.do,7591000,ok,
+7602000,경기도동두천양주교육지원청,LOCAL_EDU,경기도교육청,경기도,http://www.goedy.kr,7602000,ok,
+7611000,경기도안산교육지원청,LOCAL_EDU,경기도교육청,경기도,http://www.goeas.kr,7611000,ok,
+7621000,경기도고양교육지원청,LOCAL_EDU,경기도교육청,경기도,http://www.goegy.kr,7621000,ok,
+7631000,경기도평택교육지원청,LOCAL_EDU,경기도교육청,경기도,http://www.goept.kr,7631000,ok,
+7642000,경기도군포의왕교육지원청,LOCAL_EDU,경기도교육청,경기도,http://www.goegu.kr,7642000,ok,
+7652000,경기도구리남양주교육지원청,LOCAL_EDU,경기도교육청,경기도,http://www.goegn.kr,7652000,ok,
+7661000,경기도여주교육지원청,LOCAL_EDU,경기도교육청,경기도,http://www.goeyj.kr,7661000,ok,
+7679000,경기도화성오산교육지원청,LOCAL_EDU,경기도교육청,경기도,https://www.goehs.kr/goehs/main.do,7679000,ok,
+7681000,경기도파주교육지원청,LOCAL_EDU,경기도교육청,경기도,http://www.goepj.kr,7681000,ok,
+7692000,경기도광주하남교육지원청,LOCAL_EDU,경기도교육청,경기도,http://www.goegh.kr,7692000,ok,
+7701000,경기도연천교육지원청,LOCAL_EDU,경기도교육청,경기도,https://www.goeyc.kr/goeyc/main.do,7701000,ok,
+7711000,경기도포천교육지원청,LOCAL_EDU,경기도교육청,경기도,https://www.goepc.kr/goepc/main.do,7711000,ok,
+7721000,경기도가평교육지원청,LOCAL_EDU,경기도교육청,경기도,https://www.goegp.kr/goegp/main.do,7721000,ok,
+7731000,경기도양평교육지원청,LOCAL_EDU,경기도교육청,경기도,http://www.goeyp.kr,7731000,ok,
+7741000,경기도이천교육지원청,LOCAL_EDU,경기도교육청,경기도,http://www.goeic.kr,7741000,ok,
+7751000,경기도용인교육지원청,LOCAL_EDU,경기도교육청,경기도,http://www.goeyi.kr,7751000,ok,
+7761000,경기도안성교육지원청,LOCAL_EDU,경기도교육청,경기도,http://www.goean.kr,7761000,ok,
+7771000,경기도김포교육지원청,LOCAL_EDU,경기도교육청,경기도,http://www.gpoe.kr,7771000,ok,
+7781000,경기도시흥교육지원청,LOCAL_EDU,경기도교육청,경기도,http://www.goesh.kr,7781000,ok,
+7812000,강원특별자치도춘천교육지원청,LOCAL_EDU,강원특별자치도교육청,강원특별자치도,https://gwcce.gwe.go.kr,7812000,ok,
+7822000,강원특별자치도원주교육지원청,LOCAL_EDU,강원특별자치도교육청,강원특별자치도,https://gwwjed.gwe.go.kr,7822000,ok,
+7832000,강원특별자치도강릉교육지원청,LOCAL_EDU,강원특별자치도교육청,강원특별자치도,https://gwgned.gwe.go.kr,7832000,ok,
+7842000,강원특별자치도동해교육지원청,LOCAL_EDU,강원특별자치도교육청,강원특별자치도,https://kwthe.gwe.go.kr,7842000,ok,
+7852000,강원특별자치도태백교육지원청,LOCAL_EDU,강원특별자치도교육청,강원특별자치도,https://kwtbe.gwe.go.kr,7852000,ok,
+7863000,강원특별자치도속초양양교육지원청,LOCAL_EDU,강원특별자치도교육청,강원특별자치도,https://gwsyed.gwe.go.kr,7863000,ok,
+7872000,강원특별자치도삼척교육지원청,LOCAL_EDU,강원특별자치도교육청,강원특별자치도,https://sce.gwe.go.kr,7872000,ok,
+7882000,강원특별자치도홍천교육지원청,LOCAL_EDU,강원특별자치도교육청,강원특별자치도,https://gwhce.gwe.go.kr,7882000,ok,
+7892000,강원특별자치도횡성교육지원청,LOCAL_EDU,강원특별자치도교육청,강원특별자치도,https://gwhsed.gwe.go.kr,7892000,ok,
+7902000,강원특별자치도영월교육지원청,LOCAL_EDU,강원특별자치도교육청,강원특별자치도,https://gwywed.gwe.go.kr,7902000,ok,
+7912000,강원특별자치도평창교육지원청,LOCAL_EDU,강원특별자치도교육청,강원특별자치도,https://gwpce.gwe.go.kr,7912000,ok,
+7922000,강원특별자치도정선교육지원청,LOCAL_EDU,강원특별자치도교육청,강원특별자치도,https://gwjsed.gwe.go.kr,7922000,ok,
+7932000,강원특별자치도철원교육지원청,LOCAL_EDU,강원특별자치도교육청,강원특별자치도,https://gwcwed.gwe.go.kr,7932000,ok,
+7942000,강원특별자치도화천교육지원청,LOCAL_EDU,강원특별자치도교육청,강원특별자치도,https://gwhced.gwe.go.kr,7942000,ok,
+7952000,강원특별자치도양구교육지원청,LOCAL_EDU,강원특별자치도교육청,강원특별자치도,https://gwyged.gwe.go.kr,7952000,ok,
+7962000,강원특별자치도인제교육지원청,LOCAL_EDU,강원특별자치도교육청,강원특별자치도,https://gwijed.gwe.go.kr,7962000,ok,
+7972000,강원특별자치도고성교육지원청,LOCAL_EDU,강원특별자치도교육청,강원특별자치도,https://gwgsed.gwe.go.kr,7972000,ok,
+8011000,충청북도청주교육지원청,LOCAL_EDU,충청북도교육청,충청북도,http://www.cbcje.go.kr,8011000,ok,
+8021000,충청북도충주교육지원청,LOCAL_EDU,충청북도교육청,충청북도,http://www.cbchje.go.kr,8021000,ok,
+8031000,충청북도제천교육지원청,LOCAL_EDU,충청북도교육청,충청북도,http://www.cbjche.go.kr,8031000,ok,
+8051000,충청북도보은교육지원청,LOCAL_EDU,충청북도교육청,충청북도,http://www.cbbee.go.kr,8051000,ok,
+8061000,충청북도옥천교육지원청,LOCAL_EDU,충청북도교육청,충청북도,http://www.cboce.go.kr,8061000,ok,
+8071000,충청북도영동교육지원청,LOCAL_EDU,충청북도교육청,충청북도,http://www.cbyde.go.kr,8071000,ok,
+8081000,충청북도진천교육지원청,LOCAL_EDU,충청북도교육청,충청북도,http://www.cbjce.go.kr,8081000,ok,
+8092000,충청북도괴산증평교육지원청,LOCAL_EDU,충청북도교육청,충청북도,http://www.cbgje.go.kr,8092000,ok,
+8101000,충청북도음성교육지원청,LOCAL_EDU,충청북도교육청,충청북도,http://www.cbuse.go.kr,8101000,ok,
+8111000,충청북도단양교육지원청,LOCAL_EDU,충청북도교육청,충청북도,http://www.cbdye.go.kr,8111000,ok,
+8151000,충청남도천안교육지원청,LOCAL_EDU,충청남도교육청,충청남도,,8151000,excluded,시도교육청 누리집 robots 비허용 — 링크 확인 불가
+8161000,충청남도공주교육지원청,LOCAL_EDU,충청남도교육청,충청남도,,8161000,excluded,시도교육청 누리집 robots 비허용 — 링크 확인 불가
+8171000,충청남도보령교육지원청,LOCAL_EDU,충청남도교육청,충청남도,,8171000,excluded,시도교육청 누리집 robots 비허용 — 링크 확인 불가
+8181000,충청남도아산교육지원청,LOCAL_EDU,충청남도교육청,충청남도,,8181000,excluded,시도교육청 누리집 robots 비허용 — 링크 확인 불가
+8191000,충청남도서산교육지원청,LOCAL_EDU,충청남도교육청,충청남도,,8191000,excluded,시도교육청 누리집 robots 비허용 — 링크 확인 불가
+8201000,충청남도금산교육지원청,LOCAL_EDU,충청남도교육청,충청남도,,8201000,excluded,시도교육청 누리집 robots 비허용 — 링크 확인 불가
+8222000,충청남도논산계룡교육지원청,LOCAL_EDU,충청남도교육청,충청남도,,8222000,excluded,시도교육청 누리집 robots 비허용 — 링크 확인 불가
+8231000,충청남도부여교육지원청,LOCAL_EDU,충청남도교육청,충청남도,,8231000,excluded,시도교육청 누리집 robots 비허용 — 링크 확인 불가
+8241000,충청남도서천교육지원청,LOCAL_EDU,충청남도교육청,충청남도,,8241000,excluded,시도교육청 누리집 robots 비허용 — 링크 확인 불가
+8251000,충청남도청양교육지원청,LOCAL_EDU,충청남도교육청,충청남도,,8251000,excluded,시도교육청 누리집 robots 비허용 — 링크 확인 불가
+8261000,충청남도홍성교육지원청,LOCAL_EDU,충청남도교육청,충청남도,,8261000,excluded,시도교육청 누리집 robots 비허용 — 링크 확인 불가
+8271000,충청남도예산교육지원청,LOCAL_EDU,충청남도교육청,충청남도,,8271000,excluded,시도교육청 누리집 robots 비허용 — 링크 확인 불가
+8281000,충청남도태안교육지원청,LOCAL_EDU,충청남도교육청,충청남도,,8281000,excluded,시도교육청 누리집 robots 비허용 — 링크 확인 불가
+8291000,충청남도당진교육지원청,LOCAL_EDU,충청남도교육청,충청남도,,8291000,excluded,시도교육청 누리집 robots 비허용 — 링크 확인 불가
+8332000,전북특별자치도전주교육지원청,LOCAL_EDU,전북특별자치도교육청,전북특별자치도,http://www.jbjje.kr/,8332000,ok,
+8342000,전북특별자치도군산교육지원청,LOCAL_EDU,전북특별자치도교육청,전북특별자치도,http://www.jbgse.kr/,8342000,ok,
+8352000,전북특별자치도익산교육지원청,LOCAL_EDU,전북특별자치도교육청,전북특별자치도,http://www.jbise.kr/,8352000,ok,
+8362000,전북특별자치도정읍교육지원청,LOCAL_EDU,전북특별자치도교육청,전북특별자치도,http://www.jbjue.kr/,8362000,ok,
+8372000,전북특별자치도남원교육지원청,LOCAL_EDU,전북특별자치도교육청,전북특별자치도,http://www.jbnwe.kr/,8372000,ok,
+8382000,전북특별자치도김제교육지원청,LOCAL_EDU,전북특별자치도교육청,전북특별자치도,http://www.jbgje.go.kr/,8382000,ok,
+8392000,전북특별자치도완주교육지원청,LOCAL_EDU,전북특별자치도교육청,전북특별자치도,http://www.jbwje.kr/,8392000,ok,
+8402000,전북특별자치도진안교육지원청,LOCAL_EDU,전북특별자치도교육청,전북특별자치도,http://www.jbjae.kr/,8402000,ok,
+8412000,전북특별자치도무주교육지원청,LOCAL_EDU,전북특별자치도교육청,전북특별자치도,http://www.jbmje.kr/,8412000,ok,
+8422000,전북특별자치도장수교육지원청,LOCAL_EDU,전북특별자치도교육청,전북특별자치도,http://www.jbjse.kr/,8422000,ok,
+8432000,전북특별자치도임실교육지원청,LOCAL_EDU,전북특별자치도교육청,전북특별자치도,http://www.jbime.kr/,8432000,ok,
+8442000,전북특별자치도순창교육지원청,LOCAL_EDU,전북특별자치도교육청,전북특별자치도,http://www.jbsce.kr/,8442000,ok,
+8452000,전북특별자치도고창교육지원청,LOCAL_EDU,전북특별자치도교육청,전북특별자치도,http://www.jbgce.kr/,8452000,ok,
+8462000,전북특별자치도부안교육지원청,LOCAL_EDU,전북특별자치도교육청,전북특별자치도,http://www.jbbae.go.kr/,8462000,ok,
+8502000,전남광주통합특별시목포교육지원청,LOCAL_EDU,전남광주통합특별시교육청,전남광주통합특별시,,8502000,excluded,시도교육청 누리집에서 링크 못 찾음
+8512000,전남광주통합특별시여수교육지원청,LOCAL_EDU,전남광주통합특별시교육청,전남광주통합특별시,,8512000,excluded,시도교육청 누리집에서 링크 못 찾음
+8522000,전남광주통합특별시순천교육지원청,LOCAL_EDU,전남광주통합특별시교육청,전남광주통합특별시,,8522000,excluded,시도교육청 누리집에서 링크 못 찾음
+8532000,전남광주통합특별시나주교육지원청,LOCAL_EDU,전남광주통합특별시교육청,전남광주통합특별시,,8532000,excluded,시도교육청 누리집에서 링크 못 찾음
+8552000,전남광주통합특별시광양교육지원청,LOCAL_EDU,전남광주통합특별시교육청,전남광주통합특별시,,8552000,excluded,시도교육청 누리집에서 링크 못 찾음
+8562000,전남광주통합특별시담양교육지원청,LOCAL_EDU,전남광주통합특별시교육청,전남광주통합특별시,,8562000,excluded,시도교육청 누리집에서 링크 못 찾음
+8572000,전남광주통합특별시곡성교육지원청,LOCAL_EDU,전남광주통합특별시교육청,전남광주통합특별시,,8572000,excluded,시도교육청 누리집에서 링크 못 찾음
+8582000,전남광주통합특별시구례교육지원청,LOCAL_EDU,전남광주통합특별시교육청,전남광주통합특별시,,8582000,excluded,시도교육청 누리집에서 링크 못 찾음
+8592000,전남광주통합특별시고흥교육지원청,LOCAL_EDU,전남광주통합특별시교육청,전남광주통합특별시,,8592000,excluded,시도교육청 누리집에서 링크 못 찾음
+8602000,전남광주통합특별시보성교육지원청,LOCAL_EDU,전남광주통합특별시교육청,전남광주통합특별시,,8602000,excluded,시도교육청 누리집에서 링크 못 찾음
+8612000,전남광주통합특별시화순교육지원청,LOCAL_EDU,전남광주통합특별시교육청,전남광주통합특별시,,8612000,excluded,시도교육청 누리집에서 링크 못 찾음
+8622000,전남광주통합특별시장흥교육지원청,LOCAL_EDU,전남광주통합특별시교육청,전남광주통합특별시,,8622000,excluded,시도교육청 누리집에서 링크 못 찾음
+8632000,전남광주통합특별시강진교육지원청,LOCAL_EDU,전남광주통합특별시교육청,전남광주통합특별시,,8632000,excluded,시도교육청 누리집에서 링크 못 찾음
+8642000,전남광주통합특별시해남교육지원청,LOCAL_EDU,전남광주통합특별시교육청,전남광주통합특별시,,8642000,excluded,시도교육청 누리집에서 링크 못 찾음
+8652000,전남광주통합특별시영암교육지원청,LOCAL_EDU,전남광주통합특별시교육청,전남광주통합특별시,,8652000,excluded,시도교육청 누리집에서 링크 못 찾음
+8662000,전남광주통합특별시무안교육지원청,LOCAL_EDU,전남광주통합특별시교육청,전남광주통합특별시,,8662000,excluded,시도교육청 누리집에서 링크 못 찾음
+8672000,전남광주통합특별시함평교육지원청,LOCAL_EDU,전남광주통합특별시교육청,전남광주통합특별시,,8672000,excluded,시도교육청 누리집에서 링크 못 찾음
+8682000,전남광주통합특별시영광교육지원청,LOCAL_EDU,전남광주통합특별시교육청,전남광주통합특별시,,8682000,excluded,시도교육청 누리집에서 링크 못 찾음
+8692000,전남광주통합특별시장성교육지원청,LOCAL_EDU,전남광주통합특별시교육청,전남광주통합특별시,,8692000,excluded,시도교육청 누리집에서 링크 못 찾음
+8702000,전남광주통합특별시완도교육지원청,LOCAL_EDU,전남광주통합특별시교육청,전남광주통합특별시,,8702000,excluded,시도교육청 누리집에서 링크 못 찾음
+8712000,전남광주통합특별시진도교육지원청,LOCAL_EDU,전남광주통합특별시교육청,전남광주통합특별시,,8712000,excluded,시도교육청 누리집에서 링크 못 찾음
+8722000,전남광주통합특별시신안교육지원청,LOCAL_EDU,전남광주통합특별시교육청,전남광주통합특별시,,8722000,excluded,시도교육청 누리집에서 링크 못 찾음
+8761000,경상북도포항교육지원청,LOCAL_EDU,경상북도교육청,경상북도,https://www.gbe.kr/ph/main.do,8761000,ok,
+8771000,경상북도경주교육지원청,LOCAL_EDU,경상북도교육청,경상북도,https://www.gbe.kr/gj/main.do,8771000,ok,
+8781000,경상북도김천교육지원청,LOCAL_EDU,경상북도교육청,경상북도,https://www.gbe.kr/gc/main.do,8781000,ok,
+8791000,경상북도안동교육지원청,LOCAL_EDU,경상북도교육청,경상북도,https://www.gbe.kr/ad/main.do,8791000,ok,
+8801000,경상북도구미교육지원청,LOCAL_EDU,경상북도교육청,경상북도,http://www.gbe.kr/gm/main.do,8801000,ok,
+8811000,경상북도영주교육지원청,LOCAL_EDU,경상북도교육청,경상북도,https://www.gbe.kr/yj/main.do,8811000,ok,
+8821000,경상북도영천교육지원청,LOCAL_EDU,경상북도교육청,경상북도,https://www.gbe.kr/yc/main.do,8821000,ok,
+8831000,경상북도상주교육지원청,LOCAL_EDU,경상북도교육청,경상북도,https://www.gbe.kr/sje/main.do,8831000,ok,
+8841000,경상북도문경교육지원청,LOCAL_EDU,경상북도교육청,경상북도,https://www.gbe.kr/mg/main.do,8841000,ok,
+8851000,경상북도경산교육지원청,LOCAL_EDU,경상북도교육청,경상북도,https://www.gbe.kr/gs/main.do,8851000,ok,
+8862000,대구광역시군위교육지원청,LOCAL_EDU,대구광역시교육청,대구광역시,https://www.dge.go.kr/dggwe/main.do,8862000,ok,
+8871000,경상북도의성교육지원청,LOCAL_EDU,경상북도교육청,경상북도,https://www.gbe.kr/us/main.do,8871000,ok,
+8881000,경상북도청송교육지원청,LOCAL_EDU,경상북도교육청,경상북도,https://www.gbe.kr/cs/main.do,8881000,ok,
+8891000,경상북도영양교육지원청,LOCAL_EDU,경상북도교육청,경상북도,https://www.gbe.kr/yy/main.do,8891000,ok,
+8901000,경상북도영덕교육지원청,LOCAL_EDU,경상북도교육청,경상북도,https://www.gbe.kr/yd/main.do,8901000,ok,
+8911000,경상북도청도교육지원청,LOCAL_EDU,경상북도교육청,경상북도,https://www.gbe.kr/cd/main.do,8911000,ok,
+8921000,경상북도고령교육지원청,LOCAL_EDU,경상북도교육청,경상북도,https://www.gbe.kr/gr/main.do,8921000,ok,
+8931000,경상북도성주교육지원청,LOCAL_EDU,경상북도교육청,경상북도,https://www.gbe.kr/sj/main.do,8931000,ok,
+8941000,경상북도칠곡교육지원청,LOCAL_EDU,경상북도교육청,경상북도,https://www.gbe.kr/cg/main.do,8941000,ok,
+8951000,경상북도예천교육지원청,LOCAL_EDU,경상북도교육청,경상북도,https://www.gbe.kr/ycg/main.do,8951000,ok,
+8961000,경상북도봉화교육지원청,LOCAL_EDU,경상북도교육청,경상북도,https://www.gbe.kr/bh/main.do,8961000,ok,
+8971000,경상북도울진교육지원청,LOCAL_EDU,경상북도교육청,경상북도,https://www.gbe.kr/uj/main.do,8971000,ok,
+8981000,경상북도울릉교육지원청,LOCAL_EDU,경상북도교육청,경상북도,https://www.gbe.kr/ul/main.do,8981000,ok,
+9022000,경상남도창원교육지원청,LOCAL_EDU,경상남도교육청,경상남도,,9022000,excluded,시도교육청 누리집에서 링크 못 찾음
+9051000,경상남도진주교육지원청,LOCAL_EDU,경상남도교육청,경상남도,,9051000,excluded,시도교육청 누리집에서 링크 못 찾음
+9071000,경상남도통영교육지원청,LOCAL_EDU,경상남도교육청,경상남도,,9071000,excluded,시도교육청 누리집에서 링크 못 찾음
+9081000,경상남도사천교육지원청,LOCAL_EDU,경상남도교육청,경상남도,,9081000,excluded,시도교육청 누리집에서 링크 못 찾음
+9091000,경상남도김해교육지원청,LOCAL_EDU,경상남도교육청,경상남도,,9091000,excluded,시도교육청 누리집에서 링크 못 찾음
+9101000,경상남도밀양교육지원청,LOCAL_EDU,경상남도교육청,경상남도,,9101000,excluded,시도교육청 누리집에서 링크 못 찾음
+9111000,경상남도거제교육지원청,LOCAL_EDU,경상남도교육청,경상남도,,9111000,excluded,시도교육청 누리집에서 링크 못 찾음
+9121000,경상남도의령교육지원청,LOCAL_EDU,경상남도교육청,경상남도,,9121000,excluded,시도교육청 누리집에서 링크 못 찾음
+9131000,경상남도함안교육지원청,LOCAL_EDU,경상남도교육청,경상남도,,9131000,excluded,시도교육청 누리집에서 링크 못 찾음
+9141000,경상남도창녕교육지원청,LOCAL_EDU,경상남도교육청,경상남도,,9141000,excluded,시도교육청 누리집에서 링크 못 찾음
+9151000,경상남도양산교육지원청,LOCAL_EDU,경상남도교육청,경상남도,,9151000,excluded,시도교육청 누리집에서 링크 못 찾음
+9161000,경상남도고성교육지원청,LOCAL_EDU,경상남도교육청,경상남도,,9161000,excluded,시도교육청 누리집에서 링크 못 찾음
+9171000,경상남도남해교육지원청,LOCAL_EDU,경상남도교육청,경상남도,,9171000,excluded,시도교육청 누리집에서 링크 못 찾음
+9181000,경상남도하동교육지원청,LOCAL_EDU,경상남도교육청,경상남도,,9181000,excluded,시도교육청 누리집에서 링크 못 찾음
+9191000,경상남도산청교육지원청,LOCAL_EDU,경상남도교육청,경상남도,,9191000,excluded,시도교육청 누리집에서 링크 못 찾음
+9201000,경상남도함양교육지원청,LOCAL_EDU,경상남도교육청,경상남도,,9201000,excluded,시도교육청 누리집에서 링크 못 찾음
+9211000,경상남도거창교육지원청,LOCAL_EDU,경상남도교육청,경상남도,,9211000,excluded,시도교육청 누리집에서 링크 못 찾음
+9221000,경상남도합천교육지원청,LOCAL_EDU,경상남도교육청,경상남도,,9221000,excluded,시도교육청 누리집에서 링크 못 찾음
+9296000,제주시교육지원청,LOCAL_EDU,제주특별자치도교육청,제주특별자치도,,9296000,excluded,시도교육청 누리집 robots 비허용 — 링크 확인 불가
+9299000,서귀포시교육지원청,LOCAL_EDU,제주특별자치도교육청,제주특별자치도,,9299000,excluded,시도교육청 누리집 robots 비허용 — 링크 확인 불가
+3000000,서울특별시 종로구,LOCAL_GOV,서울특별시,서울특별시,https://www.jongno.go.kr,3000000,ok,
+3010000,서울특별시 중구,LOCAL_GOV,서울특별시,서울특별시,https://www.junggu.seoul.kr,3010000,ok,
+3020000,서울특별시 용산구,LOCAL_GOV,서울특별시,서울특별시,https://www.yongsan.go.kr,3020000,ok,
+3030000,서울특별시 성동구,LOCAL_GOV,서울특별시,서울특별시,https://www.sd.go.kr,3030000,ok,
+3040000,서울특별시 광진구,LOCAL_GOV,서울특별시,서울특별시,https://www.gwangjin.go.kr,3040000,ok,
+3050000,서울특별시 동대문구,LOCAL_GOV,서울특별시,서울특별시,https://www.ddm.go.kr,3050000,ok,
+3060000,서울특별시 중랑구,LOCAL_GOV,서울특별시,서울특별시,https://www.jungnang.go.kr,3060000,ok,
+3070000,서울특별시 성북구,LOCAL_GOV,서울특별시,서울특별시,https://www.sb.go.kr,3070000,ok,
+3080000,서울특별시 강북구,LOCAL_GOV,서울특별시,서울특별시,https://www.gangbuk.go.kr,3080000,ok,
+3090000,서울특별시 도봉구,LOCAL_GOV,서울특별시,서울특별시,https://www.dobong.go.kr,3090000,ok,
+3100000,서울특별시 노원구,LOCAL_GOV,서울특별시,서울특별시,https://www.nowon.kr,3100000,ok,
+3110000,서울특별시 은평구,LOCAL_GOV,서울특별시,서울특별시,https://www.ep.go.kr,3110000,ok,
+3120000,서울특별시 서대문구,LOCAL_GOV,서울특별시,서울특별시,https://www.sdm.go.kr,3120000,ok,
+3130000,서울특별시 마포구,LOCAL_GOV,서울특별시,서울특별시,https://www.mapo.go.kr,3130000,ok,
+3140000,서울특별시 양천구,LOCAL_GOV,서울특별시,서울특별시,https://www.yangcheon.go.kr,3140000,ok,
+3150000,서울특별시 강서구,LOCAL_GOV,서울특별시,서울특별시,https://www.gangseo.seoul.kr,3150000,ok,
+3160000,서울특별시 구로구,LOCAL_GOV,서울특별시,서울특별시,https://www.guro.go.kr,3160000,ok,
+3170000,서울특별시 금천구,LOCAL_GOV,서울특별시,서울특별시,https://www.geumcheon.go.kr,3170000,ok,
+3180000,서울특별시 영등포구,LOCAL_GOV,서울특별시,서울특별시,https://www.ydp.go.kr,3180000,ok,
+3190000,서울특별시 동작구,LOCAL_GOV,서울특별시,서울특별시,https://www.dongjak.go.kr,3190000,ok,
+3200000,서울특별시 관악구,LOCAL_GOV,서울특별시,서울특별시,https://www.gwanak.go.kr,3200000,ok,
+3210000,서울특별시 서초구,LOCAL_GOV,서울특별시,서울특별시,https://www.seocho.go.kr,3210000,ok,
+3220000,서울특별시 강남구,LOCAL_GOV,서울특별시,서울특별시,https://www.gangnam.go.kr,3220000,ok,
+3230000,서울특별시 송파구,LOCAL_GOV,서울특별시,서울특별시,https://www.songpa.go.kr,3230000,ok,
+3240000,서울특별시 강동구,LOCAL_GOV,서울특별시,서울특별시,https://www.gangdong.go.kr,3240000,ok,
+3250000,부산광역시 중구,LOCAL_GOV,부산광역시,부산광역시,http://www.bsjunggu.go.kr,3250000,ok,
+3260000,부산광역시 서구,LOCAL_GOV,부산광역시,부산광역시,http://www.bsseogu.go.kr,3260000,ok,
+3270000,부산광역시 동구,LOCAL_GOV,부산광역시,부산광역시,http://www.bsdonggu.go.kr,3270000,ok,
+3280000,부산광역시 영도구,LOCAL_GOV,부산광역시,부산광역시,http://www.yeongdo.go.kr,3280000,ok,
+3290000,부산광역시 부산진구,LOCAL_GOV,부산광역시,부산광역시,http://www.busanjin.go.kr,3290000,ok,
+3300000,부산광역시 동래구,LOCAL_GOV,부산광역시,부산광역시,http://www.dongnae.go.kr,3300000,ok,
+3310000,부산광역시 남구,LOCAL_GOV,부산광역시,부산광역시,http://www.bsnamgu.go.kr,3310000,ok,
+3320000,부산광역시 북구,LOCAL_GOV,부산광역시,부산광역시,http://www.bsbukgu.go.kr,3320000,ok,
+3330000,부산광역시 해운대구,LOCAL_GOV,부산광역시,부산광역시,http://www.haeundae.go.kr,3330000,ok,
+3340000,부산광역시 사하구,LOCAL_GOV,부산광역시,부산광역시,http://www.saha.go.kr,3340000,ok,
+3350000,부산광역시 금정구,LOCAL_GOV,부산광역시,부산광역시,http://www.geumjeong.go.kr,3350000,ok,
+3360000,부산광역시 강서구,LOCAL_GOV,부산광역시,부산광역시,https://www.bsgangseo.go.kr,3360000,ok,
+3370000,부산광역시 연제구,LOCAL_GOV,부산광역시,부산광역시,http://www.yeonje.go.kr,3370000,ok,
+3380000,부산광역시 수영구,LOCAL_GOV,부산광역시,부산광역시,http://www.suyeong.go.kr,3380000,ok,
+3390000,부산광역시 사상구,LOCAL_GOV,부산광역시,부산광역시,http://www.sasang.go.kr,3390000,ok,
+3400000,부산광역시 기장군,LOCAL_GOV,부산광역시,부산광역시,http://www.gijang.go.kr,3400000,ok,
+3410000,대구광역시 중구,LOCAL_GOV,대구광역시,대구광역시,http://www.jung.daegu.kr,3410000,ok,
+3420000,대구광역시 동구,LOCAL_GOV,대구광역시,대구광역시,http://www.dong.daegu.kr,3420000,ok,
+3430000,대구광역시 서구,LOCAL_GOV,대구광역시,대구광역시,http://www.dgs.go.kr,3430000,ok,
+3440000,대구광역시 남구,LOCAL_GOV,대구광역시,대구광역시,http://www.nam.daegu.kr,3440000,ok,
+3450000,대구광역시 북구,LOCAL_GOV,대구광역시,대구광역시,http://www.buk.daegu.kr,3450000,ok,
+3460000,대구광역시 수성구,LOCAL_GOV,대구광역시,대구광역시,http://www.suseong.kr,3460000,ok,
+3470000,대구광역시 달서구,LOCAL_GOV,대구광역시,대구광역시,http://www.dalseo.daegu.kr,3470000,ok,
+3480000,대구광역시 달성군,LOCAL_GOV,대구광역시,대구광역시,http://dalseong.daegu.kr,3480000,ok,
+3491000,인천광역시 영종구,LOCAL_GOV,인천광역시,인천광역시,https://www.yeongjong.go.kr,3491000,ok,
+3501000,인천광역시 제물포구,LOCAL_GOV,인천광역시,인천광역시,https://www.jemulpo.go.kr,3501000,ok,
+3510500,인천광역시 미추홀구,LOCAL_GOV,인천광역시,인천광역시,https://www.michuhol.go.kr,3510500,ok,
+3520000,인천광역시 연수구,LOCAL_GOV,인천광역시,인천광역시,http://www.yeonsu.go.kr,3520000,ok,
+3530000,인천광역시 남동구,LOCAL_GOV,인천광역시,인천광역시,https://www.namdong.go.kr,3530000,ok,
+3540000,인천광역시 부평구,LOCAL_GOV,인천광역시,인천광역시,https://www.icbp.go.kr,3540000,ok,
+3550000,인천광역시 계양구,LOCAL_GOV,인천광역시,인천광역시,http://www.gyeyang.go.kr,3550000,ok,
+3561000,인천광역시 서해구,LOCAL_GOV,인천광역시,인천광역시,https://www.seohae.go.kr,3561000,ok,
+3565000,인천광역시 검단구,LOCAL_GOV,인천광역시,인천광역시,,3565000,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+3570000,인천광역시 강화군,LOCAL_GOV,인천광역시,인천광역시,http://www.ganghwa.go.kr,3570000,ok,
+3580000,인천광역시 옹진군,LOCAL_GOV,인천광역시,인천광역시,http://www.ongjin.go.kr,3580000,ok,
+3640000,대전광역시 동구,LOCAL_GOV,대전광역시,대전광역시,https://www.donggu.go.kr,3640000,ok,
+3650000,대전광역시 중구,LOCAL_GOV,대전광역시,대전광역시,https://www.djjunggu.go.kr,3650000,ok,
+3660000,대전광역시 서구,LOCAL_GOV,대전광역시,대전광역시,https://www.seogu.go.kr,3660000,ok,
+3670000,대전광역시 유성구,LOCAL_GOV,대전광역시,대전광역시,https://www.yuseong.go.kr,3670000,ok,
+3680000,대전광역시 대덕구,LOCAL_GOV,대전광역시,대전광역시,https://www.daedeok.go.kr,3680000,ok,
+3690000,울산광역시 중구,LOCAL_GOV,울산광역시,울산광역시,http://www.junggu.ulsan.kr,3690000,ok,
+3700000,울산광역시 남구,LOCAL_GOV,울산광역시,울산광역시,http://www.ulsannamgu.go.kr,3700000,ok,
+3710000,울산광역시 동구,LOCAL_GOV,울산광역시,울산광역시,http://www.donggu.ulsan.kr,3710000,ok,
+3720000,울산광역시 북구,LOCAL_GOV,울산광역시,울산광역시,http://www.bukgu.ulsan.kr,3720000,ok,
+3730000,울산광역시 울주군,LOCAL_GOV,울산광역시,울산광역시,http://www.ulju.ulsan.kr,3730000,ok,
+3740000,경기도 수원시,LOCAL_GOV,경기도,경기도,https://www.suwon.go.kr,3740000,ok,
+3780000,경기도 성남시,LOCAL_GOV,경기도,경기도,https://www.seongnam.go.kr,3780000,ok,
+3820000,경기도 의정부시,LOCAL_GOV,경기도,경기도,https://www.ui4u.go.kr,3820000,ok,
+3830000,경기도 안양시,LOCAL_GOV,경기도,경기도,https://www.anyang.go.kr,3830000,ok,
+3860000,경기도 부천시,LOCAL_GOV,경기도,경기도,https://www.bucheon.go.kr,3860000,ok,
+3900000,경기도 광명시,LOCAL_GOV,경기도,경기도,https://www.gm.go.kr,3900000,ok,
+3910000,경기도 평택시,LOCAL_GOV,경기도,경기도,https://www.pyeongtaek.go.kr,3910000,ok,
+3920000,경기도 동두천시,LOCAL_GOV,경기도,경기도,https://www.ddc.go.kr,3920000,ok,
+3930000,경기도 안산시,LOCAL_GOV,경기도,경기도,https://www.ansan.go.kr,3930000,ok,
+3940000,경기도 고양시,LOCAL_GOV,경기도,경기도,https://www.goyang.go.kr,3940000,ok,
+3970000,경기도 과천시,LOCAL_GOV,경기도,경기도,https://www.gccity.go.kr,3970000,ok,
+3980000,경기도 구리시,LOCAL_GOV,경기도,경기도,https://www.guri.go.kr,3980000,ok,
+3990000,경기도 남양주시,LOCAL_GOV,경기도,경기도,https://www.nyj.go.kr,3990000,ok,
+4000000,경기도 오산시,LOCAL_GOV,경기도,경기도,https://www.osan.go.kr,4000000,ok,
+4010000,경기도 시흥시,LOCAL_GOV,경기도,경기도,https://www.siheung.go.kr,4010000,ok,
+4020000,경기도 군포시,LOCAL_GOV,경기도,경기도,https://www.gunpo.go.kr,4020000,ok,
+4030000,경기도 의왕시,LOCAL_GOV,경기도,경기도,https://www.uiwang.go.kr,4030000,ok,
+4040000,경기도 하남시,LOCAL_GOV,경기도,경기도,https://www.hanam.go.kr,4040000,ok,
+4050000,경기도 용인시,LOCAL_GOV,경기도,경기도,,4050000,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+4060000,경기도 파주시,LOCAL_GOV,경기도,경기도,https://www.paju.go.kr,4060000,ok,
+4070000,경기도 이천시,LOCAL_GOV,경기도,경기도,https://www.icheon.go.kr,4070000,ok,
+4080000,경기도 안성시,LOCAL_GOV,경기도,경기도,https://www.anseong.go.kr,4080000,ok,
+4090000,경기도 김포시,LOCAL_GOV,경기도,경기도,https://www.gimpo.go.kr,4090000,ok,
+4140000,경기도 연천군,LOCAL_GOV,경기도,경기도,https://www.yeoncheon.go.kr,4140000,ok,
+4160000,경기도 가평군,LOCAL_GOV,경기도,경기도,https://www.gp.go.kr,4160000,ok,
+4170000,경기도 양평군,LOCAL_GOV,경기도,경기도,https://www.yp21.go.kr,4170000,ok,
+4181000,강원특별자치도 춘천시,LOCAL_GOV,강원특별자치도,강원특별자치도,https://www.chuncheon.go.kr,4181000,ok,
+4191000,강원특별자치도 원주시,LOCAL_GOV,강원특별자치도,강원특별자치도,http://www.wonju.go.kr,4191000,ok,
+4201000,강원특별자치도 강릉시,LOCAL_GOV,강원특별자치도,강원특별자치도,http://www.gangneung.go.kr,4201000,ok,
+4211000,강원특별자치도 동해시,LOCAL_GOV,강원특별자치도,강원특별자치도,https://www.dh.go.kr,4211000,ok,
+4221000,강원특별자치도 태백시,LOCAL_GOV,강원특별자치도,강원특별자치도,http://www.taebaek.go.kr,4221000,ok,
+4231000,강원특별자치도 속초시,LOCAL_GOV,강원특별자치도,강원특별자치도,https://www.sokcho.go.kr,4231000,ok,
+4241000,강원특별자치도 삼척시,LOCAL_GOV,강원특별자치도,강원특별자치도,https://www.samcheok.go.kr,4241000,ok,
+4251000,강원특별자치도 홍천군,LOCAL_GOV,강원특별자치도,강원특별자치도,https://www.hongcheon.go.kr,4251000,ok,
+4261000,강원특별자치도 횡성군,LOCAL_GOV,강원특별자치도,강원특별자치도,https://www.hsg.go.kr,4261000,ok,
+4271000,강원특별자치도 영월군,LOCAL_GOV,강원특별자치도,강원특별자치도,,4271000,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+4281000,강원특별자치도 평창군,LOCAL_GOV,강원특별자치도,강원특별자치도,http://www.pc.go.kr,4281000,ok,
+4291000,강원특별자치도 정선군,LOCAL_GOV,강원특별자치도,강원특별자치도,https://www.jeongseon.go.kr,4291000,ok,
+4301000,강원특별자치도 철원군,LOCAL_GOV,강원특별자치도,강원특별자치도,https://www.cwg.go.kr,4301000,ok,
+4311000,강원특별자치도 화천군,LOCAL_GOV,강원특별자치도,강원특별자치도,https://www.ihc.go.kr,4311000,ok,
+4321000,강원특별자치도 양구군,LOCAL_GOV,강원특별자치도,강원특별자치도,https://www.yanggu.go.kr,4321000,ok,
+4331000,강원특별자치도 인제군,LOCAL_GOV,강원특별자치도,강원특별자치도,http://www.inje.go.kr,4331000,ok,
+4341000,강원특별자치도 고성군,LOCAL_GOV,강원특별자치도,강원특별자치도,https://www.gwgs.go.kr,4341000,ok,
+4351000,강원특별자치도 양양군,LOCAL_GOV,강원특별자치도,강원특별자치도,https://www.yangyang.go.kr,4351000,ok,
+4390000,충청북도 충주시,LOCAL_GOV,충청북도,충청북도,https://www.chungju.go.kr,4390000,ok,
+4400000,충청북도 제천시,LOCAL_GOV,충청북도,충청북도,https://www.jecheon.go.kr,4400000,ok,
+4420000,충청북도 보은군,LOCAL_GOV,충청북도,충청북도,https://www.boeun.go.kr,4420000,ok,
+4430000,충청북도 옥천군,LOCAL_GOV,충청북도,충청북도,https://www.oc.go.kr,4430000,ok,
+4440000,충청북도 영동군,LOCAL_GOV,충청북도,충청북도,https://www.yd21.go.kr,4440000,ok,
+4450000,충청북도 진천군,LOCAL_GOV,충청북도,충청북도,https://www.jincheon.go.kr,4450000,ok,
+4460000,충청북도 괴산군,LOCAL_GOV,충청북도,충청북도,https://www.goesan.go.kr,4460000,ok,
+4470000,충청북도 음성군,LOCAL_GOV,충청북도,충청북도,https://www.eumseong.go.kr,4470000,ok,
+4480000,충청북도 단양군,LOCAL_GOV,충청북도,충청북도,https://www.danyang.go.kr,4480000,ok,
+4490000,충청남도 천안시,LOCAL_GOV,충청남도,충청남도,http://www.cheonan.go.kr,4490000,ok,
+4500000,충청남도 공주시,LOCAL_GOV,충청남도,충청남도,http://www.gongju.go.kr,4500000,ok,
+4510000,충청남도 보령시,LOCAL_GOV,충청남도,충청남도,https://www.brcn.go.kr,4510000,ok,
+4520000,충청남도 아산시,LOCAL_GOV,충청남도,충청남도,http://www.asan.go.kr,4520000,ok,
+4530000,충청남도 서산시,LOCAL_GOV,충청남도,충청남도,http://www.seosan.go.kr,4530000,ok,
+4540000,충청남도 논산시,LOCAL_GOV,충청남도,충청남도,http://www.nonsan.go.kr,4540000,ok,
+4550000,충청남도 금산군,LOCAL_GOV,충청남도,충청남도,https://www.geumsan.go.kr,4550000,ok,
+4570000,충청남도 부여군,LOCAL_GOV,충청남도,충청남도,http://www.buyeo.go.kr,4570000,ok,
+4580000,충청남도 서천군,LOCAL_GOV,충청남도,충청남도,http://www.seocheon.go.kr,4580000,ok,
+4590000,충청남도 청양군,LOCAL_GOV,충청남도,충청남도,http://www.cheongyang.go.kr,4590000,ok,
+4600000,충청남도 홍성군,LOCAL_GOV,충청남도,충청남도,http://www.hongseong.go.kr,4600000,ok,
+4610000,충청남도 예산군,LOCAL_GOV,충청남도,충청남도,http://www.yesan.go.kr,4610000,ok,
+4620000,충청남도 태안군,LOCAL_GOV,충청남도,충청남도,http://www.taean.go.kr,4620000,ok,
+4641000,전북특별자치도 전주시,LOCAL_GOV,전북특별자치도,전북특별자치도,https://www.jeonju.go.kr,4641000,ok,
+4671000,전북특별자치도 군산시,LOCAL_GOV,전북특별자치도,전북특별자치도,http://www.gunsan.go.kr,4671000,ok,
+4681000,전북특별자치도 익산시,LOCAL_GOV,전북특별자치도,전북특별자치도,http://www.iksan.go.kr,4681000,ok,
+4691000,전북특별자치도 정읍시,LOCAL_GOV,전북특별자치도,전북특별자치도,http://www.jeongeup.go.kr,4691000,ok,
+4701000,전북특별자치도 남원시,LOCAL_GOV,전북특별자치도,전북특별자치도,http://www.namwon.go.kr,4701000,ok,
+4711000,전북특별자치도 김제시,LOCAL_GOV,전북특별자치도,전북특별자치도,http://www.gimje.go.kr,4711000,ok,
+4721000,전북특별자치도 완주군,LOCAL_GOV,전북특별자치도,전북특별자치도,http://www.wanju.go.kr,4721000,ok,
+4731000,전북특별자치도 진안군,LOCAL_GOV,전북특별자치도,전북특별자치도,http://jinan.go.kr,4731000,ok,
+4741000,전북특별자치도 무주군,LOCAL_GOV,전북특별자치도,전북특별자치도,https://www.muju.go.kr,4741000,ok,
+4751000,전북특별자치도 장수군,LOCAL_GOV,전북특별자치도,전북특별자치도,http://www.jangsu.go.kr,4751000,ok,
+4761000,전북특별자치도 임실군,LOCAL_GOV,전북특별자치도,전북특별자치도,http://www.imsil.go.kr,4761000,ok,
+4771000,전북특별자치도 순창군,LOCAL_GOV,전북특별자치도,전북특별자치도,http://www.sunchang.go.kr,4771000,ok,
+4781000,전북특별자치도 고창군,LOCAL_GOV,전북특별자치도,전북특별자치도,http://www.gochang.go.kr,4781000,ok,
+4791000,전북특별자치도 부안군,LOCAL_GOV,전북특별자치도,전북특별자치도,https://www.buan.go.kr,4791000,ok,
+5020000,경상북도 포항시,LOCAL_GOV,경상북도,경상북도,http://www.pohang.go.kr,5020000,ok,
+5050000,경상북도 경주시,LOCAL_GOV,경상북도,경상북도,http://www.gyeongju.go.kr,5050000,ok,
+5060000,경상북도 김천시,LOCAL_GOV,경상북도,경상북도,https://gc.go.kr,5060000,ok,
+5070000,경상북도 안동시,LOCAL_GOV,경상북도,경상북도,https://www.andong.go.kr,5070000,ok,
+5080000,경상북도 구미시,LOCAL_GOV,경상북도,경상북도,http://www.gumi.go.kr,5080000,ok,
+5090000,경상북도 영주시,LOCAL_GOV,경상북도,경상북도,http://www.yeongju.go.kr,5090000,ok,
+5100000,경상북도 영천시,LOCAL_GOV,경상북도,경상북도,http://www.yc.go.kr,5100000,ok,
+5110000,경상북도 상주시,LOCAL_GOV,경상북도,경상북도,http://www.sangju.go.kr,5110000,ok,
+5120000,경상북도 문경시,LOCAL_GOV,경상북도,경상북도,https://www.gbmg.go.kr,5120000,ok,
+5130000,경상북도 경산시,LOCAL_GOV,경상북도,경상북도,http://gbgs.go.kr,5130000,ok,
+5141000,대구광역시 군위군,LOCAL_GOV,대구광역시,대구광역시,https://www.gunwi.go.kr,5141000,ok,
+5150000,경상북도 의성군,LOCAL_GOV,경상북도,경상북도,http://www.usc.go.kr,5150000,ok,
+5160000,경상북도 청송군,LOCAL_GOV,경상북도,경상북도,http://www.cs.go.kr,5160000,ok,
+5170000,경상북도 영양군,LOCAL_GOV,경상북도,경상북도,http://www.yyg.go.kr,5170000,ok,
+5180000,경상북도 영덕군,LOCAL_GOV,경상북도,경상북도,http://www.yd.go.kr,5180000,ok,
+5190000,경상북도 청도군,LOCAL_GOV,경상북도,경상북도,https://www.cheongdo.go.kr,5190000,ok,
+5200000,경상북도 고령군,LOCAL_GOV,경상북도,경상북도,http://www.goryeong.go.kr,5200000,ok,
+5210000,경상북도 성주군,LOCAL_GOV,경상북도,경상북도,http://www.sj.go.kr,5210000,ok,
+5220000,경상북도 칠곡군,LOCAL_GOV,경상북도,경상북도,http://www.chilgok.go.kr,5220000,ok,
+5230000,경상북도 예천군,LOCAL_GOV,경상북도,경상북도,http://www.ycg.kr,5230000,ok,
+5240000,경상북도 봉화군,LOCAL_GOV,경상북도,경상북도,https://www.bonghwa.go.kr,5240000,ok,
+5250000,경상북도 울진군,LOCAL_GOV,경상북도,경상북도,http://www.uljin.go.kr,5250000,ok,
+5260000,경상북도 울릉군,LOCAL_GOV,경상북도,경상북도,http://www.ulleung.go.kr,5260000,ok,
+5310000,경상남도 진주시,LOCAL_GOV,경상남도,경상남도,http://www.jinju.go.kr,5310000,ok,
+5330000,경상남도 통영시,LOCAL_GOV,경상남도,경상남도,http://www.tongyeong.go.kr,5330000,ok,
+5340000,경상남도 사천시,LOCAL_GOV,경상남도,경상남도,http://sacheon.go.kr,5340000,ok,
+5350000,경상남도 김해시,LOCAL_GOV,경상남도,경상남도,http://www.gimhae.go.kr,5350000,ok,
+5360000,경상남도 밀양시,LOCAL_GOV,경상남도,경상남도,http://miryang.go.kr,5360000,ok,
+5370000,경상남도 거제시,LOCAL_GOV,경상남도,경상남도,https://www.geoje.go.kr,5370000,ok,
+5380000,경상남도 양산시,LOCAL_GOV,경상남도,경상남도,http://www.yangsan.go.kr,5380000,ok,
+5390000,경상남도 의령군,LOCAL_GOV,경상남도,경상남도,http://www.uiryeong.go.kr,5390000,ok,
+5400000,경상남도 함안군,LOCAL_GOV,경상남도,경상남도,http://www.haman.go.kr,5400000,ok,
+5410000,경상남도 창녕군,LOCAL_GOV,경상남도,경상남도,http://www.cng.go.kr,5410000,ok,
+5420000,경상남도 고성군,LOCAL_GOV,경상남도,경상남도,https://www.goseong.go.kr,5420000,ok,
+5430000,경상남도 남해군,LOCAL_GOV,경상남도,경상남도,https://www.namhae.go.kr,5430000,ok,
+5440000,경상남도 하동군,LOCAL_GOV,경상남도,경상남도,http://www.hadong.go.kr,5440000,ok,
+5450000,경상남도 산청군,LOCAL_GOV,경상남도,경상남도,http://www.sancheong.go.kr,5450000,ok,
+5460000,경상남도 함양군,LOCAL_GOV,경상남도,경상남도,http://www.hygn.go.kr,5460000,ok,
+5470000,경상남도 거창군,LOCAL_GOV,경상남도,경상남도,https://www.geochang.go.kr,5470000,ok,
+5480000,경상남도 합천군,LOCAL_GOV,경상남도,경상남도,http://www.hc.go.kr,5480000,ok,
+5530000,경기도 화성시,LOCAL_GOV,경기도,경기도,https://www.hscity.go.kr,5530000,ok,
+5540000,경기도 광주시,LOCAL_GOV,경기도,경기도,https://www.gjcity.go.kr,5540000,ok,
+5570000,충청북도 증평군,LOCAL_GOV,충청북도,충청북도,https://www.jp.go.kr,5570000,ok,
+5580000,충청남도 계룡시,LOCAL_GOV,충청남도,충청남도,http://www.gyeryong.go.kr,5580000,ok,
+5590000,경기도 양주시,LOCAL_GOV,경기도,경기도,https://www.yangju.go.kr,5590000,ok,
+5600000,경기도 포천시,LOCAL_GOV,경기도,경기도,https://www.pocheon.go.kr,5600000,ok,
+5670000,경상남도 창원시,LOCAL_GOV,경상남도,경상남도,https://www.changwon.go.kr,5670000,ok,
+5680000,충청남도 당진시,LOCAL_GOV,충청남도,충청남도,http://www.dangjin.go.kr,5680000,ok,
+5700000,경기도 여주시,LOCAL_GOV,경기도,경기도,https://www.yeoju.go.kr,5700000,ok,
+5710000,충청북도 청주시,LOCAL_GOV,충청북도,충청북도,https://intro.cheongju.go.kr,5710000,ok,
+5780000,전남광주통합특별시 목포시,LOCAL_GOV,전남광주통합특별시,전남광주통합특별시,http://www.mokpo.go.kr,5780000,ok,
+5785000,전남광주통합특별시 여수시,LOCAL_GOV,전남광주통합특별시,전남광주통합특별시,http://www.yeosu.go.kr,5785000,ok,
+5790000,전남광주통합특별시 순천시,LOCAL_GOV,전남광주통합특별시,전남광주통합특별시,https://www.suncheon.go.kr,5790000,ok,
+5795000,전남광주통합특별시 나주시,LOCAL_GOV,전남광주통합특별시,전남광주통합특별시,http://www.naju.go.kr,5795000,ok,
+5800000,전남광주통합특별시 광양시,LOCAL_GOV,전남광주통합특별시,전남광주통합특별시,http://www.gwangyang.go.kr,5800000,ok,
+5805000,전남광주통합특별시 동구,LOCAL_GOV,전남광주통합특별시,전남광주통합특별시,http://www.donggu.kr,5805000,ok,
+5810000,전남광주통합특별시 서구,LOCAL_GOV,전남광주통합특별시,전남광주통합특별시,https://www.seogu.gwangju.kr,5810000,ok,
+5815000,전남광주통합특별시 남구,LOCAL_GOV,전남광주통합특별시,전남광주통합특별시,http://www.namgu.gwangju.kr,5815000,ok,
+5820000,전남광주통합특별시 북구,LOCAL_GOV,전남광주통합특별시,전남광주통합특별시,https://bukgu.gwangju.kr,5820000,ok,
+5825000,전남광주통합특별시 광산구,LOCAL_GOV,전남광주통합특별시,전남광주통합특별시,http://www.gwangsan.go.kr,5825000,ok,
+5830000,전남광주통합특별시 담양군,LOCAL_GOV,전남광주통합특별시,전남광주통합특별시,http://www.damyang.go.kr,5830000,ok,
+5835000,전남광주통합특별시 곡성군,LOCAL_GOV,전남광주통합특별시,전남광주통합특별시,https://www.gokseong.go.kr,5835000,ok,
+5840000,전남광주통합특별시 구례군,LOCAL_GOV,전남광주통합특별시,전남광주통합특별시,https://www.gurye.go.kr,5840000,ok,
+5845000,전남광주통합특별시 고흥군,LOCAL_GOV,전남광주통합특별시,전남광주통합특별시,https://www.goheung.go.kr,5845000,ok,
+5850000,전남광주통합특별시 보성군,LOCAL_GOV,전남광주통합특별시,전남광주통합특별시,http://www.boseong.go.kr,5850000,ok,
+5855000,전남광주통합특별시 화순군,LOCAL_GOV,전남광주통합특별시,전남광주통합특별시,https://www.hwasun.go.kr,5855000,ok,
+5860000,전남광주통합특별시 장흥군,LOCAL_GOV,전남광주통합특별시,전남광주통합특별시,http://www.jangheung.go.kr,5860000,ok,
+5865000,전남광주통합특별시 강진군,LOCAL_GOV,전남광주통합특별시,전남광주통합특별시,http://www.gangjin.go.kr,5865000,ok,
+5870000,전남광주통합특별시 해남군,LOCAL_GOV,전남광주통합특별시,전남광주통합특별시,http://www.haenam.go.kr,5870000,ok,
+5875000,전남광주통합특별시 영암군,LOCAL_GOV,전남광주통합특별시,전남광주통합특별시,http://www.yeongam.go.kr,5875000,ok,
+5880000,전남광주통합특별시 무안군,LOCAL_GOV,전남광주통합특별시,전남광주통합특별시,http://www.muan.go.kr,5880000,ok,
+5885000,전남광주통합특별시 함평군,LOCAL_GOV,전남광주통합특별시,전남광주통합특별시,http://www.hampyeong.go.kr,5885000,ok,
+5890000,전남광주통합특별시 영광군,LOCAL_GOV,전남광주통합특별시,전남광주통합특별시,http://www.yeonggwang.go.kr,5890000,ok,
+5895000,전남광주통합특별시 장성군,LOCAL_GOV,전남광주통합특별시,전남광주통합특별시,http://www.jangseong.go.kr,5895000,ok,
+5900000,전남광주통합특별시 완도군,LOCAL_GOV,전남광주통합특별시,전남광주통합특별시,http://www.wando.go.kr,5900000,ok,
+5905000,전남광주통합특별시 진도군,LOCAL_GOV,전남광주통합특별시,전남광주통합특별시,http://www.jindo.go.kr,5905000,ok,
+5910000,전남광주통합특별시 신안군,LOCAL_GOV,전남광주통합특별시,전남광주통합특별시,http://www.shinan.go.kr,5910000,ok,
+7010000,서울특별시교육청,METRO_EDU,,서울특별시,http://www.sen.go.kr,7010000,ok,
+7140000,전남광주통합특별시교육청,METRO_EDU,,전남광주통합특별시,,7140000,excluded,정부24 누리집 후보 여러 개: http://www.gen.go.kr https://www.jne.go.kr
+7150000,부산광역시교육청,METRO_EDU,,부산광역시,https://www.pen.go.kr,7150000,ok,
+7240000,대구광역시교육청,METRO_EDU,,대구광역시,https://www.dge.go.kr,7240000,ok,
+7310000,인천광역시교육청,METRO_EDU,,인천광역시,https://www.ice.go.kr,7310000,ok,
+7430000,대전광역시교육청,METRO_EDU,,대전광역시,https://www.dje.go.kr,7430000,ok,
+7480000,울산광역시교육청,METRO_EDU,,울산광역시,https://use.go.kr,7480000,ok,
+7530000,경기도교육청,METRO_EDU,,경기도,https://www.goe.go.kr,7530000,ok,
+7801000,강원특별자치도교육청,METRO_EDU,,강원특별자치도,https://www.gwe.go.kr,7801000,ok,
+8000000,충청북도교육청,METRO_EDU,,충청북도,https://www.cbe.go.kr,8000000,ok,
+8140000,충청남도교육청,METRO_EDU,,충청남도,http://www.cne.go.kr,8140000,ok,
+8321000,전북특별자치도교육청,METRO_EDU,,전북특별자치도,http://www.jbe.go.kr,8321000,ok,
+8750000,경상북도교육청,METRO_EDU,,경상북도,https://www.gbe.kr,8750000,ok,
+9010000,경상남도교육청,METRO_EDU,,경상남도,,9010000,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+9290000,제주특별자치도교육청,METRO_EDU,,제주특별자치도,https://www.jje.go.kr,9290000,ok,
+9300000,세종특별자치시교육청,METRO_EDU,,세종특별자치시,http://www.sje.go.kr,9300000,ok,
+5690000,세종특별자치시,METRO_GOV,,세종특별자치시,http://www.sejong.go.kr,5690000,ok,
+6110000,서울특별시,METRO_GOV,,서울특별시,https://www.seoul.go.kr,6110000,ok,
+6130000,전남광주통합특별시,METRO_GOV,,전남광주통합특별시,https://www.jeonnam-gwangju.go.kr/,6130000,ok,
+6260000,부산광역시,METRO_GOV,,부산광역시,https://www.busan.go.kr,6260000,ok,
+6270000,대구광역시,METRO_GOV,,대구광역시,http://www.daegu.go.kr,6270000,ok,
+6280000,인천광역시,METRO_GOV,,인천광역시,https://www.incheon.go.kr,6280000,ok,
+6300000,대전광역시,METRO_GOV,,대전광역시,https://www.daejeon.go.kr,6300000,ok,
+6310000,울산광역시,METRO_GOV,,울산광역시,http://www.ulsan.go.kr,6310000,ok,
+6410000,경기도,METRO_GOV,,경기도,https://www.gg.go.kr,6410000,ok,
+6430000,충청북도,METRO_GOV,,충청북도,https://www.chungbuk.go.kr,6430000,ok,
+6440000,충청남도,METRO_GOV,,충청남도,http://www.chungnam.go.kr,6440000,ok,
+6470000,경상북도,METRO_GOV,,경상북도,https://www.gb.go.kr,6470000,ok,
+6480000,경상남도,METRO_GOV,,경상남도,https://www.gyeongnam.go.kr,6480000,ok,
+6500000,제주특별자치도,METRO_GOV,,제주특별자치도,http://www.jeju.go.kr,6500000,ok,
+6530000,강원특별자치도,METRO_GOV,,강원특별자치도,https://state.gwd.go.kr/portal,6530000,ok,
+6540000,전북특별자치도,METRO_GOV,,전북특별자치도,https://www.jeonbuk.go.kr,6540000,ok,
+1014000,국가안전보장회의사무처,OTHER,,,,1014000,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1015000,대통령비서실,OTHER,,,https://www.president.go.kr/,1015000,ok,
+1021100,대통령경호처,OTHER,,,https://www.pss.go.kr,1021100,ok,
+1025000,국가안보실,OTHER,,,,1025000,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1030000,국가정보원,OTHER,,,https://www.nis.go.kr,1030000,ok,
+1040000,감사원,OTHER,,,https://www.bai.go.kr,1040000,ok,
+1071000,정책기획위원회,OTHER,,,,1071000,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1073500,국가균형발전위원회,OTHER,,,,1073500,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1073600,인구전략위원회,OTHER,,,,1073600,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1074500,국가과학기술자문회의,OTHER,,,,1074500,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1074601,가습기살균제사건과4.16세월호참사특별조사위원회,OTHER,,,,1074601,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1074800,경제사회노동위원회,OTHER,,,,1074800,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1075100,공무원재해보상연금위원회,OTHER,,,,1075100,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1075150,부마민주항쟁진상규명및관련자명예회복심의위원회,OTHER,,,,1075150,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1081000,민주평화통일자문회의사무처,OTHER,,,,1081000,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1092000,국무조정실,OTHER,,,,1092000,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1103000,국무총리비서실,OTHER,,,,1103000,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1620000,국가인권위원회,OTHER,,,http://www.humanrights.go.kr,1620000,ok,
+1671000,국정기획위원회,OTHER,,,,1671000,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1682500,특별감찰관,OTHER,,,,1682500,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1700000,민주화운동관련자명예회복및보상심의위원회,OTHER,,,,1700000,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1790049,국민경제자문회의,OTHER,,,,1790049,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1790213,국가기후환경회의,OTHER,,,,1790213,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1790239,헌법상대통령자문기구,OTHER,,,,1790239,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1790242,농어업농어촌특별위원회,OTHER,,,,1790242,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1790364,고위공직자범죄수사처,OTHER,,,https://cio.go.kr,1790364,ok,
+1790558,진실화해를위한과거사정리위원회,OTHER,,,,1790558,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1790901,국가인공지능전략위원회,OTHER,,,,1790901,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1791001,국가바이오혁신위원회,OTHER,,,,1791001,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1791100,고준위방사성폐기물관리위원회,OTHER,,,,1791100,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1791200,기본사회위원회,OTHER,,,,1791200,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1791300,빛의위원회,OTHER,,,,1791300,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1791400,국민생명안전위원회,OTHER,,,,1791400,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1812951,국가경찰위원회,OTHER,,,,1812951,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1813231,여수.순천10.19사건진상규명및희생자명예회복위원회,OTHER,,,,1813231,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1813266,국가교육위원회,OTHER,,,,1813266,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1813267,국민통합위원회,OTHER,,,,1813267,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1833000,지방시대위원회,OTHER,,,,1833000,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1834600,10.29이태원참사진상규명과재발방지를위한특별조사위원회,OTHER,,,,1834600,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00189,감찰위원회,OTHER,,,,1Z00189,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00192,공중인징계위원회,OTHER,,,,1Z00192,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00193,국적심의위원회,OTHER,,,,1Z00193,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00194,난민위원회,OTHER,,,,1Z00194,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00195,범죄피해구조본부심의회,OTHER,,,,1Z00195,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00196,범죄피해자보호기금운용심의회,OTHER,,,,1Z00196,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00197,범죄피해자보호위원회,OTHER,,,,1Z00197,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00198,법교육위원회,OTHER,,,,1Z00198,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00200,변호사시험관리위원회,OTHER,,,,1Z00200,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00201,변호사징계위원회,OTHER,,,,1Z00201,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00202,보안관찰처분심의위원회,OTHER,,,,1Z00202,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00203,사면심사위원회,OTHER,,,,1Z00203,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00204,외국법자문사징계위원회,OTHER,,,,1Z00204,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00205,장애인차별시정심의위원회,OTHER,,,,1Z00205,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00206,주택임대차위원회,OTHER,,,,1Z00206,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00209,공정병역심의위원회,OTHER,,,,1Z00209,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00210,감염병관리위원회,OTHER,,,,1Z00210,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00211,건강보험공표심의위원회,OTHER,,,,1Z00211,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00214,국가건강검진위원회,OTHER,,,,1Z00214,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00215,국가노후준비위원회,OTHER,,,,1Z00215,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00216,국가보존표지심사위원회,OTHER,,,,1Z00216,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00218,국가치매관리위원회,OTHER,,,,1Z00218,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00219,국가호스피스연명의료위원회,OTHER,,,,1Z00219,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00220,국가환자안전위원회,OTHER,,,,1Z00220,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00221,국민건강증진정책심의위원회,OTHER,,,,1Z00221,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00226,보건의료정책심의윈회,OTHER,,,,1Z00226,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00227,손실보상심의위원회,OTHER,,,,1Z00227,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00228,수련환경평가위원회,OTHER,,,,1Z00228,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00229,신의료기술평가위원회,OTHER,,,,1Z00229,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00230,연계급여심의위원회,OTHER,,,,1Z00230,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00231,의료기관인증위원회,OTHER,,,,1Z00231,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00232,의료해외진출및외국인환자유치정책심의위원회,OTHER,,,,1Z00232,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00234,인체조직안전자문위원회,OTHER,,,,1Z00234,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00236,장기요양심판위원회,OTHER,,,,1Z00236,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00237,장기요양위원회,OTHER,,,,1Z00237,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00239,제대혈위원회,OTHER,,,,1Z00239,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00240,제약산업육성·지원위원회,OTHER,,,,1Z00240,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00246,중증장애인생산품우선구매촉진위원회,OTHER,,,,1Z00246,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00247,직장어린이집명단공표심의위원회,OTHER,,,,1Z00247,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00248,편의증진심의회,OTHER,,,,1Z00248,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00249,한국인원자폭탄피해자지원위원회,OTHER,,,,1Z00249,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00250,한방산업육성협의회,OTHER,,,,1Z00250,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00253,희귀질환관리위원회,OTHER,,,,1Z00253,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00254,녹색자금운용심의회,OTHER,,,,1Z00254,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00255,산림교육심의위원회,OTHER,,,,1Z00255,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00258,지속가능한목재이용위원회,OTHER,,,,1Z00258,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00259,탄소흡수원증진위원회,OTHER,,,,1Z00259,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00261,송변전설비주변지역지원심의위원회,OTHER,,,,1Z00261,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00262,가스사고조사위원회,OTHER,,,,1Z00262,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00266,기술전문위원회,OTHER,,,,1Z00266,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00267,디자인분쟁조정위원회,OTHER,,,,1Z00267,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00268,바이오안전성위원회,OTHER,,,,1Z00268,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00269,방사성폐기물관리기금운용심의회,OTHER,,,,1Z00269,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00270,뿌리산업발전위원회,OTHER,,,,1Z00270,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00271,사업재편계획심의위원회,OTHER,,,,1Z00271,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00272,산업기술보호위원회,OTHER,,,,1Z00272,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00273,산업기술분쟁조정위원회,OTHER,,,,1Z00273,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00275,소재부품발전위원회,OTHER,,,,1Z00275,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00277,신성장동력·원천기술심의위원회,OTHER,,,,1Z00277,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00278,에너지위원회,OTHER,,,,1Z00278,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00280,이러닝진흥위원회,OTHER,,,,1Z00280,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00282,제품안전심의위원회,OTHER,,,,1Z00282,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00283,통상교섭민간자문위원회,OTHER,,,,1Z00283,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00284,통상조약국내대책위원회,OTHER,,,,1Z00284,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00286,해저광물자원개발심의위원회,OTHER,,,,1Z00286,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00288,소방산업진흥정책심의위원회,OTHER,,,,1Z00288,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00290,중앙구조·구급정책협의회,OTHER,,,,1Z00290,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00294,식품·의약품분야시험·검사발전심의위원회,OTHER,,,,1Z00294,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00295,어린이식생화안전관리위원회,OTHER,,,,1Z00295,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00296,유전자변형식품등안전성심사위원회,OTHER,,,,1Z00296,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)
+1Z00298,의약품부작용심의위원회,OTHER,,,,1Z00298,excluded,홈페이지 미확보 (정부24 목록에서 못 찾음)

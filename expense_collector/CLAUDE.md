@@ -11,10 +11,12 @@
 ## B. 상위 원칙의 적용 (반드시 지킬 것)
 - **문구**: 산출물·리포트·코드 주석에 "공직자 맛집" 류 표현 금지. 배지 문구는 "공공기관 업무추진비 기록 N회"만.
 - **PII**: 개인 이름·전화·카드번호는 parsed 단계 이후 어디에도 남기지 않는다(8.5). `executor_position`(직위)은 통합 CSV 에만, 찐맛 export 에는 제외.
-- **크롤링(결정 대기 D-1)**: 상위 원칙은 "네이버 등 크롤링 금지 — 공식 API·공공데이터·제휴·사용자 입력만". 공공기관 홈페이지의 사전공표 게시판 자동 수집이 이 원칙의 예외로 허용되는지 **사용자 승인 전**에는:
-  - 허용: Phase 0·1 의 공식 목록/공공데이터포털 조회, 기관별 홈페이지 **수동 확인 수준의 저빈도 조회**(파일럿 10~15곳, 9절 준수).
-  - 보류: Phase 2 전체 기관 자동 분류, Phase 3 `--source board` 대량 수집. 승인되면 `../docs/01_planning_decision.md` 에 결정을 먼저 기록한 뒤 진행.
-- **결정 대기 D-2**: 카페(`vendor_category=cafe`)를 찐맛 신호에 포함할지. 기본은 `restaurant` 만 export.
+- **크롤링(D-1, 2026-10-26 승인 — `../docs/01_planning_decision.md` 업무추진비 전국 확장)**: 상위 원칙 "네이버 등 크롤링 금지"의 예외로 공공기관 사전공표 게시판 수집을 **기관 단위 판정**으로 허용.
+  - Phase 0~2 는 전국 허용(robots·약관·공공누리 확인 + 게시판 몇 페이지 저빈도 조회, 9절 준수).
+  - Phase 3 `--source board` 는 등급 A·B + robots 허용 + 약관상 자동수집 금지 없음 + 공공누리 1~4유형 표시를 모두 통과한 기관만. 미통과는 `foi_candidates.csv`.
+  - 찐맛은 **비상업 서비스**(2026-10-27 결정) → 공공누리 **1~4유형 모두 출처 표기 조건으로 사용**. 수익화 도입 전엔 2·4유형 재검토(01). 레코드마다 `license` 보존, export `source` 에 유형 표기, 원문 재배포 없이 집행 사실만 사용. 공공누리 표시 없는 자료도 출처 표기로 사용(2026-10-27 (나), `license=공공누리 표시 없음`). 요청 간격은 **3초 이상**(01 결정, 9절 2초보다 우선).
+  - 순서: 공공데이터포털 → 게시판 유형별 파일럿 보고·사용자 승인 → 전국 확대. 품질 리포트에 시도별 커버리지 표시.
+- **카페(D-2, 2026-10-26 승인)**: 찐맛 export 에서 제외(`restaurant` 만). 통합 CSV 에는 `vendor_category=cafe` 로 보존.
 - 일하는 방식(팀 분리·토론·strict xfail·요약 핸드오프·`<result>` XML·모델 티어링·최소 도구)은 상위 문서 그대로.
 - 사용자는 Windows PowerShell. 명령 예시는 PowerShell 기준, `python -c` 안에 `\"` 금지(here-string 사용).
 
@@ -329,6 +331,7 @@ python -m src.cli export-jjinmat   # 찐맛 연동 CSV (13절)
 | `purpose` | str | 집행 목적 |
 | `payment_method` | str | 카드/현금 등 |
 | `source` | str | `DATAGOKR` / `BOARD` |
+| `license` | str | `공공누리 1유형`~`4유형` 또는 `공공누리 표시 없음` (모두 출처 표기로 사용, B절) |
 | `source_file_id` | str | 원본 파일 추적용 |
 | `parse_confidence` | float | 0~1 (OCR, 컬럼 매핑 불확실성 반영) |
 
@@ -367,7 +370,7 @@ python -m src.cli export-jjinmat   # 찐맛 연동 CSV (13절)
 ## 9. 크롤링 윤리·법적 준수사항
 
 - **robots.txt를 준수한다.** 비허용 경로는 수집하지 않는다.
-- **요청 간격**: 같은 도메인에 기본 2초 이상(설정 가능), 동시 접속 1개. 오류 시 지수 백오프.
+- **요청 간격**: 같은 도메인에 기본 3초 이상(01 결정, 설정 가능), 동시 접속 1개. 오류 시 지수 백오프.
 - User-Agent에 프로젝트명과 연락처를 명시한다 (`config.yaml`에서 설정).
 - 로그인, CAPTCHA, 접근 제한을 우회하지 않는다.
 - 공공데이터포털 데이터는 각 데이터셋의 이용허락범위(출처표시 등)를 기록해 둔다.
@@ -420,7 +423,7 @@ python -m src.cli export-jjinmat   # 찐맛 연동 CSV (13절)
 | `agency` | `institution_name` | |
 | `amount` | `amount` | 정수(원) |
 | `purpose` | `purpose` | 개인 이름이 섞이면 마스킹 |
-| `source` | `"{기관명} 업무추진비 공개({DATAGOKR 또는 BOARD})"` | |
+| `source` | `"{기관명} 업무추진비 공개({DATAGOKR 또는 BOARD}, 공공누리 N유형 또는 공공누리 표시 없음)"` | 출처 표기(공공누리 이용조건) |
 | `base_year` | `exec_date` 의 연도 | |
 
 - `vendor_category in config.jjinmat_export.categories` 인 레코드만, `parse_confidence >= 0.7` 만.

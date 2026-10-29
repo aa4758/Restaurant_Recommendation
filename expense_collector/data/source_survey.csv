@@ -1,0 +1,1272 @@
+﻿institution_id,source,available,url,coverage_from,coverage_to,scope,formats,license,priority,status,note,checked_at
+1015000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:20:24+00:00
+1015000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:20:24+00:00
+1015000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:20:24+00:00
+1021100,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:08:41+00:00
+1021100,BOARD,unknown,https://www.pss.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ConnectError) — 자동 조사 안 함 (등급 C 후보),2026-10-26T19:08:41+00:00
+1021100,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:08:41+00:00
+1030000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:08:41+00:00
+1030000,BOARD,unknown,https://www.nis.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T19:08:41+00:00
+1030000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:08:41+00:00
+1040000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:20:28+00:00
+1040000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:20:28+00:00
+1040000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:20:28+00:00
+1052000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:17:38+00:00
+1052000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:17:38+00:00
+1052000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:17:38+00:00
+1053000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:17:57+00:00
+1053000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:17:57+00:00
+1053000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:17:57+00:00
+1079960,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:02:10+00:00
+1079960,BOARD,unknown,https://www.nssc.go.kr/ko/cms/FR_CON/index.do?MENU_ID=850,,,,,,2,needs_review,메뉴 '업무추진비' · 1쪽 날짜 0건 — 기간 내 날짜 없음(JS 렌더링·별도 탭 가능),2026-10-26T19:02:10+00:00
+1079960,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:02:10+00:00
+1130000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:02:19+00:00
+1130000,BOARD,yes,https://www.ftc.go.kr/www/selectBbsNttList.do?bordCd=210&key=283,2025-01-04,2026-10-22,,,,2,found,메뉴 '업무추진비공개' · 1쪽 날짜 15건,2026-10-26T19:02:19+00:00
+1130000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:02:19+00:00
+1140100,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:18:13+00:00
+1140100,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:18:13+00:00
+1140100,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:18:13+00:00
+1160100,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:18:23+00:00
+1160100,BOARD,yes,https://www.fsc.go.kr/in050801,2025-01-16,2026-08-04,,xlsx,,2,found,메뉴 '업무추진비' · 1쪽 날짜 7건,2026-10-27T05:18:23+00:00
+1160100,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:18:23+00:00
+1192000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:02:48+00:00
+1192000,BOARD,yes,https://www.mof.go.kr/doc/ko/selectDocList.do?bbsSeq=2&menuSeq=427&searchEtcYn=Y&searchEtc5=CODE264,2024-11-15,2026-07-24,,pdf,,2,found,메뉴 '기관장 업무추진비 현황 부서별 사전공표정보 게시판으로 ' · 1쪽 날짜 8건,2026-10-26T19:02:48+00:00
+1192000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:02:48+00:00
+1210000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:18:36+00:00
+1210000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:18:36+00:00
+1210000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:18:36+00:00
+1220000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:02:58+00:00
+1220000,BOARD,yes,https://www.customs.go.kr/kcs/na/ntt/selectNttList.do?&aditCol5=001&aditCol4=001001&mi=11000&bbsId=1877,2025-01-23,2026-10-14,,,,2,found,메뉴 '업무추진비 업무추진비' · 1쪽 날짜 8건,2026-10-26T19:02:58+00:00
+1220000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:02:58+00:00
+1230000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:03:07+00:00
+1230000,BOARD,yes,https://www.pps.go.kr/kor/bbs/list.do?key=00095,2026-07-21,2026-10-23,,,,2,found,메뉴 '업무추진비 업무추진비' · 1쪽 날짜 10건,2026-10-26T19:03:07+00:00
+1230000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:03:07+00:00
+1241000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:03:14+00:00
+1241000,BOARD,yes,"https://mods.go.kr/board.es?mid=a10104010100&bid=a101040101&ref_bid=11835,11836,11837",2026-10-15,2026-10-16,,pdf,,2,found,메뉴 '업무추진비' · 1쪽 날짜 10건,2026-10-26T19:03:14+00:00
+1241000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:03:14+00:00
+1250000,DATAGOKR,yes,https://www.data.go.kr/data/15112240/fileData.do,,,기관장,csv,공공저작물 : 출처표시 (제 1유형) 이 페이지의 구성,1,found,통일부_기관장 업무추진비 사용내역 · FILE/FILE · 주기 수시,2026-10-26T19:03:15+00:00
+1250000,BOARD,yes,https://www.unikorea.go.kr/web/unikorea/bbs/bbs_0000000000000125,2025-07-17,2026-09-20,,pdf,,2,found,메뉴 '장·차관 업무추진비' · 1쪽 날짜 16건,2026-10-26T19:03:15+00:00
+1250000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:03:15+00:00
+1262000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:18:42+00:00
+1262000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:18:42+00:00
+1262000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:18:42+00:00
+1270000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:03:35+00:00
+1270000,BOARD,yes,https://www.moj.go.kr/moj/150/subview.do,2026-07-21,2026-10-26,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 10건,2026-10-26T19:03:35+00:00
+1270000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:03:35+00:00
+1290000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:18:49+00:00
+1290000,BOARD,unknown,https://www.mnd.go.kr/mnd/67/subview.do,,,,,,2,needs_review,게시판 경로 robots 비허용 (등급 C 후보),2026-10-27T05:18:49+00:00
+1290000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:18:49+00:00
+1300000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:03:54+00:00
+1300000,BOARD,yes,https://open.mma.go.kr/caisGGGS/board/boardList.do?menu_id=mma0000132&gesipan_id=35,2026-03-24,2026-10-14,,,,2,found,메뉴 '업무추진비 페이지 이동' · 1쪽 날짜 21건,2026-10-26T19:03:54+00:00
+1300000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:03:54+00:00
+1320000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:19:04+00:00
+1320000,BOARD,yes,https://www.police.go.kr/user/bbs/BD_selectBbsList.do?q_bbsCode=1025&q_bbscttSn=&q_tab=&q_code=005003&q_detailCode=005003006&q_searchKeyTy=sj___1002&q_searchVal=,2026-08-19,2026-10-22,,,,2,found,메뉴 '77 경찰청 각 실·국장 업무추진비 월별 경찰청 각 실' · 1쪽 날짜 10건,2026-10-27T05:19:04+00:00
+1320000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:19:04+00:00
+1342000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:04:31+00:00
+1342000,BOARD,yes,https://www.moe.go.kr/boardCnts/listRenew.do?boardID=10150&m=041209&s=moe,2026-02-10,2026-08-28,,,,2,found,메뉴 '장관 업무추진비 사용내역' · 1쪽 날짜 10건,2026-10-26T19:04:31+00:00
+1342000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:04:31+00:00
+1352000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:04:41+00:00
+1352000,BOARD,yes,https://www.mohw.go.kr/board.es?mid=a10414000000&bid=0022,2025-11-27,2026-10-26,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 15건,2026-10-26T19:04:41+00:00
+1352000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:04:41+00:00
+1360000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:04:47+00:00
+1360000,BOARD,yes,https://www.kma.go.kr/kma/public/integrity_04.jsp,2026-01-07,2026-10-06,,xlsx,,2,found,메뉴 '업무추진비' · 1쪽 날짜 10건,2026-10-26T19:04:47+00:00
+1360000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:04:47+00:00
+1371000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:04:59+00:00
+1371000,BOARD,yes,https://www.mcst.go.kr/site/s_open/generalData/dataList.jsp?pMenuCD=1101040100,2026-01-06,2026-10-21,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 10건,2026-10-26T19:04:59+00:00
+1371000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:04:59+00:00
+1384000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:04:59+00:00
+1384000,BOARD,unknown,https://www.mogef.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt HTTP 400 — 자동 조사 안 함 (등급 C 후보),2026-10-26T19:04:59+00:00
+1384000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:04:59+00:00
+1390000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:05:09+00:00
+1390000,BOARD,yes,https://www.rda.go.kr/board/board.do?mode=list&prgId=openinfobizdrv,2026-09-03,2026-10-20,,,,2,found,메뉴 '업무추진비 [페이지이동]업무추진비' · 1쪽 날짜 10건,2026-10-26T19:05:09+00:00
+1390000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:05:09+00:00
+1400000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:05:19+00:00
+1400000,BOARD,yes,https://www.forest.go.kr/kfsweb/cop/bbs/selectBoardList.do?bbsId=BBSMSTR_1074&mn=NKFS_06_01_04,2026-09-09,2026-10-15,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 10건,2026-10-26T19:05:19+00:00
+1400000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:05:19+00:00
+1421000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:19:17+00:00
+1421000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:19:17+00:00
+1421000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:19:17+00:00
+1431000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:05:38+00:00
+1431000,BOARD,yes,https://www.moip.go.kr/ko/kpoBultnMgmt.do?menuCd=SCD0200648&parntMenuCd2=SCD0200413,2026-01-16,2026-10-19,,xlsx,,2,found,메뉴 '업무추진비 사용내역' · 1쪽 날짜 10건,2026-10-26T19:05:38+00:00
+1431000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:05:38+00:00
+1451000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:05:44+00:00
+1451000,BOARD,yes,http://www.motir.go.kr/kor/article/ATCLf589e9758,2025-01-04,2026-07-31,,xlsx,,2,found,메뉴 '업무추진비' · 1쪽 날짜 13건,2026-10-26T19:05:44+00:00
+1451000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:05:44+00:00
+1471000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:05:51+00:00
+1471000,BOARD,yes,https://www.mfds.go.kr/brd/m_19/list.do,2026-09-02,2026-10-15,,"pdf,xlsx",,2,found,메뉴 '업무추진비 정보' · 1쪽 날짜 8건,2026-10-26T19:05:51+00:00
+1471000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:05:51+00:00
+1482000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:19:20+00:00
+1482000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:19:20+00:00
+1482000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:19:20+00:00
+1492000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:19:23+00:00
+1492000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:19:23+00:00
+1492000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:19:23+00:00
+1532000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:06:15+00:00
+1532000,BOARD,yes,https://www.kcg.go.kr/kcg/na/ntt/selectNttList.do?mi=2873&bbsId=383,2026-10-02,2026-10-19,,,,2,found,메뉴 '업무추진비공개 업무추진비공개' · 1쪽 날짜 10건,2026-10-26T19:06:15+00:00
+1532000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:06:15+00:00
+1543000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:06:26+00:00
+1543000,BOARD,yes,https://www.mafra.go.kr/home/5004/subview.do,2026-09-24,2026-10-19,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 10건,2026-10-26T19:06:26+00:00
+1543000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:06:26+00:00
+1571000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:06:35+00:00
+1571000,BOARD,yes,https://www.kmcc.go.kr/user.do?boardId=1064&page=A07030400&dc=K07030400,2026-08-27,2026-10-23,,xlsx,,2,found,메뉴 '업무추진비' · 1쪽 날짜 20건,2026-10-26T19:06:35+00:00
+1571000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:06:35+00:00
+1613000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:19:31+00:00
+1613000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:19:31+00:00
+1613000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:19:31+00:00
+1620000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:20:48+00:00
+1620000,BOARD,yes,http://www.humanrights.go.kr/base/board/list?boardManagementNo=28&menuLevel=3&menuNo=79,2025-12-31,2026-09-11,,pdf,,2,found,메뉴 '업무추진비 공개' · 1쪽 날짜 10건,2026-10-27T05:20:48+00:00
+1620000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:20:48+00:00
+1661000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:06:43+00:00
+1661000,BOARD,unknown,http://www.nfa.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T19:06:43+00:00
+1661000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:06:43+00:00
+1670000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:06:53+00:00
+1670000,BOARD,yes,https://naacc.go.kr/WEB/contents/N2080200000.do,2026-07-16,2026-09-23,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 10건,2026-10-26T19:06:53+00:00
+1670000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:06:53+00:00
+1690000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:07:02+00:00
+1690000,BOARD,yes,https://www.dapa.go.kr/dapa/doc/selectDocList.do?menuSeq=3261&bbsSeq=721,2025-07-30,2026-10-22,,pdf,,2,found,메뉴 '업무추진비 정보' · 1쪽 날짜 10건,2026-10-26T19:07:02+00:00
+1690000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:07:02+00:00
+1721000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:19:41+00:00
+1721000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:19:41+00:00
+1721000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:19:41+00:00
+1730000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:19:53+00:00
+1730000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:19:53+00:00
+1730000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:19:53+00:00
+1741000,DATAGOKR,no,https://www.data.go.kr/data/15056891/openapi.do,,,지방재정365 예산 편성·비율(집행내역 아님),xml,,1,not_found,행정안전부_지방재정365_지역통합업무추진비비율 · API/LINK · 주기 실시간,2026-10-26T19:07:29+00:00
+1741000,DATAGOKR,no,https://www.data.go.kr/data/15058050/openapi.do,,,지방재정365 예산 편성·비율(집행내역 아님),xml,,1,not_found,행정안전부_지방재정365_업무추진비비율 · API/LINK · 주기 실시간,2026-10-26T19:07:29+00:00
+1741000,DATAGOKR,no,https://www.data.go.kr/data/15138696/openapi.do,,,지방재정365 예산 편성·비율(집행내역 아님),json+xml,,1,not_found,행정안전부_지방재정365_기관운영 업무추진비 · API/LINK · 주기 실시간,2026-10-26T19:07:29+00:00
+1741000,DATAGOKR,no,https://www.data.go.kr/data/15138697/openapi.do,,,지방재정365 예산 편성·비율(집행내역 아님),json+xml,,1,not_found,행정안전부_지방재정365_기관운영업무추진비(2020년 이후) · API/LINK · 주기 실시간,2026-10-26T19:07:29+00:00
+1741000,DATAGOKR,no,https://www.data.go.kr/data/15138705/openapi.do,,,지방재정365 예산 편성·비율(집행내역 아님),json+xml,,1,not_found,행정안전부_지방재정365_시책추진 업무추진비 · API/LINK · 주기 실시간,2026-10-26T19:07:29+00:00
+1741000,DATAGOKR,no,https://www.data.go.kr/data/15138706/openapi.do,,,지방재정365 예산 편성·비율(집행내역 아님),json+xml,,1,not_found,행정안전부_지방재정365_시책추진 업무추진비(2020년 이후) · API/LINK · 주기 실시간,2026-10-26T19:07:29+00:00
+1741000,DATAGOKR,no,https://www.data.go.kr/data/15138863/openapi.do,,,지방재정365 예산 편성·비율(집행내역 아님),json+xml,,1,not_found,행정안전부_지방재정365_업무추진비 절감률 · API/LINK · 주기 실시간,2026-10-26T19:07:29+00:00
+1741000,BOARD,yes,https://www.mois.go.kr/frt/bbs/type001/commonSelectBoardList.do?bbsId=BBSMSTR_000000000186,2025-09-11,2026-10-23,,,,2,found,메뉴 '업무추진비 공개 업무추진비 공개 페이지로 이동' · 1쪽 날짜 10건,2026-10-26T19:07:29+00:00
+1741000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:07:29+00:00
+1760000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:07:42+00:00
+1760000,BOARD,yes,https://www.mpm.go.kr/mpm/open/openBudget/,2026-09-01,2026-10-20,,xlsx,,2,found,메뉴 '업무추진비' · 1쪽 날짜 10건,2026-10-26T19:07:42+00:00
+1760000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:07:42+00:00
+1790364,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:21:01+00:00
+1790364,BOARD,yes,https://cio.go.kr/board/list/202,2025-02-04,2026-09-21,,,,2,found,"메뉴 '업무추진비 기관장 업무추진비 사용내역 분기(4,7,10' · 1쪽 날짜 7건",2026-10-27T05:21:01+00:00
+1790364,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:21:01+00:00
+1790365,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:07:50+00:00
+1790365,BOARD,yes,https://pipc.go.kr/np/cop/bbs/selectBoardList.do?bbsId=BS201&mCode=A030020000,2025-08-06,2026-08-28,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 10건,2026-10-26T19:07:50+00:00
+1790365,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:07:50+00:00
+1790387,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:08:02+00:00
+1790387,BOARD,yes,https://www.kdca.go.kr/kdca/2786/subview.do,2026-10-13,2026-10-16,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 10건,2026-10-26T19:08:02+00:00
+1790387,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:08:02+00:00
+1830000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:08:11+00:00
+1830000,BOARD,yes,https://www.mpva.go.kr/mpva/selectBbsNttList.do?bbsNo=3&key=7,2026-06-02,2026-09-08,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 10건,2026-10-26T19:08:11+00:00
+1830000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:08:11+00:00
+1832000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:20:05+00:00
+1832000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:20:05+00:00
+1832000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:20:05+00:00
+1833100,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:20:18+00:00
+1833100,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:20:18+00:00
+1833100,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:20:18+00:00
+1834100,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:08:35+00:00
+1834100,BOARD,yes,https://www.kasa.go.kr/bbs/BBSMSTR_000000000031.do;jsessionid=c9WV2Dr_iUicvw5g-VQnoZTs4V5tiBoKjy2yLX4s.homepage20,2026-07-22,2026-10-14,,"xlsx,zip",,2,found,메뉴 '업무추진비' · 1쪽 날짜 10건,2026-10-26T19:08:35+00:00
+1834100,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:08:35+00:00
+3000000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:47:12+00:00
+3000000,BOARD,unknown,https://www.jongno.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:47:12+00:00
+3000000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:47:12+00:00
+3010000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:47:12+00:00
+3010000,BOARD,unknown,https://www.junggu.seoul.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ConnectError) — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:47:12+00:00
+3010000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:47:12+00:00
+3020000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:47:12+00:00
+3020000,BOARD,unknown,https://www.yongsan.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:47:12+00:00
+3020000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:47:12+00:00
+3030000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:47:12+00:00
+3030000,BOARD,unknown,https://www.sd.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ConnectError) — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:47:12+00:00
+3030000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:47:12+00:00
+3040000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:47:12+00:00
+3040000,BOARD,unknown,https://www.gwangjin.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:47:12+00:00
+3040000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:47:12+00:00
+3050000,DATAGOKR,yes,https://www.data.go.kr/data/15118901/fileData.do,,,,pdf,,1,found,서울특별시 동대문구_업무추진비 · FILE/LINK · 주기 수시,2026-10-26T17:47:13+00:00
+3050000,BOARD,unknown,https://www.ddm.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:47:13+00:00
+3050000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:47:13+00:00
+3060000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:47:13+00:00
+3060000,BOARD,unknown,https://www.jungnang.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(RemoteProtocolError) — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:47:13+00:00
+3060000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:47:13+00:00
+3070000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:47:23+00:00
+3070000,BOARD,yes,https://www.sb.go.kr/www/selectBbsNttList.do?bbsNo=28&key=5923,2025-03-17,2026-10-21,,,공공누리 4유형,2,found,메뉴 '업무추진비공개' · 1쪽 날짜 11건,2026-10-26T17:47:23+00:00
+3070000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:47:23+00:00
+3080000,DATAGOKR,yes,https://www.data.go.kr/data/15130555/fileData.do,,,,pdf,,1,found,서울특별시 강북구_업무추진비 · FILE/LINK · 주기 수시,2026-10-27T04:56:05+00:00
+3080000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T04:56:05+00:00
+3080000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T04:56:05+00:00
+3090000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:47:26+00:00
+3090000,BOARD,unknown,https://www.dobong.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:47:26+00:00
+3090000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:47:26+00:00
+3100000,DATAGOKR,yes,https://www.data.go.kr/data/15130709/fileData.do,,,,xlsx,,1,found,서울특별시 노원구_업무추진비현황 · FILE/LINK · 주기 수시,2026-10-26T17:47:33+00:00
+3100000,BOARD,yes,https://www.nowon.kr/www/user/bbs/BD_selectBbsList.do?q_bbsCode=1012,2026-10-12,2026-10-13,,"pdf,xlsx",,2,found,메뉴 '업무추진비 공개 업무추진비 공개 바로가기' · 1쪽 날짜 10건,2026-10-26T17:47:33+00:00
+3100000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:47:33+00:00
+3110000,DATAGOKR,yes,https://www.data.go.kr/data/15130358/fileData.do,,,,csv,,1,found,서울특별시 은평구_업무추진비 · FILE/LINK · 주기 수시,2026-10-26T17:47:34+00:00
+3110000,BOARD,unknown,https://www.ep.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:47:34+00:00
+3110000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:47:34+00:00
+3120000,DATAGOKR,yes,https://www.data.go.kr/data/15130916/fileData.do,,,,xls,,1,found,서울특별시 서대문구_업무추진비 내역 · FILE/LINK · 주기 수시,2026-10-26T17:47:43+00:00
+3120000,BOARD,yes,https://www.sdm.go.kr/admininfo/budget/openmoney.do,2026-09-07,2026-09-29,,,,2,found,메뉴 '업무추진비 공개' · 1쪽 날짜 4건,2026-10-26T17:47:43+00:00
+3120000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:47:43+00:00
+3130000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:47:43+00:00
+3130000,BOARD,unknown,https://www.mapo.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:47:43+00:00
+3130000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:47:43+00:00
+3140000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:47:43+00:00
+3140000,BOARD,unknown,https://www.yangcheon.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:47:43+00:00
+3140000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:47:43+00:00
+3150000,DATAGOKR,yes,https://www.data.go.kr/data/15130823/fileData.do,,,,pdf,,1,found,서울특별시 강서구_업무추진비 · FILE/LINK · 주기 수시,2026-10-26T17:47:44+00:00
+3150000,BOARD,unknown,https://www.gangseo.seoul.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:47:44+00:00
+3150000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:47:44+00:00
+3160000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T04:56:21+00:00
+3160000,BOARD,yes,https://www.guro.go.kr/www/selectBbsNttList.do?bbsNo=1115&key=4452&,2026-01-12,2026-10-08,,pdf,,2,found,메뉴 '구청장 기관운영 업무추진비내역' · 1쪽 날짜 15건,2026-10-27T04:56:21+00:00
+3160000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T04:56:21+00:00
+3170000,DATAGOKR,yes,https://www.data.go.kr/data/15155936/fileData.do,,,,pdf,,1,found,서울특별시 금천구_업무추진비 현황 · FILE/LINK · 주기 수시,2026-10-27T04:56:34+00:00
+3170000,BOARD,yes,https://www.geumcheon.go.kr/portal/selectBbsNttList.do?bbsNo=86&key=269,2026-10-08,2026-10-14,,,공공누리 4유형,2,found,메뉴 '업무추진비' · 1쪽 날짜 10건,2026-10-27T04:56:34+00:00
+3170000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T04:56:34+00:00
+3180000,DATAGOKR,yes,https://www.data.go.kr/data/15130408/fileData.do,,,,pdf,,1,found,서울특별시 영등포구_업무추진비내역 · FILE/LINK · 주기 수시,2026-10-26T17:48:09+00:00
+3180000,BOARD,yes,https://www.ydp.go.kr/www/selectBbsNttList.do?bbsNo=31&key=2814&,2026-10-08,2026-10-17,,xlsx,,2,found,메뉴 '업무추진비 공개' · 1쪽 날짜 10건,2026-10-26T17:48:09+00:00
+3180000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:48:09+00:00
+3190000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:48:10+00:00
+3190000,BOARD,unknown,https://www.dongjak.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:48:10+00:00
+3190000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:48:10+00:00
+3200000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:48:10+00:00
+3200000,BOARD,yes,https://www.gwanak.go.kr/site/gwanak/estimate/estimateList.do,2025-09-09,2026-10-26,,,,2,found,메뉴 '업무추진비 공개' · 1쪽 날짜 11건,2026-10-26T17:48:10+00:00
+3200000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:48:10+00:00
+3210000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:48:19+00:00
+3210000,BOARD,yes,https://www.seocho.go.kr/site/seocho/ex/bbs/List.do?cbIdx=33,2026-10-07,2026-10-26,,,,2,found,메뉴 '업무추진비 공개' · 1쪽 날짜 10건,2026-10-26T17:48:19+00:00
+3210000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:48:19+00:00
+3220000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:48:29+00:00
+3220000,BOARD,yes,https://www.gangnam.go.kr/board/B_000672/list.do?mid=ID05_04200501,2026-10-07,2026-10-26,,"xls,xlsx",,2,found,메뉴 '보조금·업무추진비 공개 보조금·업무추진비 공개 바로가기' · 1쪽 날짜 10건,2026-10-26T17:48:29+00:00
+3220000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:48:29+00:00
+3230000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:48:29+00:00
+3230000,BOARD,unknown,https://www.songpa.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: Crawl-delay 3600초 — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:48:29+00:00
+3230000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:48:29+00:00
+3240000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:48:35+00:00
+3240000,BOARD,unknown,https://www.gangdong.go.kr/web/newportal/bbs/b_054,,,,,,2,needs_review,게시판 경로 robots 비허용 (등급 C 후보),2026-10-26T17:48:35+00:00
+3240000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:48:35+00:00
+3250000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:48:56+00:00
+3250000,BOARD,unknown,http://www.bsjunggu.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ReadTimeout) — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:48:56+00:00
+3250000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:48:56+00:00
+3260000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:49:16+00:00
+3260000,BOARD,unknown,http://www.bsseogu.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ReadTimeout) — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:49:16+00:00
+3260000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:49:16+00:00
+3270000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:49:36+00:00
+3270000,BOARD,unknown,http://www.bsdonggu.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ReadTimeout) — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:49:36+00:00
+3270000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:49:36+00:00
+3280000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:49:56+00:00
+3280000,BOARD,unknown,http://www.yeongdo.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ReadTimeout) — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:49:56+00:00
+3280000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:49:56+00:00
+3290000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:50:16+00:00
+3290000,BOARD,unknown,http://www.busanjin.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ReadTimeout) — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:50:16+00:00
+3290000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:50:16+00:00
+3300000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:50:36+00:00
+3300000,BOARD,unknown,http://www.dongnae.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ReadTimeout) — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:50:36+00:00
+3300000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:50:36+00:00
+3310000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:50:56+00:00
+3310000,BOARD,unknown,http://www.bsnamgu.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ReadTimeout) — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:50:56+00:00
+3310000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:50:56+00:00
+3320000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:51:17+00:00
+3320000,BOARD,unknown,http://www.bsbukgu.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ReadTimeout) — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:51:17+00:00
+3320000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:51:17+00:00
+3330000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:51:33+00:00
+3330000,BOARD,yes,https://council.haeundae.go.kr/board/list.do?boardId=BBS_0000120&menuCd=DOM_000000703009001004&contentsSid=2924,2026-04-01,2026-10-12,,,,2,found,메뉴 '업무추진비 집행 현황' · 1쪽 날짜 10건,2026-10-26T17:51:33+00:00
+3330000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:51:33+00:00
+3340000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:51:54+00:00
+3340000,BOARD,unknown,http://www.saha.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ReadTimeout) — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:51:54+00:00
+3340000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:51:54+00:00
+3350000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:52:14+00:00
+3350000,BOARD,unknown,http://www.geumjeong.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ReadTimeout) — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:52:14+00:00
+3350000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:52:14+00:00
+3360000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:52:14+00:00
+3360000,BOARD,unknown,https://www.bsgangseo.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:52:14+00:00
+3360000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:52:14+00:00
+3370000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:52:34+00:00
+3370000,BOARD,unknown,http://www.yeonje.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ReadTimeout) — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:52:34+00:00
+3370000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:52:34+00:00
+3380000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:52:54+00:00
+3380000,BOARD,unknown,http://www.suyeong.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ReadTimeout) — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:52:54+00:00
+3380000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:52:54+00:00
+3390000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:53:14+00:00
+3390000,BOARD,unknown,http://www.sasang.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ReadTimeout) — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:53:14+00:00
+3390000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:53:14+00:00
+3400000,DATAGOKR,yes,https://www.data.go.kr/data/15137260/fileData.do,,,의회,csv,이용허락범위 제한 없음 이 페이지의 구성,1,found,부산광역시 기장군_의회 업무추진비 · FILE/FILE · 주기 연간,2026-10-27T04:56:47+00:00
+3400000,BOARD,yes,https://www.gijang.go.kr/board/list.gijang?boardId=BBS_0000147&categoryCode1=000&menuCd=DOM_000000101002014000&contentsSid=1274&cpath=,2026-07-01,2026-09-03,,,,2,found,메뉴 '업무 추진비 공개' · 1쪽 날짜 11건,2026-10-27T04:56:47+00:00
+3400000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T04:56:47+00:00
+3410000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:53:39+00:00
+3410000,BOARD,unknown,http://www.jung.daegu.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ReadTimeout) — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:53:39+00:00
+3410000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:53:39+00:00
+3420000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:53:39+00:00
+3420000,BOARD,unknown,http://www.dong.daegu.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ConnectError) — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:53:39+00:00
+3420000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:53:39+00:00
+3430000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:53:47+00:00
+3430000,BOARD,yes,http://dgs.go.kr/portal/board/post/list.do?bcIdx=511&mid=0502030000&token=1793037226567,2026-01-01,2026-10-13,,,,2,found,메뉴 '업무추진비 공개' · 1쪽 날짜 12건,2026-10-26T17:53:47+00:00
+3430000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:53:47+00:00
+3440000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:54:07+00:00
+3440000,BOARD,unknown,http://www.nam.daegu.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ReadTimeout) — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:54:07+00:00
+3440000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:54:07+00:00
+3450000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T04:57:01+00:00
+3450000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T04:57:01+00:00
+3450000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T04:57:01+00:00
+3460000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:54:33+00:00
+3460000,BOARD,yes,https://www.suseong.kr/index.do?menu_id=00042650&servletPath=%2Findex.do,2026-10-15,2026-10-27,,"pdf,xlsx",,2,found,메뉴 '업무추진비 공개' · 1쪽 날짜 2건,2026-10-26T17:54:33+00:00
+3460000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:54:33+00:00
+3470000,DATAGOKR,yes,https://www.data.go.kr/data/15135976/fileData.do,,,,xls,,1,found,대구광역시 달서구_업무추진비 · FILE/LINK · 주기 수시,2026-10-26T17:54:34+00:00
+3470000,BOARD,unknown,http://www.dalseo.daegu.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:54:34+00:00
+3470000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:54:34+00:00
+3480000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:54:42+00:00
+3480000,BOARD,yes,https://www.dalseong.daegu.kr/index.do?menu_id=00001704,2026-10-14,2026-10-19,,"xls,xlsx",,2,found,메뉴 '업무추진비공개' · 1쪽 날짜 11건,2026-10-26T17:54:42+00:00
+3480000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:54:42+00:00
+3491000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T04:57:13+00:00
+3491000,BOARD,yes,https://www.yeongjong.go.kr/main/pst/list.do?pst_id=mn_exp_head,2026-01-09,2026-10-10,,"csv,hwp,hwpx,pdf,xls,xlsx,zip",공공누리 1유형,2,found,메뉴 '업무추진비' · 1쪽 날짜 11건,2026-10-27T04:57:13+00:00
+3491000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T04:57:13+00:00
+3501000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T04:57:35+00:00
+3501000,BOARD,yes,https://www.jemulpo.go.kr/main/bbs/bbsMsgDetail.do?msg_seq=14616&bcd=opendata,2026-10-26,2026-10-26,,xlsx,공공누리 1유형,2,found,메뉴 '2026년 3분기 업무추진비 집행내역(건축과)' · 1쪽 날짜 1건,2026-10-27T04:57:35+00:00
+3501000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T04:57:35+00:00
+3510500,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:55:04+00:00
+3510500,BOARD,yes,https://www.michuhol.go.kr/main/board/list.do?board_code=business_promotion,2026-10-13,2026-10-21,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 10건,2026-10-26T17:55:04+00:00
+3510500,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:55:04+00:00
+3520000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:55:14+00:00
+3520000,BOARD,yes,https://www.yeonsu.go.kr/main/administration/open_info/charge.asp,2026-10-20,2026-10-23,,,공공누리 3유형,2,found,메뉴 '업무추진비' · 1쪽 날짜 10건,2026-10-26T17:55:14+00:00
+3520000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:55:14+00:00
+3530000,DATAGOKR,yes,https://www.data.go.kr/data/15104633/fileData.do,,,기관장,csv,이용허락범위 제한 없음 이 페이지의 구성,1,found,인천광역시 남동구_단체장 업무추진비 사용내역 · FILE/FILE · 주기 연간,2026-10-26T17:55:25+00:00
+3530000,BOARD,yes,https://www.namdong.go.kr/main/administration/integrity/disclosure.jsp,2026-10-10,2026-10-24,,xlsx,,2,found,메뉴 '업무추진비공개(2025~)' · 1쪽 날짜 10건,2026-10-26T17:55:25+00:00
+3530000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:55:25+00:00
+3540000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:55:25+00:00
+3540000,BOARD,unknown,https://www.icbp.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:55:25+00:00
+3540000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:55:25+00:00
+3550000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T04:57:47+00:00
+3550000,BOARD,yes,https://www.gyeyang.go.kr/open_content/main/bbs/bbsMsgList.do?bcd=board_14&cate1=94,2026-10-06,2026-10-19,,xlsx,,2,found,"메뉴 '단체장 업무추진비 사용내역 사용일시,사용목적, 사용대상' · 1쪽 날짜 10건",2026-10-27T04:57:47+00:00
+3550000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T04:57:47+00:00
+3561000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:55:44+00:00
+3561000,BOARD,yes,https://www.seohae.go.kr/open_content/main/open_info/clean/cost.jsp,2026-10-10,2026-10-19,,xlsx,,2,found,메뉴 '업무추진비' · 1쪽 날짜 10건,2026-10-26T17:55:44+00:00
+3561000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:55:44+00:00
+3570000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:56:04+00:00
+3570000,BOARD,unknown,http://www.ganghwa.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ReadTimeout) — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:56:04+00:00
+3570000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:56:04+00:00
+3580000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:56:13+00:00
+3580000,BOARD,yes,https://www.ongjin.go.kr/open_content/main/administration/gov30/announce_board1.jsp,2026-07-09,2026-10-19,,xlsx,,2,found,메뉴 '공표자료실(업무추진비)' · 1쪽 날짜 10건,2026-10-26T17:56:13+00:00
+3580000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:56:13+00:00
+3640000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:56:13+00:00
+3640000,BOARD,unknown,https://www.donggu.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:56:13+00:00
+3640000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:56:13+00:00
+3650000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:56:20+00:00
+3650000,BOARD,yes,https://www.djjunggu.go.kr/bbs/BBSMSTR_000000000103/list.do,2025-03-04,2026-10-02,,"xlsx,zip",,2,found,메뉴 '업무추진비 내역' · 1쪽 날짜 13건,2026-10-26T17:56:20+00:00
+3650000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:56:20+00:00
+3660000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:56:28+00:00
+3660000,BOARD,yes,https://www.seogu.go.kr/bbs/BBSMSTR_000000000571/list.do,2025-03-06,2026-10-02,,"pdf,zip",,2,found,메뉴 '업무추진비' · 1쪽 날짜 20건,2026-10-26T17:56:28+00:00
+3660000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:56:28+00:00
+3670000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:56:38+00:00
+3670000,BOARD,yes,https://www.yuseong.go.kr/bbs/BBSMSTR_000000000111/list.do,2026-01-07,2026-10-08,,"pdf,zip",,2,found,메뉴 '업무추진비공개' · 1쪽 날짜 10건,2026-10-26T17:56:38+00:00
+3670000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:56:38+00:00
+3680000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:56:44+00:00
+3680000,BOARD,yes,https://www.daedeok.go.kr/dpt/dpt02/DPT02010401_cmmBoardList.do,2026-01-14,2026-10-06,,,,2,found,메뉴 '업무추진비내역' · 1쪽 날짜 20건,2026-10-26T17:56:44+00:00
+3680000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:56:44+00:00
+3690000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:57:03+00:00
+3690000,BOARD,yes,https://www.junggu.ulsan.kr/index.ulsan?menuCd?=DOM_000000104007000000,2026-10-21,2026-10-26,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 12건,2026-10-26T17:57:03+00:00
+3690000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:57:03+00:00
+3700000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T04:58:06+00:00
+3700000,BOARD,yes,https://www.ulsannamgu.go.kr/mayor/board/mayorPress2026/list.do,2026-10-18,2026-10-26,,,,2,needs_review,"업무추진비 게시판 아님(구청장 보도자료) — 2026-10-28 수집 파일 삭제, 게시판 URL 재확인 필요",2026-10-27T04:58:06+00:00
+3700000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T04:58:06+00:00
+3710000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:57:24+00:00
+3710000,BOARD,yes,https://www.donggu.ulsan.kr/cop/bbs/selectBoardList.do?bbsId=BBSMSTR_000000000361,2026-01-28,2026-10-10,,,,2,found,메뉴 '업무추진비 공개(국장)' · 1쪽 날짜 11건,2026-10-26T17:57:24+00:00
+3710000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:57:24+00:00
+3720000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:57:34+00:00
+3720000,BOARD,yes,https://www.bukgu.ulsan.kr/lay1/bbs/S1T136C1896/A/348/list.do,2026-10-07,2026-10-26,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 11건,2026-10-26T17:57:34+00:00
+3720000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:57:34+00:00
+3730000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:57:44+00:00
+3730000,BOARD,yes,https://www.ulju.ulsan.kr/ulju/bbs/list.do?ptIdx=117&mId=0216040100&token=1793037463560,2025-02-25,2026-10-07,,pdf,,2,found,메뉴 '업무추진비' · 1쪽 날짜 12건,2026-10-26T17:57:44+00:00
+3730000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:57:44+00:00
+3740000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:58:05+00:00
+3740000,BOARD,yes,https://www.suwon.go.kr/web/board/BD_board.list.do?bbsCd=1037,2026-01-14,2026-10-15,,,,2,found,메뉴 '업무추진비공개' · 1쪽 날짜 10건,2026-10-26T17:58:05+00:00
+3740000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:58:05+00:00
+3780000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:58:05+00:00
+3780000,BOARD,unknown,https://www.seongnam.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ConnectError) — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:58:05+00:00
+3780000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:58:05+00:00
+3820000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:58:05+00:00
+3820000,BOARD,unknown,https://www.ui4u.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ConnectError) — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:58:05+00:00
+3820000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:58:05+00:00
+3830000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T04:58:13+00:00
+3830000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T04:58:13+00:00
+3830000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T04:58:13+00:00
+3860000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T04:58:25+00:00
+3860000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T04:58:25+00:00
+3860000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T04:58:25+00:00
+3900000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T04:58:37+00:00
+3900000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T04:58:37+00:00
+3900000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T04:58:37+00:00
+3910000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:58:30+00:00
+3910000,BOARD,unknown,https://www.pyeongtaek.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:58:30+00:00
+3910000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:58:30+00:00
+3920000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:58:36+00:00
+3920000,BOARD,unknown,https://www.ddc.go.kr/ddc/selectBbsNttList.do?bbsNo=38&key=122,,,,,,2,needs_review,게시판 경로 robots 비허용 (등급 C 후보),2026-10-26T17:58:36+00:00
+3920000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:58:36+00:00
+3930000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:20:09+00:00
+3930000,BOARD,yes,https://www.ansan.go.kr/www/common/bbs/selectPageListBbs.do?bbs_code=B0471,2026-10-15,2026-10-22,,,공공누리 3유형,2,found,메뉴 '부서별업무추진비' · 1쪽 날짜 15건,2026-10-26T18:20:09+00:00
+3930000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:20:09+00:00
+3940000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T04:58:50+00:00
+3940000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T04:58:50+00:00
+3940000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T04:58:50+00:00
+3970000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:20:34+00:00
+3970000,BOARD,yes,https://www.gccity.go.kr/portal/bbs/list.do?ptIdx=225&mId=0203080000,2026-10-08,2026-10-13,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 10건,2026-10-26T18:20:34+00:00
+3970000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:20:34+00:00
+3980000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:20:44+00:00
+3980000,BOARD,yes,https://www.guri.go.kr/www/selectBbsNttList.do?bbsNo=14&key=331,2026-06-16,2026-10-21,,,,2,found,메뉴 '업무추진비 공개 현황' · 1쪽 날짜 10건,2026-10-26T18:20:44+00:00
+3980000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:20:44+00:00
+3990000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:20:44+00:00
+3990000,BOARD,unknown,https://www.nyj.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:20:44+00:00
+3990000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:20:44+00:00
+4000000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:20:44+00:00
+4000000,BOARD,unknown,https://www.osan.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:20:44+00:00
+4000000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:20:44+00:00
+4010000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:21:04+00:00
+4010000,BOARD,unknown,https://www.siheung.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ReadTimeout) — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:21:04+00:00
+4010000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:21:04+00:00
+4020000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:21:14+00:00
+4020000,BOARD,yes,https://www.gunpo.go.kr/www/selectBbsNttList.do?bbsNo=715&key=4276,2026-03-04,2026-10-22,,,공공누리 4유형,2,found,메뉴 '업무추진비' · 1쪽 날짜 19건,2026-10-26T18:21:14+00:00
+4020000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:21:14+00:00
+4030000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:21:14+00:00
+4030000,BOARD,unknown,https://www.uiwang.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:21:14+00:00
+4030000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:21:14+00:00
+4040000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:21:14+00:00
+4040000,BOARD,unknown,https://www.hanam.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:21:14+00:00
+4040000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:21:14+00:00
+4060000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:21:24+00:00
+4060000,BOARD,yes,https://www.paju.go.kr/user/board/BD_board.list.do?bbsCd=1018,2026-10-20,2026-10-26,,pdf,,2,found,메뉴 '업무추진비' · 1쪽 날짜 10건,2026-10-26T18:21:24+00:00
+4060000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:21:24+00:00
+4070000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:21:31+00:00
+4070000,BOARD,yes,https://www.icheon.go.kr/portal/onnara/bpc/list.do?mid=0304080000&token=1793038890760,2026-10-15,2026-10-26,,,,2,found,메뉴 '업무추진비 공개' · 1쪽 날짜 10건,2026-10-26T18:21:31+00:00
+4070000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:21:31+00:00
+4080000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:21:51+00:00
+4080000,BOARD,unknown,https://www.anseong.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ConnectTimeout) — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:21:51+00:00
+4080000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:21:51+00:00
+4090000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:21:51+00:00
+4090000,BOARD,unknown,https://www.gimpo.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:21:51+00:00
+4090000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:21:51+00:00
+4140000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:21:51+00:00
+4140000,BOARD,unknown,https://www.yeoncheon.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:21:51+00:00
+4140000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:21:51+00:00
+4160000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T04:59:06+00:00
+4160000,BOARD,yes,https://www.gp.go.kr/portal/selectBbsNttList.do?bbsNo=77&key=448,2025-04-08,2026-10-27,,pdf,공공누리 4유형,2,found,메뉴 '기타정보공개 감사행정공개 청렴행정공개 업무추진비 공개 ' · 1쪽 날짜 11건,2026-10-27T04:59:06+00:00
+4160000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T04:59:06+00:00
+4170000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:21:57+00:00
+4170000,BOARD,unknown,https://www.yp21.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:21:57+00:00
+4170000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:21:57+00:00
+4181000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:22:10+00:00
+4181000,BOARD,yes,https://www.chuncheon.go.kr/cityhall/information-disclosure/open-info/guide/,2025-08-21,2025-08-21,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 1건,2026-10-26T18:22:10+00:00
+4181000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:22:10+00:00
+4191000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:22:34+00:00
+4191000,BOARD,yes,https://www.wonju.go.kr/www/selectBbsNttList.do?bbsNo=103&key=2466&,2025-02-28,2026-09-07,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 11건,2026-10-26T18:22:34+00:00
+4191000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:22:34+00:00
+4201000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T04:59:18+00:00
+4201000,BOARD,yes,http://www.gangneung.go.kr/www/selectBbsNttList.do?bbsNo=4&key=20,2026-04-10,2026-09-30,,,공공누리 4유형,2,found,메뉴 '업무추진비' · 1쪽 날짜 10건,2026-10-27T04:59:18+00:00
+4201000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T04:59:18+00:00
+4211000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:22:38+00:00
+4211000,BOARD,unknown,https://www.dh.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ConnectError) — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:22:38+00:00
+4211000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:22:38+00:00
+4221000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:22:38+00:00
+4221000,BOARD,unknown,http://www.taebaek.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:22:38+00:00
+4221000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:22:38+00:00
+4231000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:22:38+00:00
+4231000,BOARD,unknown,https://www.sokcho.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ConnectError) — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:22:38+00:00
+4231000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:22:38+00:00
+4241000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T04:59:43+00:00
+4241000,BOARD,yes,https://www.samcheok.go.kr/specialty/00466/01314.web,2025-03-31,2026-10-31,,zip,,2,found,메뉴 '열린보건소 새소식 행사일정 사진첩 업무추진비' · 1쪽 날짜 32건,2026-10-27T04:59:43+00:00
+4241000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T04:59:43+00:00
+4251000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:22:41+00:00
+4251000,BOARD,unknown,https://www.hongcheon.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:22:41+00:00
+4251000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:22:41+00:00
+4261000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:22:41+00:00
+4261000,BOARD,unknown,https://www.hsg.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:22:41+00:00
+4261000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:22:41+00:00
+4281000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:22:42+00:00
+4281000,BOARD,unknown,http://www.pc.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:22:42+00:00
+4281000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:22:42+00:00
+4291000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:22:42+00:00
+4291000,BOARD,unknown,https://www.jeongseon.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:22:42+00:00
+4291000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:22:42+00:00
+4301000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:22:42+00:00
+4301000,BOARD,unknown,https://www.cwg.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ConnectError) — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:22:42+00:00
+4301000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:22:42+00:00
+4311000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:22:42+00:00
+4311000,BOARD,unknown,https://www.ihc.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt HTTP 400 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:22:42+00:00
+4311000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:22:42+00:00
+4321000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:22:50+00:00
+4321000,BOARD,yes,https://www.yanggu.go.kr/user_sub?gfnc=www&mu_idx=201,2026-10-07,2026-10-21,,,,2,found,메뉴 '- 업무추진비 공개 업무추진비 공개 바로가기' · 1쪽 날짜 10건,2026-10-26T18:22:50+00:00
+4321000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:22:50+00:00
+4331000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:22:51+00:00
+4331000,BOARD,unknown,http://www.inje.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ConnectError) — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:22:51+00:00
+4331000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:22:51+00:00
+4341000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:22:51+00:00
+4341000,BOARD,unknown,https://www.gwgs.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ConnectError) — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:22:51+00:00
+4341000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:22:51+00:00
+4351000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:22:51+00:00
+4351000,BOARD,unknown,https://www.yangyang.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:22:51+00:00
+4351000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:22:51+00:00
+4390000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:00:04+00:00
+4390000,BOARD,yes,https://www.chungju.go.kr/www/selectBbsNttList.do?bbsNo=34&key=398,2026-10-11,2026-10-21,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 10건,2026-10-27T05:00:04+00:00
+4390000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:00:04+00:00
+4400000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:22:54+00:00
+4400000,BOARD,unknown,https://www.jecheon.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt HTTP 400 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:22:54+00:00
+4400000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:22:54+00:00
+4420000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:00:57+00:00
+4420000,BOARD,yes,https://www.boeun.go.kr/www/selectBbsNttList.do?bbsNo=146&key=156,2026-04-21,2026-10-23,,,,2,found,메뉴 '행정정보 업무 추진비 의정비 감사정보 공공데이터개방 위' · 1쪽 날짜 11건,2026-10-27T05:00:57+00:00
+4420000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:00:57+00:00
+4430000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:23:18+00:00
+4430000,BOARD,unknown,https://www.oc.go.kr/www/selectBbsNttList.do?bbsNo=16&key=124&,,,,,,2,needs_review,게시판 경로 robots 비허용 (등급 C 후보),2026-10-26T18:23:18+00:00
+4430000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:23:18+00:00
+4440000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:23:18+00:00
+4440000,BOARD,unknown,https://www.yd21.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ConnectError) — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:23:18+00:00
+4440000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:23:18+00:00
+4450000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:01:10+00:00
+4450000,BOARD,yes,https://www.jincheon.go.kr/home/sub.do?menukey=2849,2025-08-04,2026-10-03,,"hwp,pdf",공공누리 4유형,2,found,메뉴 '업무추진비' · 1쪽 날짜 15건,2026-10-27T05:01:10+00:00
+4450000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:01:10+00:00
+4460000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:23:37+00:00
+4460000,BOARD,yes,https://www.goesan.go.kr/www/selectBbsNttList.do?bbsNo=201&key=1515,2026-01-30,2026-10-08,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 10건,2026-10-26T18:23:37+00:00
+4460000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:23:37+00:00
+4470000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:23:37+00:00
+4470000,BOARD,unknown,https://www.eumseong.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt HTTP 403 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:23:37+00:00
+4470000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:23:37+00:00
+4480000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:23:45+00:00
+4480000,BOARD,yes,https://www.danyang.go.kr/dy21/723,2026-07-30,2026-10-26,,"hwp,pdf,xls,xlsx",,2,found,메뉴 '업무추진비' · 1쪽 날짜 15건,2026-10-26T18:23:45+00:00
+4480000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:23:45+00:00
+4490000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:23:45+00:00
+4490000,BOARD,unknown,http://www.cheonan.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt HTTP 403 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:23:45+00:00
+4490000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:23:45+00:00
+4500000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:23:45+00:00
+4500000,BOARD,unknown,http://www.gongju.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ReadError) — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:23:45+00:00
+4500000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:23:45+00:00
+4510000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:23:52+00:00
+4510000,BOARD,yes,https://www.brcn.go.kr/cop/bbs/BBSMSTR_000000000386/selectBoardList.do,2026-10-07,2026-10-13,,"hwpx,pdf",,2,found,메뉴 '업무추진비' · 1쪽 날짜 10건,2026-10-26T18:23:52+00:00
+4510000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:23:52+00:00
+4520000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:01:26+00:00
+4520000,BOARD,yes,https://www.asan.go.kr/main/cms/?no=335,2026-10-14,2026-10-16,,pdf,,2,found,메뉴 '업무추진비공개' · 1쪽 날짜 10건,2026-10-27T05:01:26+00:00
+4520000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:01:26+00:00
+4530000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:23:59+00:00
+4530000,BOARD,unknown,http://www.seosan.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:23:59+00:00
+4530000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:23:59+00:00
+4540000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:23:59+00:00
+4540000,BOARD,unknown,http://www.nonsan.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:23:59+00:00
+4540000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:23:59+00:00
+4550000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:23:59+00:00
+4550000,BOARD,unknown,https://www.geumsan.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:23:59+00:00
+4550000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:23:59+00:00
+4570000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:24:06+00:00
+4570000,BOARD,unknown,http://www.buyeo.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ConnectError) — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:24:06+00:00
+4570000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:24:06+00:00
+4580000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:24:06+00:00
+4580000,BOARD,unknown,http://www.seocheon.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(RemoteProtocolError) — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:24:06+00:00
+4580000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:24:06+00:00
+4590000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:24:13+00:00
+4590000,BOARD,yes,https://www.cheongyang.go.kr/cop/bbs/BBSMSTR_000000000096/selectBoardList.do,2026-10-06,2026-10-23,,pdf,,2,found,메뉴 '업무추진비집행내역' · 1쪽 날짜 10건,2026-10-26T18:24:13+00:00
+4590000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:24:13+00:00
+4600000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:24:24+00:00
+4600000,BOARD,yes,http://www.hongseong.go.kr/bbs/BBSMSTR_000000000811/list.do,2025-01-06,2026-10-07,,zip,,2,found,메뉴 '업무추진비내역' · 1쪽 날짜 9건,2026-10-26T18:24:24+00:00
+4600000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:24:24+00:00
+4610000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:24:24+00:00
+4610000,BOARD,unknown,http://www.yesan.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:24:24+00:00
+4610000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:24:24+00:00
+4620000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:24:45+00:00
+4620000,BOARD,unknown,http://www.taean.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ReadTimeout) — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:24:45+00:00
+4620000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:24:45+00:00
+4641000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:24:55+00:00
+4641000,BOARD,yes,https://www.jeonju.go.kr/planweb/board/list.9is?contentUid=ff8080818990c349018b041a97723a1c&boardUid=ff8080818bad9295018badaa04e2005f&contentUid=ff8080818990c349018b041a97723a1c&subPath=,2026-10-20,2026-10-26,,pdf,공공누리 4유형,2,found,메뉴 '업무추진비' · 1쪽 날짜 10건,2026-10-26T18:24:55+00:00
+4641000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:24:55+00:00
+4671000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:01:39+00:00
+4671000,BOARD,yes,https://www.gunsan.go.kr/main/m76,2026-10-02,2026-10-27,,,공공누리 4유형,2,found,메뉴 '업무추진비공개' · 1쪽 날짜 7건,2026-10-27T05:01:39+00:00
+4671000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:01:39+00:00
+4681000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:24:59+00:00
+4681000,BOARD,unknown,http://www.iksan.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:24:59+00:00
+4681000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:24:59+00:00
+4691000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:25:10+00:00
+4691000,BOARD,unknown,https://www.jeongeup.go.kr/index.jeongeup?menuCd=DOM_000000104003010000,,,,,,2,needs_review,메뉴 '업무추진비' · 1쪽 날짜 0건 — 기간 내 날짜 없음(JS 렌더링·별도 탭 가능),2026-10-26T18:25:10+00:00
+4691000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:25:10+00:00
+4701000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:25:10+00:00
+4701000,BOARD,unknown,http://www.namwon.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:25:10+00:00
+4701000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:25:10+00:00
+4711000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:25:20+00:00
+4711000,BOARD,unknown,https://www.gimje.go.kr/board/list.gimje?boardId=BBS_0000038&menuCd=DOM_000000102004000000&contentsSid=102&cpath=,,,,,,2,needs_review,메뉴 '업무추진비 공개' · 1쪽 날짜 0건 — 기간 내 날짜 없음(JS 렌더링·별도 탭 가능),2026-10-26T18:25:20+00:00
+4711000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:25:20+00:00
+4721000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:25:20+00:00
+4721000,BOARD,unknown,http://www.wanju.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:25:20+00:00
+4721000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:25:20+00:00
+4731000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:01:51+00:00
+4731000,BOARD,yes,https://www.jinan.go.kr/board/list.jinan?boardId=BBS_0000022&menuCd=DOM_000000106008001000&contentsSid=1299&cpath=,2026-10-27,2026-10-27,,pdf,,2,found,메뉴 '업무추진비' · 1쪽 날짜 1건,2026-10-27T05:01:51+00:00
+4731000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:01:51+00:00
+4741000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:02:04+00:00
+4741000,BOARD,yes,https://www.muju.go.kr/index.9is?contentUid=ff8080817a2ded9b017ae6f3b24e5681&subPath=,2025-12-31,2026-10-27,,,,2,found,메뉴 '조직정보 공개 조직현황 내고장알리미 조직정보 부서별 업' · 1쪽 날짜 7건,2026-10-27T05:02:04+00:00
+4741000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:02:04+00:00
+4751000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:25:39+00:00
+4751000,BOARD,yes,https://www.jangsu.go.kr/board/list.jangsu?boardId=BBS_0000022&menuCd=DOM_000000104008001000&contentsSid=135&cpath=,2026-10-06,2026-10-25,,pdf,공공누리 4유형,2,found,메뉴 '업무추진비공개' · 1쪽 날짜 10건,2026-10-26T18:25:39+00:00
+4751000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:25:39+00:00
+4761000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:27:03+00:00
+4761000,BOARD,yes,https://www.imsil.go.kr/board/list.imsil?boardId=BBS_0000012&menuCd=DOM_000000101002001000&contentsSid=44&cpath=,2026-10-07,2026-10-13,,pdf,,2,found,메뉴 '업무추진비' · 1쪽 날짜 10건,2026-10-26T18:27:03+00:00
+4761000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:27:03+00:00
+4771000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:27:13+00:00
+4771000,BOARD,yes,https://www.sunchang.go.kr/board/post/list.do?boardUid=ff8080819a2f0e3b019a71f2087321be&menuUid=ff8080819a2f0e3b019ac97f00cf4f18&codeUids=ff8080819a2f0e3b019a71f2564821c1,2025-12-01,2026-10-14,,pdf,공공누리 4유형,2,found,메뉴 '업무추진비 공개' · 1쪽 날짜 11건,2026-10-26T18:27:13+00:00
+4771000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:27:13+00:00
+4781000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:02:25+00:00
+4781000,BOARD,yes,https://www.gochang.go.kr/board/list.gochang?boardId=BBS_0000059&menuCd=DOM_000000103001009001&contentsSid=2545,2026-10-21,2026-10-21,,,공공누리 4유형,2,found,메뉴 '업무추진비 공개' · 1쪽 날짜 1건,2026-10-27T05:02:25+00:00
+4781000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:02:25+00:00
+4791000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:02:35+00:00
+4791000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:02:35+00:00
+4791000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:02:35+00:00
+5020000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:27:42+00:00
+5020000,BOARD,unknown,http://www.pohang.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ReadTimeout) — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:27:42+00:00
+5020000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:27:42+00:00
+5050000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:27:56+00:00
+5050000,BOARD,yes,https://www.gyeongju.go.kr/open_content/ko/page.do?mnu_uid=2870&,2026-10-01,2026-10-26,,"xls,xlsx",,2,found,메뉴 '업무추진비' · 1쪽 날짜 10건,2026-10-26T18:27:56+00:00
+5050000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:27:56+00:00
+5060000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:28:09+00:00
+5060000,BOARD,yes,https://www.gc.go.kr/portal/bbs/list.do?ptIdx=2584&mId=1515020000,2025-02-24,2026-10-26,,pdf,,2,found,메뉴 '업무추진비' · 1쪽 날짜 18건,2026-10-26T18:28:09+00:00
+5060000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:28:09+00:00
+5070000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:02:48+00:00
+5070000,BOARD,yes,https://www.andong.go.kr/portal/bbs/list.do?ptIdx=1064&mId=0503060100,2025-12-08,2026-10-11,,pdf,,2,found,메뉴 '업무추진비' · 1쪽 날짜 10건,2026-10-27T05:02:48+00:00
+5070000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:02:48+00:00
+5080000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:02:55+00:00
+5080000,BOARD,yes,http://www.gumi.go.kr/portal/board/post/list.do?bcIdx=164&mid=0303100000&token=1793077374877,2026-10-17,2026-10-27,,,,2,found,메뉴 '업무 추진비' · 1쪽 날짜 11건,2026-10-27T05:02:55+00:00
+5080000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:02:55+00:00
+5090000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:28:25+00:00
+5090000,BOARD,unknown,http://www.yeongju.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:28:25+00:00
+5090000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:28:25+00:00
+5100000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:28:35+00:00
+5100000,BOARD,unknown,https://www.yc.go.kr/portal/workInfo/list.do?mId=0306100000,,,,pdf,,2,needs_review,메뉴 '업무추진비' · 1쪽 날짜 0건 — 기간 내 날짜 없음(JS 렌더링·별도 탭 가능),2026-10-26T18:28:35+00:00
+5100000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:28:35+00:00
+5110000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:03:05+00:00
+5110000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:03:05+00:00
+5110000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:03:05+00:00
+5120000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:28:45+00:00
+5120000,BOARD,unknown,https://www.gbmg.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ConnectError) — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:28:45+00:00
+5120000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:28:45+00:00
+5130000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:29:03+00:00
+5130000,BOARD,yes,https://www.gbgs.go.kr/open_content/ko/page.do?mnu_uid=5272&,2026-10-12,2026-10-26,,xlsx,공공누리 3유형,2,found,메뉴 '업무추진비공개' · 1쪽 날짜 10건,2026-10-26T18:29:03+00:00
+5130000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:29:03+00:00
+5141000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:29:13+00:00
+5141000,BOARD,yes,https://www.gunwi.go.kr/ko/page.do?mnu_uid=160&,2026-09-30,2026-10-26,,,공공누리 1유형,2,found,메뉴 '업무추진비' · 1쪽 날짜 12건,2026-10-26T18:29:13+00:00
+5141000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:29:13+00:00
+5150000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:29:26+00:00
+5150000,BOARD,yes,http://www.usc.go.kr/ko/page.do?mnu_uid=313&,2025-01-08,2026-10-06,,,,2,found,메뉴 '업무추진비공개' · 1쪽 날짜 11건,2026-10-26T18:29:26+00:00
+5150000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:29:26+00:00
+5160000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:29:38+00:00
+5160000,BOARD,yes,https://www.cs.go.kr/openData/00003034/00006666.web,2026-07-22,2026-10-21,,pdf,,2,found,메뉴 '업무추진비' · 1쪽 날짜 11건,2026-10-26T18:29:38+00:00
+5160000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:29:38+00:00
+5170000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:03:35+00:00
+5170000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:03:35+00:00
+5170000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:03:35+00:00
+5180000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:03:39+00:00
+5180000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:03:39+00:00
+5180000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:03:39+00:00
+5190000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:03:49+00:00
+5190000,BOARD,yes,https://www.cheongdo.go.kr/portal/advanceInfo/view.do?mid=0303000000&idx=322,2024-11-02,2026-10-06,,pdf,,2,found,메뉴 '기관장업무추진비' · 1쪽 날짜 25건,2026-10-27T05:03:49+00:00
+5190000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:03:49+00:00
+5200000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:30:34+00:00
+5200000,BOARD,yes,http://www.goryeong.go.kr/kor/boardList.do?BRD_ID=1175&IDX=481,2026-10-06,2026-10-21,,pdf,,2,found,메뉴 '업무추진비공개' · 1쪽 날짜 10건,2026-10-26T18:30:34+00:00
+5200000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:30:34+00:00
+5210000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:31:18+00:00
+5210000,BOARD,yes,https://www.sj.go.kr/page.do?mnu_uid=3623&,2026-01-14,2026-10-20,,,공공누리 1유형,2,found,메뉴 '업무추진비' · 1쪽 날짜 10건,2026-10-26T18:31:18+00:00
+5210000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:31:18+00:00
+5220000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:31:29+00:00
+5220000,BOARD,yes,https://www.chilgok.go.kr/portal/bbs/list.do?ptIdx=226&mId=0305010000,2026-03-04,2026-10-22,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 20건,2026-10-26T18:31:29+00:00
+5220000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:31:29+00:00
+5230000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:03:52+00:00
+5230000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:03:52+00:00
+5230000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:03:52+00:00
+5240000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:31:32+00:00
+5240000,BOARD,unknown,https://www.bonghwa.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:31:32+00:00
+5240000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:31:32+00:00
+5250000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:04:09+00:00
+5250000,BOARD,yes,https://www.uljin.go.kr/board/list.uljin?boardId=BBS_0000141&menuCd=DOM_000000103004011000&contentsSid=1904&cpath=,2026-05-13,2026-10-02,,,,2,found,메뉴 '업무추진비 공개' · 1쪽 날짜 10건,2026-10-27T05:04:09+00:00
+5250000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:04:09+00:00
+5260000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:31:48+00:00
+5260000,BOARD,yes,https://www.ulleung.go.kr/ko/page.do?mnu_uid=549&,2025-10-11,2026-10-19,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 10건,2026-10-26T18:31:48+00:00
+5260000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:31:48+00:00
+5310000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:31:57+00:00
+5310000,BOARD,yes,https://www.jinju.go.kr/00133/00442/05636.web,2025-12-05,2026-10-27,,,,2,found,메뉴 '업무추진비 공개' · 1쪽 날짜 11건,2026-10-26T18:31:57+00:00
+5310000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:31:57+00:00
+5330000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:31:57+00:00
+5330000,BOARD,unknown,http://www.tongyeong.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt HTTP 403 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:31:57+00:00
+5330000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:31:57+00:00
+5340000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:04:27+00:00
+5340000,BOARD,yes,https://www.sacheon.go.kr/minwon/00086/03630.web,2025-07-22,2026-10-27,,"hwp,hwpx,xlsx",,2,found,메뉴 '업무추진비' · 1쪽 날짜 11건,2026-10-27T05:04:27+00:00
+5340000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:04:27+00:00
+5350000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:04:36+00:00
+5350000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:04:36+00:00
+5350000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:04:36+00:00
+5360000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:08:40+00:00
+5360000,BOARD,yes,https://www.miryang.go.kr/web/bbs/selectBoardList.do?bbsId=BBSMSTR_000000085761&mnNo=30512010000,2025-12-22,2026-10-02,,,,2,found,메뉴 '업무추진비공개' · 1쪽 날짜 10건,2026-10-27T05:08:40+00:00
+5360000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:08:40+00:00
+5370000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:08:51+00:00
+5370000,BOARD,yes,https://www.geoje.go.kr/board/list.geoje?boardId=BBS_0000042&menuCd=DOM_000008904002001000&contentsSid=10113&cpath=,2026-04-17,2026-04-17,,xlsx,,2,found,메뉴 '업무추진비공개' · 1쪽 날짜 1건,2026-10-27T05:08:51+00:00
+5370000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:08:51+00:00
+5380000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:09:04+00:00
+5380000,BOARD,yes,https://www.yangsan.go.kr/portal/board/post/list.do?bcIdx=113&mid=0401050100&token=1793077744026,2026-05-07,2026-10-08,,pdf,,2,found,메뉴 '업무추진비공개' · 1쪽 날짜 10건,2026-10-27T05:09:04+00:00
+5380000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:09:04+00:00
+5390000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:33:34+00:00
+5390000,BOARD,yes,https://www.uiryeong.go.kr/board/list.uiryeong?boardId=BBS_0000325&menuCd=DOM_000000202001005001&contentsSid=160,2026-01-04,2026-03-04,,,,2,found,메뉴 '업무추진비 공개' · 1쪽 날짜 3건,2026-10-26T18:33:34+00:00
+5390000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:33:34+00:00
+5400000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:09:23+00:00
+5400000,BOARD,yes,https://www.haman.go.kr/00099/00146/00171.web,2026-01-06,2026-10-08,,pdf,,2,found,메뉴 '업무추진비 공개' · 1쪽 날짜 11건,2026-10-27T05:09:23+00:00
+5400000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:09:23+00:00
+5410000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:33:47+00:00
+5410000,BOARD,yes,https://www.cng.go.kr/00002/00136/00153.web,2025-10-17,2026-07-23,,,,2,found,메뉴 '업무추진비 공개' · 1쪽 날짜 12건,2026-10-26T18:33:47+00:00
+5410000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:33:47+00:00
+5420000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:34:05+00:00
+5420000,BOARD,unknown,https://www.goseong.go.kr/board/list.goseong?boardId=BBS_0000005&menuCd=DOM_000000103001015000&contentsSid=31&cpath=,,,,"pdf,xls,xlsx",,2,needs_review,메뉴 '업무추진비공개' · 1쪽 날짜 0건 — 기간 내 날짜 없음(JS 렌더링·별도 탭 가능),2026-10-26T18:34:05+00:00
+5420000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:34:05+00:00
+5430000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:37:06+00:00
+5430000,BOARD,yes,https://www.namhae.go.kr/portal/board/List.do?gcode=1516&&pageCd=WW0311400000&siteGubun=portal&_csrf_parameterName=CSRFToken&_csrf_token=0cf79449-6774-46b1-aa58-cdf97c424d16,2026-01-08,2026-10-07,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 11건,2026-10-26T18:37:06+00:00
+5430000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:37:06+00:00
+5440000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:37:07+00:00
+5440000,BOARD,unknown,http://www.hadong.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:37:07+00:00
+5440000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:37:07+00:00
+5450000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:37:07+00:00
+5450000,BOARD,unknown,http://www.sancheong.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt HTTP 403 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:37:07+00:00
+5450000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:37:07+00:00
+5460000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:09:51+00:00
+5460000,BOARD,yes,https://www.hygn.go.kr/00430/00583/00596.web,2026-01-02,2026-10-12,,,,2,found,메뉴 '업무추진비 공개' · 1쪽 날짜 13건,2026-10-27T05:09:51+00:00
+5460000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:09:51+00:00
+5470000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:10:04+00:00
+5470000,BOARD,yes,https://www.geochang.go.kr/00107/00108/00156.web,2025-01-23,2026-07-30,,,,2,found,메뉴 '업무추진비 공개' · 1쪽 날짜 10건,2026-10-27T05:10:04+00:00
+5470000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:10:04+00:00
+5480000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:10:19+00:00
+5480000,BOARD,yes,https://www.hc.go.kr/04959/04962/08827.web,2026-10-06,2026-10-27,,,,2,found,메뉴 '업무추진비공개' · 1쪽 날짜 13건,2026-10-27T05:10:19+00:00
+5480000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:10:19+00:00
+5530000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:10:52+00:00
+5530000,BOARD,yes,https://www.hscity.go.kr/www/beffatPublict/BD_selectBeffatPublictBbsList.do?q_beffatPublictTy=1008&q_beffatPublictSj=657,2026-10-09,2026-10-23,,,,2,found,메뉴 '부서별 업무추진비 사용내역' · 1쪽 날짜 10건,2026-10-27T05:10:52+00:00
+5530000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:10:52+00:00
+5540000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:37:40+00:00
+5540000,BOARD,yes,https://www.gjcity.go.kr/portal/bbs/list.do?ptIdx=53&mId=0303140000&token=1793039860191,2026-10-13,2026-10-23,,pdf,,2,found,메뉴 '업무추진비 공개' · 1쪽 날짜 10건,2026-10-26T18:37:40+00:00
+5540000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:37:40+00:00
+5570000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:37:47+00:00
+5570000,BOARD,yes,https://www.jp.go.kr/kor/cop/bbs/BBSMSTR_000000000023/selectBoardList.do,2026-07-22,2026-10-01,,"pdf,xlsx",,2,found,메뉴 '업무추진비' · 1쪽 날짜 10건,2026-10-26T18:37:47+00:00
+5570000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:37:47+00:00
+5580000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:37:47+00:00
+5580000,BOARD,unknown,http://www.gyeryong.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:37:47+00:00
+5580000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:37:47+00:00
+5590000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:37:54+00:00
+5590000,BOARD,yes,https://www.yangju.go.kr/www/selectBbsNttList.do?bbsNo=30&key=234,2026-10-08,2026-10-13,,,,2,found,메뉴 '업무추진비 공개' · 1쪽 날짜 10건,2026-10-26T18:37:54+00:00
+5590000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:37:54+00:00
+5600000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:37:54+00:00
+5600000,BOARD,unknown,https://www.pocheon.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ReadError) — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:37:54+00:00
+5600000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:37:54+00:00
+5670000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:11:23+00:00
+5670000,BOARD,yes,https://www.changwon.go.kr/cwportal/10312/10620/10629.web,2026-10-19,2026-10-26,,pdf,,2,found,메뉴 '업무추진비 공개' · 1쪽 날짜 10건,2026-10-27T05:11:23+00:00
+5670000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:11:23+00:00
+5680000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:38:13+00:00
+5680000,BOARD,yes,https://www.dangjin.go.kr/cop/bbs/BBSMSTR_000000000024/selectBoardList.do,2026-04-08,2026-10-26,,"pdf,xlsx",,2,found,메뉴 '부서장 기관·시책 업무추진비 공개' · 1쪽 날짜 11건,2026-10-26T18:38:13+00:00
+5680000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:38:13+00:00
+5690000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:45:51+00:00
+5690000,BOARD,unknown,http://www.sejong.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:45:51+00:00
+5690000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:45:51+00:00
+5700000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:38:14+00:00
+5700000,BOARD,unknown,https://www.yeoju.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:38:14+00:00
+5700000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:38:14+00:00
+5710000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:11:35+00:00
+5710000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:11:35+00:00
+5710000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:11:35+00:00
+5780000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:38:59+00:00
+5780000,BOARD,yes,https://www.mokpo.go.kr/www/open_data/open_operational_cost,2026-05-14,2026-10-15,,pdf,,2,found,메뉴 '업무추진비 공개' · 1쪽 날짜 15건,2026-10-26T18:38:59+00:00
+5780000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:38:59+00:00
+5785000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:40:03+00:00
+5785000,BOARD,yes,https://www.yeosu.go.kr/www/pubinfo/announce/operating_expense,2026-10-14,2026-10-22,,pdf,공공누리 4유형,2,found,메뉴 '업무추진비' · 1쪽 날짜 14건,2026-10-26T18:40:03+00:00
+5785000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:40:03+00:00
+5790000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:40:10+00:00
+5790000,BOARD,yes,https://www.suncheon.go.kr/kr/open/0001/0012/,2026-10-12,2026-10-26,,"hwp,pdf",공공누리 4유형,2,found,메뉴 '업무추진비 공개 업무추진비 공개' · 1쪽 날짜 15건,2026-10-26T18:40:10+00:00
+5790000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:40:10+00:00
+5795000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:41:13+00:00
+5795000,BOARD,yes,https://www.naju.go.kr/www/open_data/budget/expense,2025-06-09,2026-10-27,,pdf,,2,found,메뉴 '업무추진비' · 1쪽 날짜 16건,2026-10-26T18:41:13+00:00
+5795000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:41:13+00:00
+5800000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:11:46+00:00
+5800000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:11:46+00:00
+5800000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:11:46+00:00
+5805000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:41:24+00:00
+5805000,BOARD,unknown,http://www.donggu.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:41:24+00:00
+5805000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:41:24+00:00
+5810000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:41:30+00:00
+5810000,BOARD,yes,https://www.seogu.gwangju.kr/openInfoCostList.es?mid=a10518030100&oi_seq=110,2025-01-04,2026-10-08,,,,2,found,메뉴 '업무추진비 공개' · 1쪽 날짜 15건,2026-10-26T18:41:30+00:00
+5810000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:41:30+00:00
+5815000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:41:31+00:00
+5815000,BOARD,unknown,http://www.namgu.gwangju.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:41:31+00:00
+5815000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:41:31+00:00
+5820000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:41:37+00:00
+5820000,BOARD,yes,https://bukgu.gwangju.kr/board.es?mid=a10502050000&bid=0004,2026-03-04,2026-10-26,,,공공누리 4유형,2,found,메뉴 '업무추진비공개' · 1쪽 날짜 11건,2026-10-26T18:41:37+00:00
+5820000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:41:37+00:00
+5825000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:41:46+00:00
+5825000,BOARD,yes,https://www.gwangsan.go.kr/contentsView.do?pageId=www159,2026-06-30,2026-06-30,,,공공누리 4유형,2,found,메뉴 '업무추진비' · 1쪽 날짜 1건,2026-10-26T18:41:46+00:00
+5825000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:41:46+00:00
+5830000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:12:10+00:00
+5830000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:12:10+00:00
+5830000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:12:10+00:00
+5835000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:41:50+00:00
+5835000,BOARD,unknown,https://www.gokseong.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ConnectError) — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:41:50+00:00
+5835000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:41:50+00:00
+5840000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:42:10+00:00
+5840000,BOARD,unknown,https://www.gurye.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ReadTimeout) — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:42:10+00:00
+5840000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:42:10+00:00
+5845000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:42:10+00:00
+5845000,BOARD,unknown,https://www.goheung.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:42:10+00:00
+5845000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:42:10+00:00
+5850000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:42:30+00:00
+5850000,BOARD,unknown,http://www.boseong.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ReadTimeout) — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:42:30+00:00
+5850000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:42:30+00:00
+5855000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:42:37+00:00
+5855000,BOARD,yes,https://www.hwasun.go.kr/board.do?S=S01&M=031401000000&b_code=0000000199&keyWord=%EC%97%85%EB%AC%B4%EC%B6%94%EC%A7%84%EB%B9%84,2026-01-02,2026-09-30,,pdf,,2,found,메뉴 '업무추진비 공개' · 1쪽 날짜 10건,2026-10-26T18:42:37+00:00
+5855000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:42:37+00:00
+5860000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:42:47+00:00
+5860000,BOARD,yes,https://www.jangheung.go.kr/www/open_data/bid_budget/business_expense,2026-07-22,2026-10-27,,pdf,,2,found,메뉴 '업무추진비 공개' · 1쪽 날짜 16건,2026-10-26T18:42:47+00:00
+5860000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:42:47+00:00
+5865000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:43:07+00:00
+5865000,BOARD,unknown,http://www.gangjin.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ReadTimeout) — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:43:07+00:00
+5865000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:43:07+00:00
+5870000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:12:16+00:00
+5870000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:12:16+00:00
+5870000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:12:16+00:00
+5875000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:12:19+00:00
+5875000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:12:19+00:00
+5875000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:12:19+00:00
+5880000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:43:36+00:00
+5880000,BOARD,unknown,http://www.muan.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ReadTimeout) — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:43:36+00:00
+5880000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:43:36+00:00
+5885000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:12:35+00:00
+5885000,BOARD,yes,https://www.hampyeong.go.kr/boardList.do?boardId=WORK_COST&pageId=www311,2026-10-01,2026-10-15,,"xls,xlsx",공공누리 4유형,2,found,메뉴 '업무추진비사용내역' · 1쪽 날짜 10건,2026-10-27T05:12:35+00:00
+5885000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:12:35+00:00
+5890000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:44:00+00:00
+5890000,BOARD,unknown,http://www.yeonggwang.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ReadTimeout) — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:44:00+00:00
+5890000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:44:00+00:00
+5895000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:12:38+00:00
+5895000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:12:38+00:00
+5895000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:12:38+00:00
+5900000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:12:51+00:00
+5900000,BOARD,yes,https://www.wando.go.kr/wando/sub.cs?m=404,2026-07-21,2026-10-23,,pdf,공공누리 4유형,2,found,메뉴 '업무추진비' · 1쪽 날짜 15건,2026-10-27T05:12:51+00:00
+5900000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:12:51+00:00
+5905000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:44:26+00:00
+5905000,BOARD,unknown,http://www.jindo.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ReadTimeout) — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:44:26+00:00
+5905000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:44:26+00:00
+5910000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:44:47+00:00
+5910000,BOARD,unknown,http://www.shinan.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ReadTimeout) — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:44:47+00:00
+5910000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:44:47+00:00
+6110000,DATAGOKR,yes,https://www.data.go.kr/data/15124812/fileData.do,,,,csv,,1,found,서울특별시_서울시 업무추진비 목록 · FILE/LINK · 주기 수시,2026-10-26T17:45:51+00:00
+6110000,BOARD,yes,https://opengov.seoul.go.kr/expense/list,2026-10-16,2026-10-22,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 15건,2026-10-26T17:45:51+00:00
+6110000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:45:51+00:00
+6130000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:45:58+00:00
+6130000,BOARD,yes,https://www.jeonnam-gwangju.go.kr/boardList.do?boardId=JG_0000000018&pageId=jngj50,2026-10-20,2026-10-26,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 10건,2026-10-26T17:45:58+00:00
+6130000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:45:58+00:00
+6260000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:45:58+00:00
+6260000,BOARD,unknown,https://www.busan.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ConnectError) — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:45:58+00:00
+6260000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:45:58+00:00
+6270000,DATAGOKR,yes,https://www.data.go.kr/data/15130255/fileData.do,,,사업소,csv,이용허락범위 제한 없음 이 페이지의 구성,1,found,대구광역시_상수도사업본부 업무추진비 현황 · FILE/FILE · 주기 수시,2026-10-26T17:46:11+00:00
+6270000,BOARD,yes,https://www.daegu.go.kr/index.do?menu_id=00941680&servletPath=%2Findex.do,2025-02-04,2026-07-10,,"hwp,xls,xlsx",,2,found,메뉴 '업무추진비' · 1쪽 날짜 10건,2026-10-26T17:46:11+00:00
+6270000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:46:11+00:00
+6280000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:46:23+00:00
+6280000,BOARD,yes,https://www.incheon.go.kr/open/OPEN010301,2025-08-28,2026-10-13,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 11건,2026-10-26T17:46:23+00:00
+6280000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:46:23+00:00
+6300000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:46:24+00:00
+6300000,BOARD,unknown,https://www.daejeon.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:46:24+00:00
+6300000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:46:24+00:00
+6310000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:46:39+00:00
+6310000,BOARD,yes,https://www.ulsan.go.kr/u/rep/transfer/director/list.ulsan?mId=001003002003000000,2025-02-05,2026-10-23,,,,2,found,메뉴 '업무추진비 새창' · 1쪽 날짜 11건,2026-10-26T17:46:39+00:00
+6310000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:46:39+00:00
+6410000,DATAGOKR,yes,https://www.data.go.kr/data/15119865/fileData.do,,,출자출연기관,csv,,1,found,경기도_출자출연기관 업무추진비 사용 내역 현황 · FILE/LINK · 주기 수시,2026-10-26T17:46:41+00:00
+6410000,DATAGOKR,yes,https://www.data.go.kr/data/15130760/fileData.do,,,의회,csv,,1,found,경기도_의원 업무추진비 사용 현황 · FILE/LINK · 주기 수시,2026-10-26T17:46:41+00:00
+6410000,DATAGOKR,yes,https://www.data.go.kr/data/15150424/fileData.do,,,,csv,,1,found,경기도_통합홈페이지 집행내역 · FILE/LINK · 주기 수시,2026-10-26T17:46:41+00:00
+6410000,BOARD,unknown,https://www.gg.go.kr/bbs/board.do?bsIdx=803&menuId=1768,,,,,공공누리 3유형,2,needs_review,메뉴 '업무추진비 공개' · 1쪽 날짜 0건 — 기간 내 날짜 없음(JS 렌더링·별도 탭 가능),2026-10-26T17:46:41+00:00
+6410000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:46:41+00:00
+6430000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:46:41+00:00
+6430000,BOARD,unknown,https://www.chungbuk.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:46:41+00:00
+6430000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:46:41+00:00
+6440000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T04:55:51+00:00
+6440000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T04:55:51+00:00
+6440000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T04:55:51+00:00
+6470000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:46:55+00:00
+6470000,BOARD,yes,https://www.gb.go.kr/page/10461/10173.do,2026-10-20,2026-10-26,,"pdf,xlsx",공공누리 3유형,2,found,메뉴 '업무추진비' · 1쪽 날짜 10건,2026-10-26T17:46:55+00:00
+6470000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:46:55+00:00
+6480000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:47:08+00:00
+6480000,BOARD,unknown,https://www.gyeongnam.go.kr/board/list.gyeong?boardId=BBS_0000957&menuCd=DOM_000000138002012000&contentsSid=9918&cpath=,,,,,,2,needs_review,메뉴 '업무추진비 공개' · 1쪽 날짜 0건 — 기간 내 날짜 없음(JS 렌더링·별도 탭 가능),2026-10-26T17:47:08+00:00
+6480000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:47:08+00:00
+6500000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:47:08+00:00
+6500000,BOARD,unknown,http://www.jeju.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:47:08+00:00
+6500000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:47:08+00:00
+6530000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T17:47:09+00:00
+6530000,BOARD,unknown,https://state.gwd.go.kr/portal,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T17:47:09+00:00
+6530000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T17:47:09+00:00
+6540000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T04:56:02+00:00
+6540000,BOARD,yes,https://www.jeonbuk.go.kr/board/list.jeonbuk?boardId=BBS_0000029&menuCd=DOM_000000103005000000&contentsSid=187&cpath=,2026-10-20,2026-10-26,,,공공누리 4유형,2,found,메뉴 '업무추진비공개' · 1쪽 날짜 11건,2026-10-27T04:56:02+00:00
+6540000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T04:56:02+00:00
+7010000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:44:54+00:00
+7010000,BOARD,yes,http://open.sen.go.kr/fus/MI000000000000000511/board/BO00000225/ctgynone/list0010v.do,2025-12-31,2026-10-07,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 10건,2026-10-26T18:44:54+00:00
+7010000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:44:54+00:00
+7021000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:12:54+00:00
+7021000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:12:54+00:00
+7021000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:12:54+00:00
+7031000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:12:58+00:00
+7031000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:12:58+00:00
+7031000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:12:58+00:00
+7041000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:13:01+00:00
+7041000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:13:01+00:00
+7041000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:13:01+00:00
+7051000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:13:04+00:00
+7051000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:13:04+00:00
+7051000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:13:04+00:00
+7061000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:13:08+00:00
+7061000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:13:08+00:00
+7061000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:13:08+00:00
+7081300,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:13:11+00:00
+7081300,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:13:11+00:00
+7081300,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:13:11+00:00
+7091300,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:13:14+00:00
+7091300,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:13:14+00:00
+7091300,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:13:14+00:00
+7121200,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:13:23+00:00
+7121200,BOARD,unknown,http://sbgbedu.sen.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ConnectError) — 자동 조사 안 함 (등급 C 후보),2026-10-27T05:13:23+00:00
+7121200,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:13:23+00:00
+7130000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:13:27+00:00
+7130000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:13:27+00:00
+7130000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:13:27+00:00
+7132000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:13:30+00:00
+7132000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:13:30+00:00
+7132000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:13:30+00:00
+7134000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:13:33+00:00
+7134000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:13:33+00:00
+7134000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:13:33+00:00
+7150000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:45:03+00:00
+7150000,BOARD,yes,https://www.pen.go.kr/main/na/ntt/selectNttList.do?mi=30477&bbsId=2312,2026-09-28,2026-10-11,,,,2,found,메뉴 '업무추진비공개방 업무추진비공개방' · 1쪽 날짜 11건,2026-10-26T18:45:03+00:00
+7150000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:45:03+00:00
+7171000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:13:52+00:00
+7171000,BOARD,yes,https://www.pen.go.kr/main/na/ntt/selectNttList.do?mi=30478&bbsId=2319,2026-09-28,2026-10-11,,"hwpx,xlsx",,2,found,메뉴 '75 행정지원과 051-250-0534 기관장 등 업무' · 1쪽 날짜 11건,2026-10-27T05:13:52+00:00
+7171000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:13:52+00:00
+7181000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:14:07+00:00
+7181000,BOARD,yes,https://www.pen.go.kr/main/na/ntt/selectNttList.do?mi=30478&bbsId=2319,2026-09-28,2026-10-11,,"hwpx,xlsx",,2,found,메뉴 '31 행정지원과 640-0335 기관장 등 업무추진비 ' · 1쪽 날짜 11건,2026-10-27T05:14:07+00:00
+7181000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:14:07+00:00
+7191000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:48:38+00:00
+7191000,BOARD,yes,https://www.pen.go.kr/main/na/ntt/selectNttList.do?mi=30477&bbsId=2312,2026-09-28,2026-10-11,,,,2,found,메뉴 '업무추진비공개방 업무추진비공개방' · 1쪽 날짜 11건,2026-10-26T18:48:38+00:00
+7191000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:48:38+00:00
+7201000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:48:44+00:00
+7201000,BOARD,yes,https://www.pen.go.kr/main/na/ntt/selectNttList.do?mi=30478&bbsId=2319,2026-09-28,2026-10-11,,"hwpx,xlsx",,2,found,메뉴 '업무추진비공개방 새창열림' · 1쪽 날짜 11건,2026-10-26T18:48:44+00:00
+7201000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:48:44+00:00
+7211000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:14:19+00:00
+7211000,BOARD,yes,https://www.pen.go.kr/main/na/ntt/selectNttList.do?mi=30478&bbsId=2319,2026-09-28,2026-10-11,,"hwpx,xlsx",,2,found,메뉴 '108 행정지원과 051-709-0307 업무추진비 사' · 1쪽 날짜 11건,2026-10-27T05:14:19+00:00
+7211000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:14:19+00:00
+7240000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:45:33+00:00
+7240000,BOARD,yes,https://www.dge.go.kr/main/na/ntt/selectNttList.do?bbsId=1950&aditCol3=82&keyType=1&keyValue=17&mi=6671,2026-07-21,2026-10-20,,,,2,found,메뉴 '업무추진비 집행 내역(교육감)' · 1쪽 날짜 18건,2026-10-26T18:45:33+00:00
+7240000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:45:33+00:00
+7251000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:48:56+00:00
+7251000,BOARD,yes,https://www.dge.go.kr/dgdbe/na/ntt/selectNttList.do?mi=3908&bbsId=1152,2026-09-30,2026-10-23,,,,2,found,메뉴 '업무추진비공개 업무추진비공개' · 1쪽 날짜 10건,2026-10-26T18:48:56+00:00
+7251000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:48:56+00:00
+7261000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:49:02+00:00
+7261000,BOARD,yes,https://www.dge.go.kr/dgsbe/na/ntt/selectNttList.do?mi=6296&bbsId=1330,2026-07-20,2026-10-20,,,,2,found,메뉴 '업무추진비 집행내역' · 1쪽 날짜 10건,2026-10-26T18:49:02+00:00
+7261000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:49:02+00:00
+7271000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:49:08+00:00
+7271000,BOARD,yes,https://www.dge.go.kr/dgnbe/na/ntt/selectNttList.do?mi=6988&bbsId=1647,2026-07-20,2026-10-20,,,,2,found,메뉴 '업무추진비 업무추진비' · 1쪽 날짜 10건,2026-10-26T18:49:08+00:00
+7271000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:49:08+00:00
+7281000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:49:17+00:00
+7281000,BOARD,yes,https://www.dge.go.kr/dgdse/na/ntt/selectNttInfo.do?mi=7303&nttSn=2219631,2026-10-02,2026-10-22,,xlsx,,2,found,메뉴 '2026년 10월 2차 행정지원과 업무추진비 집행내역(' · 1쪽 날짜 5건,2026-10-26T18:49:17+00:00
+7281000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:49:17+00:00
+7310000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:45:46+00:00
+7310000,BOARD,yes,https://www.ice.go.kr/ice/na/ntt/selectNttList.do?mi=11654&bbsId=1726,2026-01-08,2026-10-10,,,,2,found,메뉴 '업무추진비공개방 업무추진비공개방' · 1쪽 날짜 11건,2026-10-26T18:45:46+00:00
+7310000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:45:46+00:00
+7321000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:14:28+00:00
+7321000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:14:28+00:00
+7321000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:14:28+00:00
+7331000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:49:41+00:00
+7331000,BOARD,yes,https://bukbu.ice.go.kr/bbs/data/list.do?menu_idx=242,2026-08-24,2026-10-13,,,,2,found,메뉴 '업무추진비 집행' · 1쪽 날짜 13건,2026-10-26T18:49:41+00:00
+7331000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:49:41+00:00
+7341000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:49:41+00:00
+7341000,BOARD,unknown,http://dongbu.ice.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:49:41+00:00
+7341000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:49:41+00:00
+7351000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:14:32+00:00
+7351000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:14:32+00:00
+7351000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:14:32+00:00
+7361000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:49:45+00:00
+7361000,BOARD,unknown,http://seobu.ice.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ConnectError) — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:49:45+00:00
+7361000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:49:45+00:00
+7430000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:45:46+00:00
+7430000,BOARD,unknown,https://www.dje.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:45:46+00:00
+7430000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:45:46+00:00
+7480000,DATAGOKR,yes,https://www.data.go.kr/data/15151213/fileData.do,,,,csv,이용허락범위 제한 없음 이 페이지의 구성,1,found,울산광역시교육청_게시글제목정보 · FILE/FILE · 주기 연간,2026-10-26T18:45:47+00:00
+7480000,BOARD,unknown,https://use.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ConnectError) — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:45:47+00:00
+7480000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:45:47+00:00
+7530000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:45:47+00:00
+7530000,BOARD,yes,https://www.goe.go.kr/goe/na/ntt/selectNttList.do?mi=10239&bbsId=1955,2025-01-22,2026-10-22,,,,2,found,메뉴 '업무추진비 사용내역 업무추진비 사용내역' · 1쪽 날짜 9건,2026-10-26T18:45:47+00:00
+7530000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:45:47+00:00
+7541000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:49:45+00:00
+7541000,BOARD,yes,https://www.goesw.kr/goesw/na/ntt/selectNttList.do?mi=18885&bbsId=11038,2026-05-04,2026-10-02,,,,2,found,메뉴 '업무추진비집행내역' · 1쪽 날짜 10건,2026-10-26T18:49:45+00:00
+7541000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:49:45+00:00
+7551000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:49:58+00:00
+7551000,BOARD,yes,https://www.goesn.kr/goesn/na/ntt/selectNttList.do?mi=23501&bbsId=17813,2026-04-30,2026-10-08,,,,2,found,메뉴 '업무추진비집행내역' · 1쪽 날짜 10건,2026-10-26T18:49:58+00:00
+7551000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:49:58+00:00
+7561000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:50:10+00:00
+7561000,BOARD,yes,https://www.goeujb.kr/goeujb/na/ntt/selectNttList.do?mi=6941&bbsId=4084,2026-03-06,2026-10-19,,,,2,found,메뉴 '업무추진비집행내역' · 1쪽 날짜 10건,2026-10-26T18:50:10+00:00
+7561000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:50:10+00:00
+7569000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:50:22+00:00
+7569000,BOARD,yes,https://www.goeay.kr/goeay/na/ntt/selectNttList.do?mi=10199&bbsId=5158,2026-05-04,2026-10-02,,,,2,found,메뉴 '업무추진비 집행내역' · 1쪽 날짜 10건,2026-10-26T18:50:22+00:00
+7569000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:50:22+00:00
+7581000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:50:35+00:00
+7581000,BOARD,yes,https://www.goebc.kr/goebc/na/ntt/selectNttList.do?mi=11091&bbsId=6333,2025-10-13,2026-10-01,,,,2,found,메뉴 '업무추진비집행내역' · 1쪽 날짜 10건,2026-10-26T18:50:35+00:00
+7581000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:50:35+00:00
+7591000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:50:42+00:00
+7591000,BOARD,yes,https://www.goegm.kr/goegm/na/ntt/selectNttList.do?mi=5897&bbsId=4254,2025-10-14,2026-10-14,,,,2,found,메뉴 '업무추진비 집행내역' · 1쪽 날짜 10건,2026-10-26T18:50:42+00:00
+7591000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:50:42+00:00
+7602000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:50:54+00:00
+7602000,BOARD,yes,https://www.goedy.kr/goedy/na/ntt/selectNttList.do?mi=10243&bbsId=10182,2024-11-06,2026-10-14,,,,2,found,메뉴 '업무추진비집행내역' · 1쪽 날짜 10건,2026-10-26T18:50:54+00:00
+7602000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:50:54+00:00
+7611000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:51:06+00:00
+7611000,BOARD,yes,https://www.goeas.kr/goeas/na/ntt/selectNttList.do?mi=11495&bbsId=5965,2026-02-04,2026-10-12,,,,2,found,메뉴 '업무추진비 집행내역' · 1쪽 날짜 12건,2026-10-26T18:51:06+00:00
+7611000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:51:06+00:00
+7621000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:51:19+00:00
+7621000,BOARD,yes,https://www.goegy.kr/goegy/na/ntt/selectNttList.do?mi=20337&bbsId=11683,2026-06-02,2026-10-08,,,,2,found,메뉴 '업무추진비집행내역' · 1쪽 날짜 10건,2026-10-26T18:51:19+00:00
+7621000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:51:19+00:00
+7631000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:51:31+00:00
+7631000,BOARD,yes,https://www.goept.kr/goept/na/ntt/selectNttList.do?mi=10070&bbsId=10082,2026-02-04,2026-07-22,,,,2,found,메뉴 '업무추진비 집행내역' · 1쪽 날짜 10건,2026-10-26T18:51:31+00:00
+7631000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:51:31+00:00
+7642000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:51:43+00:00
+7642000,BOARD,yes,https://www.goegu.kr/goegu/na/ntt/selectNttList.do?mi=7246&bbsId=4357,2026-09-09,2026-10-20,,,,2,found,메뉴 '업무추진비 사용내역' · 1쪽 날짜 10건,2026-10-26T18:51:43+00:00
+7642000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:51:43+00:00
+7652000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:51:56+00:00
+7652000,BOARD,yes,https://www.goegn.kr/goegn/na/ntt/selectNttList.do?mi=13523&bbsId=8362,2026-07-06,2026-10-12,,,,2,found,메뉴 '업무추진비집행내역' · 1쪽 날짜 10건,2026-10-26T18:51:56+00:00
+7652000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:51:56+00:00
+7661000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:52:08+00:00
+7661000,BOARD,yes,https://www.goeyj.kr/goeyj/na/ntt/selectNttList.do?mi=10110&bbsId=10087,2025-01-13,2026-10-21,,,,2,found,메뉴 '업무추진비 집행내역' · 1쪽 날짜 8건,2026-10-26T18:52:08+00:00
+7661000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:52:08+00:00
+7679000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:52:14+00:00
+7679000,BOARD,yes,https://www.goehs.kr/goehs/na/ntt/selectNttList.do?mi=17873&bbsId=9843,2026-01-30,2026-10-13,,,,2,found,메뉴 '업무추진비 집행내역 업무추진비 집행내역' · 1쪽 날짜 10건,2026-10-26T18:52:14+00:00
+7679000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:52:14+00:00
+7681000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:52:27+00:00
+7681000,BOARD,yes,https://www.goepj.kr/goepj/na/ntt/selectNttList.do?mi=10718&bbsId=7144,2026-06-11,2026-10-12,,,,2,found,메뉴 '업무추진비 집행내역' · 1쪽 날짜 10건,2026-10-26T18:52:27+00:00
+7681000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:52:27+00:00
+7692000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:52:40+00:00
+7692000,BOARD,yes,https://www.goegh.kr/goegh/na/ntt/selectNttList.do?mi=8679&bbsId=5037,2025-10-29,2026-10-26,,,,2,found,메뉴 '업무추진비 집행내역' · 1쪽 날짜 10건,2026-10-26T18:52:40+00:00
+7692000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:52:40+00:00
+7701000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:52:46+00:00
+7701000,BOARD,yes,https://www.goeyc.kr/goeyc/na/ntt/selectNttList.do?mi=2334&bbsId=2202,2026-01-12,2026-10-06,,,,2,found,메뉴 '업무추진비 집행내역' · 1쪽 날짜 10건,2026-10-26T18:52:46+00:00
+7701000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:52:46+00:00
+7711000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:52:52+00:00
+7711000,BOARD,yes,https://www.goepc.kr/goepc/na/ntt/selectNttList.do?mi=2227&bbsId=2129,2025-01-02,2026-06-30,,,,2,found,메뉴 '업무추진비 집행내역' · 1쪽 날짜 7건,2026-10-26T18:52:52+00:00
+7711000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:52:52+00:00
+7721000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:52:58+00:00
+7721000,BOARD,yes,https://www.goegp.kr/goegp/na/ntt/selectNttList.do?mi=3337&bbsId=2753,2025-04-04,2026-07-20,,,,2,found,메뉴 '업무추진비 집행내역' · 1쪽 날짜 10건,2026-10-26T18:52:58+00:00
+7721000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:52:58+00:00
+7731000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:53:11+00:00
+7731000,BOARD,yes,https://www.goeyp.kr/goeyp/na/ntt/selectNttList.do?mi=3554&bbsId=1877,2026-01-05,2026-10-08,,,,2,found,메뉴 '업무추진비 집행내역' · 1쪽 날짜 10건,2026-10-26T18:53:11+00:00
+7731000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:53:11+00:00
+7741000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:53:23+00:00
+7741000,BOARD,yes,https://www.goeic.kr/goeic/na/ntt/selectNttList.do?mi=5620&bbsId=3734,2026-04-10,2026-10-16,,,,2,found,메뉴 '업무추진비 집행내역' · 1쪽 날짜 10건,2026-10-26T18:53:23+00:00
+7741000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:53:23+00:00
+7751000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:53:36+00:00
+7751000,BOARD,yes,https://www.goeyi.kr/goeyi/na/ntt/selectNttList.do?mi=20259&bbsId=12276,2026-01-15,2026-10-07,,,,2,found,메뉴 '업무추진비 집행내역' · 1쪽 날짜 10건,2026-10-26T18:53:36+00:00
+7751000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:53:36+00:00
+7761000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:53:49+00:00
+7761000,BOARD,yes,https://www.goean.kr/goean/na/ntt/selectNttList.do?mi=4473&bbsId=2735,2026-01-14,2026-10-08,,,,2,found,메뉴 '업무추진비 집행내역' · 1쪽 날짜 10건,2026-10-26T18:53:49+00:00
+7761000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:53:49+00:00
+7771000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:54:01+00:00
+7771000,BOARD,yes,https://www.gpoe.kr/gpoe/na/ntt/selectNttList.do?mi=9265&bbsId=5168,2026-01-14,2026-10-12,,,,2,found,메뉴 '업무추진비 집행내역' · 1쪽 날짜 10건,2026-10-26T18:54:01+00:00
+7771000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:54:01+00:00
+7781000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:54:13+00:00
+7781000,BOARD,yes,https://www.goesh.kr/goesh/na/ntt/selectNttList.do?mi=9024&bbsId=5521,2025-10-01,2026-10-01,,,,2,found,메뉴 '업무추진비집행내역' · 1쪽 날짜 10건,2026-10-26T18:54:13+00:00
+7781000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:54:13+00:00
+7801000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:46:10+00:00
+7801000,BOARD,yes,https://www.gwe.go.kr/open/bbs/list.do?key=bTIzMDYzMDA5NDg5NjY=,2026-02-25,2026-10-13,,,,2,found,메뉴 '업무추진비 공개' · 1쪽 날짜 10건,2026-10-26T18:46:10+00:00
+7801000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:46:10+00:00
+7812000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:14:48+00:00
+7812000,BOARD,yes,https://gwcce.gwe.go.kr/boardCnts/list.do?boardID=2702&m=020204&s=gwcce,2026-01-10,2026-10-07,,,,2,found,"메뉴 '행정과 재정팀 100만원 이상 카드 사용내역, 50만원' · 1쪽 날짜 38건",2026-10-27T05:14:48+00:00
+7812000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:14:48+00:00
+7822000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:15:00+00:00
+7822000,BOARD,yes,https://gwwjed.gwe.go.kr/boardCnts/list.do?boardID=2863&m=020304&s=kwwje,2026-08-04,2026-10-07,,,,2,found,메뉴 '15 교육장 업무추진비 전체 수시 자료발생시 전자민원창' · 1쪽 날짜 20건,2026-10-27T05:15:00+00:00
+7822000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:15:00+00:00
+7832000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:15:13+00:00
+7832000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:15:13+00:00
+7832000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:15:13+00:00
+7842000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:15:25+00:00
+7842000,BOARD,yes,https://kwthe.gwe.go.kr/boardCnts/list.do?m=080102&s=kwthe&searchType=S&page=1&boardID=2476&prntBoardID=0&prntBoardSeq=0&prntLev=0,2026-06-01,2026-10-01,,,,2,found,"메뉴 '25 기관장 등 업무추진비 사용내역 사용자, 사용일시,' · 1쪽 날짜 20건",2026-10-27T05:15:25+00:00
+7842000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:15:25+00:00
+7852000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:15:38+00:00
+7852000,BOARD,yes,https://kwtbe.gwe.go.kr/boardCnts/list.do?boardID=2291&m=110601&s=kwtbe,2026-01-02,2026-10-02,,,,2,found,메뉴 '행정과 총무 기관운영업무추진비 기관운영업무추진비 사용내' · 1쪽 날짜 20건,2026-10-27T05:15:38+00:00
+7852000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:15:38+00:00
+7863000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:15:50+00:00
+7863000,BOARD,yes,https://gwsyed.gwe.go.kr/boardCnts/list.do?boardID=2922&m=0606&s=kwsyed,2026-07-01,2026-10-13,,,,2,found,"메뉴 '총무팀 기관장 업무추진비 사용내역 사용자, 사용일시, ' · 1쪽 날짜 26건",2026-10-27T05:15:50+00:00
+7863000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:15:50+00:00
+7872000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:16:00+00:00
+7872000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:16:00+00:00
+7872000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:16:00+00:00
+7882000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:55:58+00:00
+7882000,BOARD,yes,https://gwhce.gwe.go.kr/boardCnts/list.do?boardID=1495&m=100704&s=gwhce,2026-06-02,2026-10-01,,,,2,found,메뉴 '기관장 업무추진비 사용내역' · 1쪽 날짜 20건,2026-10-26T18:55:58+00:00
+7882000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:55:58+00:00
+7892000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:56:10+00:00
+7892000,BOARD,yes,https://gwhsed.gwe.go.kr/boardCnts/list.do?boardID=108073&m=371962&s=gwhsed,2026-06-02,2026-10-13,,,,2,found,메뉴 '업무추진비 공개(기관운영) 업무추진비 공개(기관운영)' · 1쪽 날짜 20건,2026-10-26T18:56:10+00:00
+7892000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:56:10+00:00
+7902000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:16:13+00:00
+7902000,BOARD,yes,https://gwywed.gwe.go.kr/boardCnts/list.do?boardID=1746&m=371882&s=gwywed,2026-08-05,2026-10-08,,,,2,found,메뉴 '4 교육과 업무추진비 부서장 업무추진비 매월 5일 홈페' · 1쪽 날짜 20건,2026-10-27T05:16:13+00:00
+7902000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:16:13+00:00
+7912000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:56:32+00:00
+7912000,BOARD,yes,https://gwpce.gwe.go.kr/boardCnts/list.do?boardID=94572&m=050601&s=gwpce,2026-07-08,2026-10-07,,,,2,found,메뉴 '기관업무추진비 공개 기관업무추진비 공개' · 1쪽 날짜 20건,2026-10-26T18:56:32+00:00
+7912000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:56:32+00:00
+7922000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:16:28+00:00
+7922000,BOARD,yes,https://gwjsed.gwe.go.kr/boardCnts/list.do?boardID=3145&m=030304&s=gwjsed,2026-01-02,2026-10-06,,,,2,found,"메뉴 '행정과 총무 기관장 등 업무추진비 사용 내역 사용자, ' · 1쪽 날짜 20건",2026-10-27T05:16:28+00:00
+7922000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:16:28+00:00
+7932000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:56:50+00:00
+7932000,BOARD,yes,https://gwcwed.gwe.go.kr/boardCnts/list.do?boardID=2295&m=0103&s=gwcwed,2026-02-02,2026-10-06,,,,2,found,메뉴 '정보공개자료(업무추진비) 정보공개자료(업무추진비)' · 1쪽 날짜 20건,2026-10-26T18:56:50+00:00
+7932000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:56:50+00:00
+7942000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:57:00+00:00
+7942000,BOARD,yes,https://gwhced.gwe.go.kr/boardCnts/list.do?boardID=1469&m=010902&s=gwhced,2026-01-02,2026-10-02,,,,2,found,메뉴 '업무추진비 공개 업무추진비 공개' · 1쪽 날짜 20건,2026-10-26T18:57:00+00:00
+7942000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:57:00+00:00
+7952000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:57:18+00:00
+7952000,BOARD,yes,https://gwyged.gwe.go.kr/boardCnts/list.do?boardID=2347&m=0103&s=kwyged,2025-03-01,2026-10-06,,,,2,found,메뉴 '기관장 등 업무추진비 사용내역' · 1쪽 날짜 24건,2026-10-26T18:57:18+00:00
+7952000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:57:18+00:00
+7962000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:16:41+00:00
+7962000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:16:41+00:00
+7962000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:16:41+00:00
+7972000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:16:54+00:00
+7972000,BOARD,yes,https://gwgsed.gwe.go.kr/boardCnts/list.do?boardID=2161&m=0203&s=kwksed,2026-06-01,2026-10-07,,,,2,found,메뉴 '총무팀 교육장업무추진비 전체 행정과 10일 바로가기' · 1쪽 날짜 20건,2026-10-27T05:16:54+00:00
+7972000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:16:54+00:00
+8000000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:46:28+00:00
+8000000,BOARD,yes,https://www.cbe.go.kr/clean/na/ntt/selectNttList.do?bbsId=1792&mi=10286,2026-10-08,2026-10-11,,,,2,found,메뉴 '업무추진비공개 업무추진비공개(새창)' · 1쪽 날짜 10건,2026-10-26T18:46:28+00:00
+8000000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:46:28+00:00
+8011000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:57:43+00:00
+8011000,BOARD,unknown,http://www.cbcje.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:57:43+00:00
+8011000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:57:43+00:00
+8021000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:57:43+00:00
+8021000,BOARD,unknown,http://www.cbchje.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:57:43+00:00
+8021000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:57:43+00:00
+8031000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:57:43+00:00
+8031000,BOARD,unknown,http://www.cbjche.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:57:43+00:00
+8031000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:57:43+00:00
+8051000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:57:43+00:00
+8051000,BOARD,unknown,http://www.cbbee.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:57:43+00:00
+8051000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:57:43+00:00
+8061000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:57:43+00:00
+8061000,BOARD,unknown,http://www.cboce.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:57:43+00:00
+8061000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:57:43+00:00
+8071000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:57:44+00:00
+8071000,BOARD,unknown,http://www.cbyde.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:57:44+00:00
+8071000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:57:44+00:00
+8081000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:57:44+00:00
+8081000,BOARD,unknown,http://www.cbjce.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:57:44+00:00
+8081000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:57:44+00:00
+8092000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:57:44+00:00
+8092000,BOARD,unknown,http://www.cbgje.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:57:44+00:00
+8092000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:57:44+00:00
+8101000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:57:44+00:00
+8101000,BOARD,unknown,http://www.cbuse.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:57:44+00:00
+8101000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:57:44+00:00
+8111000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:57:44+00:00
+8111000,BOARD,unknown,http://www.cbdye.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:57:44+00:00
+8111000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:57:44+00:00
+8140000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:46:29+00:00
+8140000,BOARD,unknown,http://www.cne.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:46:29+00:00
+8140000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:46:29+00:00
+8321000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:46:38+00:00
+8321000,BOARD,yes,https://www.jbe.go.kr/finance/board/list.jbe?boardId=BBS_0000359&menuCd=DOM_000002304000000000&contentsSid=3259&cpath=%2Ffinance,2026-10-01,2026-10-08,,,,2,found,메뉴 '업무추진비공개 새창열림' · 1쪽 날짜 10건,2026-10-26T18:46:38+00:00
+8321000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:46:38+00:00
+8332000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:57:52+00:00
+8332000,BOARD,yes,https://www.jbe.go.kr/finance/board/list.jbe?menuCd=DOM_000002304000000000&boardId=BBS_0000359&categoryCode1=A06&searchType=TAG_NAME&keyword=%EC%A0%84%EC%A3%BC%EA%B5%90%EC%9C%A1%EC%A7%80%EC%9B%90%EC%B2%AD,2025-12-31,2026-09-30,,,,2,found,메뉴 '바로가기 업무추진비 공개 새창열림' · 1쪽 날짜 10건,2026-10-26T18:57:52+00:00
+8332000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:57:52+00:00
+8342000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:57:56+00:00
+8342000,BOARD,yes,https://www.jbe.go.kr/finance/board/list.jbe?menuCd=DOM_000002304000000000&boardId=BBS_0000359&categoryCode1=A06&searchType=TAG_NAME&keyword=%EA%B5%B0%EC%82%B0%EA%B5%90%EC%9C%A1%EC%A7%80%EC%9B%90%EC%B2%AD,2025-12-29,2026-09-30,,,,2,found,메뉴 '업무추진비(정보공개) 새 창 열림' · 1쪽 날짜 10건,2026-10-26T18:57:56+00:00
+8342000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:57:56+00:00
+8352000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:58:00+00:00
+8352000,BOARD,yes,https://www.jbe.go.kr/finance/board/list.jbe?menuCd=DOM_000002304000000000&boardId=BBS_0000359&categoryCode1=A06&searchType=TAG_NAME&keyword=%EC%9D%B5%EC%82%B0%EA%B5%90%EC%9C%A1%EC%A7%80%EC%9B%90%EC%B2%AD,2026-01-07,2026-10-02,,,,2,found,메뉴 '업무추진비 새 창 열림' · 1쪽 날짜 10건,2026-10-26T18:58:00+00:00
+8352000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:58:00+00:00
+8362000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:58:07+00:00
+8362000,BOARD,yes,https://www.jbe.go.kr/finance/board/list.jbe?menuCd=DOM_000002304000000000&boardId=BBS_0000359&categoryCode1=A06&searchType=TAG_NAME&keyword=%EC%A0%95%EC%9D%8D%EA%B5%90%EC%9C%A1%EC%A7%80%EC%9B%90%EC%B2%AD,2025-12-24,2026-09-30,,,,2,found,메뉴 '[업무추진비공개] 새 창 열림' · 1쪽 날짜 10건,2026-10-26T18:58:07+00:00
+8362000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:58:07+00:00
+8372000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:58:11+00:00
+8372000,BOARD,yes,https://www.jbe.go.kr/finance/board/list.jbe?menuCd=DOM_000002304000000000&boardId=BBS_0000359&categoryCode1=A06&searchType=TAG_NAME&keyword=%EB%82%A8%EC%9B%90%EA%B5%90%EC%9C%A1%EC%A7%80%EC%9B%90%EC%B2%AD,2025-12-31,2026-09-30,,,,2,found,메뉴 '[업무추진비내역공개] 새 창 열림' · 1쪽 날짜 10건,2026-10-26T18:58:11+00:00
+8372000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:58:11+00:00
+8382000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:17:04+00:00
+8382000,BOARD,unknown,,,,,,,2,needs_review,홈페이지·사이트맵에서 '업무추진비' 링크 못 찾음 (조회 0쪽),2026-10-27T05:17:04+00:00
+8382000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:17:04+00:00
+8392000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:58:25+00:00
+8392000,BOARD,yes,https://www.jbe.go.kr/finance/board/list.jbe?menuCd=DOM_000002304000000000&boardId=BBS_0000359&categoryCode1=A06&searchType=TAG_NAME&keyword=%EC%99%84%EC%A3%BC%EA%B5%90%EC%9C%A1%EC%A7%80%EC%9B%90%EC%B2%AD,2025-12-30,2026-09-30,,,,2,found,메뉴 '[업무추진비 공개] 새 창 열림' · 1쪽 날짜 10건,2026-10-26T18:58:25+00:00
+8392000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:58:25+00:00
+8402000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:58:33+00:00
+8402000,BOARD,yes,https://www.jbe.go.kr/finance/board/list.jbe?menuCd=DOM_000002304000000000&boardId=BBS_0000359&categoryCode1=A06&searchType=TAG_NAME&keyword=%EC%A7%84%EC%95%88%EA%B5%90%EC%9C%A1%EC%A7%80%EC%9B%90%EC%B2%AD,2025-12-31,2026-09-30,,,,2,found,메뉴 '업무추진비 자료실 업무추진비 자료실 새창열림' · 1쪽 날짜 10건,2026-10-26T18:58:33+00:00
+8402000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:58:33+00:00
+8412000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:58:43+00:00
+8412000,BOARD,yes,https://www.jbe.go.kr/finance/board/list.jbe?menuCd=DOM_000002304000000000&boardId=BBS_0000359&categoryCode1=A06&searchType=TAG_NAME&keyword=%EB%AC%B4%EC%A3%BC%EA%B5%90%EC%9C%A1%EC%A7%80%EC%9B%90%EC%B2%AD,2025-12-31,2026-09-30,,,,2,found,메뉴 '업무추진비 집행내역 새 창 열림' · 1쪽 날짜 10건,2026-10-26T18:58:43+00:00
+8412000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:58:43+00:00
+8422000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:58:47+00:00
+8422000,BOARD,yes,https://www.jbe.go.kr/finance/board/list.jbe?menuCd=DOM_000002304000000000&boardId=BBS_0000359&categoryCode1=A06&searchType=TAG_NAME&keyword=%EC%9E%A5%EC%88%98%EA%B5%90%EC%9C%A1%EC%A7%80%EC%9B%90%EC%B2%AD,2025-12-30,2026-09-30,,,,2,found,메뉴 '업무추진비 집행내역 새 창 열림' · 1쪽 날짜 10건,2026-10-26T18:58:47+00:00
+8422000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:58:47+00:00
+8432000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:58:52+00:00
+8432000,BOARD,yes,https://www.jbe.go.kr/finance/board/list.jbe?menuCd=DOM_000002304000000000&boardId=BBS_0000359&categoryCode1=A06&searchType=TAG_NAME&keyword=%EC%9E%84%EC%8B%A4%EA%B5%90%EC%9C%A1%EC%A7%80%EC%9B%90%EC%B2%AD,2026-01-31,2026-09-30,,,,2,found,메뉴 '업무추진비 집행내역 새 창 열림' · 1쪽 날짜 10건,2026-10-26T18:58:52+00:00
+8432000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:58:52+00:00
+8442000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:17:12+00:00
+8442000,BOARD,yes,https://www.jbe.go.kr/finance/board/list.jbe?menuCd=DOM_000002304000000000&boardId=BBS_0000359&categoryCode1=A06&searchType=TAG_NAME&keyword=%EC%88%9C%EC%B0%BD%EA%B5%90%EC%9C%A1%EC%A7%80%EC%9B%90%EC%B2%AD,2025-12-31,2026-09-30,,,,2,found,메뉴 '바로가기 업무추진비현황 새창열림' · 1쪽 날짜 10건,2026-10-27T05:17:12+00:00
+8442000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:17:12+00:00
+8452000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:59:05+00:00
+8452000,BOARD,yes,https://www.jbe.go.kr/finance/board/list.jbe?menuCd=DOM_000002304000000000&boardId=BBS_0000359&categoryCode1=A06&searchType=TAG_NAME&keyword=%EA%B3%A0%EC%B0%BD%EA%B5%90%EC%9C%A1%EC%A7%80%EC%9B%90%EC%B2%AD,2025-10-31,2026-07-31,,,,2,found,메뉴 '기관장업무추진비 새 창 열림' · 1쪽 날짜 10건,2026-10-26T18:59:05+00:00
+8452000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:59:05+00:00
+8462000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:59:09+00:00
+8462000,BOARD,yes,https://www.jbe.go.kr/finance/board/list.jbe?menuCd=DOM_000002304000000000&boardId=BBS_0000359&categoryCode1=A06&searchType=TAG_NAME&keyword=%EB%B6%80%EC%95%88%EA%B5%90%EC%9C%A1%EC%A7%80%EC%9B%90%EC%B2%AD,2025-12-31,2026-09-30,,,,2,found,메뉴 '업무추진비 새 창 열림' · 1쪽 날짜 10건,2026-10-26T18:59:09+00:00
+8462000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:59:09+00:00
+8750000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:46:51+00:00
+8750000,BOARD,yes,https://www.gbe.kr/kedufine/ir/selectJobPrtnCtList.do?instClCd=2&inpSrchwrdNm=%EA%B2%BD%EC%83%81%EB%B6%81%EB%8F%84%EA%B5%90%EC%9C%A1%EC%B2%AD&instClssDiv=2&mi=17708,2026-01-16,2026-09-08,,,,2,found,메뉴 '업무추진비공개 새창 열기' · 1쪽 날짜 16건,2026-10-26T18:46:51+00:00
+8750000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:46:51+00:00
+8761000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:59:16+00:00
+8761000,BOARD,yes,https://www.gbe.kr/kedufine/ir/selectJobPrtnCtList.do?mi=17708&orgCode=R100000619,2026-01-16,2026-08-26,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 16건,2026-10-26T18:59:16+00:00
+8761000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:59:16+00:00
+8771000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:59:22+00:00
+8771000,BOARD,yes,https://www.gbe.kr/kedufine/ir/selectJobPrtnCtList.do?mi=17708&orgCode=R100000168,2026-01-16,2026-08-29,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 16건,2026-10-26T18:59:22+00:00
+8771000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:59:22+00:00
+8781000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:59:28+00:00
+8781000,BOARD,yes,https://www.gbe.kr/kedufine/ir/selectJobPrtnCtList.do?mi=17708&orgCode=R100000255,2026-01-16,2026-08-24,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 11건,2026-10-26T18:59:28+00:00
+8781000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:59:28+00:00
+8791000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:59:34+00:00
+8791000,BOARD,yes,https://www.gbe.kr/ad/cm/cntnts/cntntsView.do?mi=20235&cntntsId=9158,2026-09-01,2026-09-01,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 4건,2026-10-26T18:59:34+00:00
+8791000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:59:34+00:00
+8801000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:59:41+00:00
+8801000,BOARD,unknown,https://www.gbe.kr/gm/cm/cntnts/cntntsView.do?mi=19295&cntntsId=8155,,,,,,2,needs_review,메뉴 '업무추진비' · 1쪽 날짜 0건 — 기간 내 날짜 없음(JS 렌더링·별도 탭 가능),2026-10-26T18:59:41+00:00
+8801000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:59:41+00:00
+8811000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:59:46+00:00
+8811000,BOARD,yes,https://www.gbe.kr/yj/cm/cntnts/cntntsView.do?mi=19161&cntntsId=8122,2026-07-24,2026-07-24,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 1건,2026-10-26T18:59:46+00:00
+8811000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:59:46+00:00
+8821000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-27T05:17:31+00:00
+8821000,BOARD,yes,https://www.gbe.kr/kedufine/ir/selectJobPrtnCtList.do?mi=17708&orgCode=R100000460,2026-01-16,2026-09-14,,,,2,found,메뉴 '업무추진비 업무추진비(새창열림)' · 1쪽 날짜 17건,2026-10-27T05:17:31+00:00
+8821000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-27T05:17:31+00:00
+8831000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:00:04+00:00
+8831000,BOARD,yes,https://www.gbe.kr/kedufine/ir/selectJobPrtnCtList.do?instClCd=3&inpSrchwrdNm=%EC%83%81%EC%A3%BC%EA%B5%90%EC%9C%A1%EC%A7%80%EC%9B%90%EC%B2%AD&instClssDiv=2&mi=17708,2026-01-16,2026-09-09,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 16건,2026-10-26T19:00:04+00:00
+8831000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:00:04+00:00
+8841000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:00:10+00:00
+8841000,BOARD,yes,https://www.gbe.kr/mg/cm/cntnts/cntntsView.do?mi=17893&cntntsId=7684,2026-09-15,2026-09-15,,pdf,,2,found,메뉴 '업무추진비' · 1쪽 날짜 1건,2026-10-26T19:00:10+00:00
+8841000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:00:10+00:00
+8851000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:00:16+00:00
+8851000,BOARD,yes,https://www.gbe.kr/kedufine/ir/selectJobPrtnCtList.do?mi=17708&orgCode=R100000147,2026-01-16,2026-09-14,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 18건,2026-10-26T19:00:16+00:00
+8851000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:00:16+00:00
+8862000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:00:29+00:00
+8862000,BOARD,yes,https://www.dge.go.kr/dggwe/na/ntt/selectNttList.do?mi=9408&bbsId=3609,2026-09-28,2026-10-26,,,,2,found,메뉴 '업무추진비집행내역 업무추진비집행내역' · 1쪽 날짜 20건,2026-10-26T19:00:29+00:00
+8862000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:00:29+00:00
+8871000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:00:32+00:00
+8871000,BOARD,unknown,https://www.gbe.kr/us/cm/cntnts/cntntsView.do?mi=19260&cntntsId=8149,,,,,,2,needs_review,메뉴 '업무추진비' · 1쪽 날짜 0건 — 기간 내 날짜 없음(JS 렌더링·별도 탭 가능),2026-10-26T19:00:32+00:00
+8871000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:00:32+00:00
+8881000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:00:38+00:00
+8881000,BOARD,yes,https://www.gbe.kr/kedufine/ir/selectJobPrtnCtList.do?mi=17708&orgCode=R100000580,2026-01-16,2026-09-12,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 16건,2026-10-26T19:00:38+00:00
+8881000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:00:38+00:00
+8891000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:00:47+00:00
+8891000,BOARD,yes,https://www.gbe.kr/yy/na/ntt/selectNttList.do?mi=10658&bbsId=3132,2026-06-30,2026-06-30,,,,2,found,메뉴 '업무추진비사용내역(이전)' · 1쪽 날짜 1건,2026-10-26T19:00:47+00:00
+8891000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:00:47+00:00
+8901000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:00:53+00:00
+8901000,BOARD,yes,https://www.gbe.kr/kedufine/ir/selectJobPrtnCtList.do?mi=17708&orgCode=R100000395,2026-01-16,2026-09-11,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 11건,2026-10-26T19:00:53+00:00
+8901000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:00:53+00:00
+8911000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:00:59+00:00
+8911000,BOARD,yes,https://www.gbe.kr/cd/cm/cntnts/cntntsView.do?mi=19496&cntntsId=8191,2026-10-22,2026-10-22,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 1건,2026-10-26T19:00:59+00:00
+8911000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:00:59+00:00
+8921000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:01:05+00:00
+8921000,BOARD,yes,https://www.gbe.kr/kedufine/ir/selectJobPrtnCtList.do?mi=17708&orgCode=R100000194,2026-01-16,2026-09-04,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 16건,2026-10-26T19:01:05+00:00
+8921000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:01:05+00:00
+8931000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:01:12+00:00
+8931000,BOARD,unknown,https://www.gbe.kr/sj/cm/cntnts/cntntsView.do?mi=20708&cntntsId=8525,,,,,,2,needs_review,메뉴 '업무추진비' · 1쪽 날짜 0건 — 기간 내 날짜 없음(JS 렌더링·별도 탭 가능),2026-10-26T19:01:12+00:00
+8931000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:01:12+00:00
+8941000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:01:24+00:00
+8941000,BOARD,yes,https://www.gbe.kr/kedufine/ir/selectJobPrtnCtList.do?mi=17708&orgCode=R100000599,2026-01-16,2026-09-02,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 16건,2026-10-26T19:01:24+00:00
+8941000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:01:24+00:00
+8951000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:01:29+00:00
+8951000,BOARD,yes,https://www.gbe.kr/ycg/cm/cntnts/cntntsView.do?mi=19313&cntntsId=8162,2026-07-01,2026-07-01,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 1건,2026-10-26T19:01:29+00:00
+8951000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:01:29+00:00
+8961000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:01:35+00:00
+8961000,BOARD,yes,https://www.gbe.kr/kedufine/ir/selectJobPrtnCtList.do?mi=17708&orgCode=R100000306,2026-01-16,2026-08-25,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 10건,2026-10-26T19:01:35+00:00
+8961000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:01:35+00:00
+8971000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:01:42+00:00
+8971000,BOARD,unknown,https://www.gbe.kr/uj/cm/cntnts/cntntsView.do?mi=19184&cntntsId=8131,,,,,,2,needs_review,메뉴 '업무추진비' · 1쪽 날짜 0건 — 기간 내 날짜 없음(JS 렌더링·별도 탭 가능),2026-10-26T19:01:42+00:00
+8971000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:01:42+00:00
+8981000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T19:01:47+00:00
+8981000,BOARD,yes,https://www.gbe.kr/kedufine/ir/selectJobPrtnCtList.do?mi=17708&orgCode=R100000503,2026-01-16,2026-09-09,,,,2,found,메뉴 '업무추진비' · 1쪽 날짜 12건,2026-10-26T19:01:47+00:00
+8981000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T19:01:47+00:00
+9290000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:46:51+00:00
+9290000,BOARD,unknown,https://www.jje.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots 규칙 — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:46:51+00:00
+9290000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:46:51+00:00
+9300000,DATAGOKR,no,,,,,,,1,not_found,,2026-10-26T18:47:11+00:00
+9300000,BOARD,unknown,http://www.sje.go.kr,,,,,,2,needs_review,홈페이지 접근 불가: robots.txt 응답 없음(ConnectError) — 자동 조사 안 함 (등급 C 후보),2026-10-26T18:47:11+00:00
+9300000,OPENGOKR,unknown,https://www.open.go.kr/,,,,,,3,needs_review,open.go.kr robots 비허용(루트만 허용) — 자동 조회 안 함,2026-10-26T18:47:11+00:00
