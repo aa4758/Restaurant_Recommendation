@@ -1,4 +1,4 @@
-"""찐맛 export → 상호 정리 → 음식점 × 기관 방문 횟수 표(검토용). export 원본은 읽기만 한다.
+"""상호 정리(clean_rows — export-jjinmat 이 적용, 2026-10-29) + 음식점 × 기관 방문 횟수 표(검토용, export 를 읽기만 함).
 
 - 선물·격려품 구매, 음식점 아닌 곳(전시관·회의실·주무관 이름 칸)은 버림.
 - '가나식당 등 2개소' → 첫 가게, 'A, B' → 음식점 규칙에 걸리는 가게만(없으면 첫 가게), 주소·층·호수·잘린 괄호 제거.
@@ -40,14 +40,20 @@ def gov_score(visits: int) -> float:
     return min(math.log1p(visits) / math.log1p(GOV_CAP), 1.0)
 
 
-def pivot(d: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """export 행 → (정리된 행, 음식점 × 기관 방문 횟수 표)."""
-    d = d[~d["purpose"].str.contains(GIFT) & ~d["restaurant_name"].str.contains(NOT_PLACE)].copy()
+def clean_rows(d: pd.DataFrame) -> pd.DataFrame:
+    """export 행 정리: 선물·비음식점 행 제외, 상호 정리·묶음 분리(행 복제), 띄어쓰기 변형은 가장 흔한 표기로. 멱등."""
+    d = d[~d["purpose"].fillna("").str.contains(GIFT) & ~d["restaurant_name"].str.contains(NOT_PLACE)].copy()
     d["restaurant_name"] = d["restaurant_name"].map(clean)
     d = d.explode("restaurant_name").dropna(subset=["restaurant_name"])
     key = d["restaurant_name"].str.replace(" ", "")
     shown = d.groupby(key)["restaurant_name"].agg(lambda s: s.value_counts().index[0])
     d["restaurant_name"] = key.map(shown)
+    return d.reset_index(drop=True)
+
+
+def pivot(d: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """export 행 → (정리된 행, 음식점 × 기관 방문 횟수 표)."""
+    d = clean_rows(d)
     p = pd.crosstab(d["restaurant_name"], d["agency"])
     total = p.sum(axis=1)
     p.insert(0, "gov_score", total.map(gov_score).round(4))
@@ -59,7 +65,6 @@ def run(cfg: dict) -> int:
     src = Path(cfg["jjinmat_export"]["path"])
     d = pd.read_csv(src, dtype=str, encoding="utf-8-sig", keep_default_na=False)
     rows, p = pivot(d)
-    rows.to_csv(src.with_name("gov_expense_for_jjinmat_clean.csv"), index=False, encoding="utf-8-sig")
     p.to_csv(src.with_name("gov_expense_by_restaurant.csv"), encoding="utf-8-sig")
     print(f"음식점 {len(p):,}곳 · 기관 {p.shape[1] - 2} · 방문 {len(rows):,}건(export {len(d):,}행)", flush=True)
     return len(p)

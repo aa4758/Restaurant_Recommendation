@@ -6,6 +6,7 @@ import pandas as pd
 
 from src import db
 from src.phase5_merge import normalize as nz
+from src.phase5_merge.by_restaurant import clean_rows
 
 COLUMNS = ["record_id", "institution_id", "institution_name", "institution_type", "department", "executor_position",
            "exec_date", "exec_time", "vendor_raw", "vendor_normalized", "vendor_address", "vendor_category", "amount",
@@ -153,7 +154,7 @@ def to_jjinmat(df: pd.DataFrame, categories: list[str], min_conf: float) -> pd.D
         "purpose": df["purpose"].fillna("").map(nz.mask_pii),
         "source": df["institution_name"] + " 업무추진비 공개(" + df["source"] + ", " + df["license"] + ")",
         "base_year": df["exec_date"].str[:4],
-    }, columns=JJINMAT)
+    }, columns=JJINMAT).pipe(clean_rows)  # 선물·비음식점 제외, 묶음·주소 섞인 상호 정리(2026-10-29)
 
 
 def export_jjinmat(cfg: dict) -> int:
