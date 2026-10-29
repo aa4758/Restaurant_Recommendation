@@ -160,6 +160,7 @@ RestaurantDetailScreen
 ├─ ReasonList (ReasonLine x3)
 ├─ MoodTagList
 ├─ UpdatedAtNotice                  ("정보 업데이트: {updated_at}")
+├─ MapLinkButtons                   (2026-10-30: "네이버지도" · "카카오맵" 나란히, 아래 '지도 링크')
 ├─ ReportInfoButton                 ("정보 틀림 신고하기")
 ├─ ReviewSheetEntryButton           ("리뷰 {n}건 보기" → 2-4 ReviewSheet 재사용)
 ├─ WriteReviewButton                ("리뷰 쓰기" → 리뷰작성 화면 이동)
@@ -177,6 +178,9 @@ RestaurantDetailScreen
 - `ScoreWeightRow` 예시: "사전 점수 {prior_star}점 × {k}건 + 방문자 리뷰 {user_mean}점 × {n}건"
 - `GovBonusRow`: "공공기관 업무추진비 기록 반영: +{gov_bonus}"
 - `AdPenaltyRow`: "광고성 리뷰 감점: -{ad_penalty}"
+- `MapLinkButtons`(지도 링크, 2026-10-30): 버튼 "네이버지도에서 보기" · "카카오맵에서 보기". 접근성 라벨 "{이름} 네이버지도에서 열기"/"{이름} 카카오맵에서 열기".
+  동작: 해당 지도 앱이 있으면 앱(`nmap://search?query={이름 주소}&appname={패키지명}` / `kakaomap://search?q={이름 주소}`), 없거나 실패하면 웹(`https://map.naver.com/p/search/{이름 주소}` / `https://map.kakao.com/?q={이름 주소}`).
+  검색어 = 가게명 + 도로명주소(없으면 지번, 둘 다 없으면 가게명). 주소 뒤 괄호(동·건물·층·호)는 검색을 흐려서 뺌. 사용자 위치·좌표는 넘기지 않음. 추천 카드에서는 카드 본문 아래 `MapLinkButtons`(작은 텍스트 버튼, 카드 탭 영역 밖 — 버튼 안 버튼 금지)로 같은 동작.
 
 ---
 

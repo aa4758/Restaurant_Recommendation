@@ -17,6 +17,8 @@ interface ButtonProps {
   disabled?: boolean;
   loading?: boolean;
   style?: ViewStyle;
+  /** 스크린리더 이름(없으면 label) */
+  accessibilityLabel?: string;
 }
 
 /**
@@ -30,6 +32,7 @@ export function Button({
   disabled = false,
   loading = false,
   style,
+  accessibilityLabel,
 }: ButtonProps) {
   const theme = useTheme();
   const isDisabled = disabled || loading;
@@ -46,6 +49,7 @@ export function Button({
   return (
     <TouchableOpacity
       accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
       accessibilityState={{ disabled: isDisabled }}
       onPress={onPress}
       disabled={isDisabled}

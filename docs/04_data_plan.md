@@ -16,7 +16,7 @@
 | 장르 | `genre`(앱 필터용 10종+기타: 치킨·주점 포함), `genre_detail`(원본 소분류) | 원본 보존 → 매핑 규칙 바꿔도 재계산 가능 |
 | 위치 | `lat`, `lng`, `address`(도로명), `address_jibun`, `floor` | WGS84 |
 | 음주 가능 | `alcohol` (1/0/NULL=미확인) | 아래 1-3 "인허가 종류"로 법적 판별 가능 |
-| 지도 앱 링크 | **저장 안 함, 응답 시 생성** | 카카오: `place.map.kakao.com/{kakao_place_id}`, 없으면 검색 링크 `map.kakao.com/?q=`, 네이버: `map.naver.com/p/search/{이름 주소}` |
+| 지도 앱 링크 | **저장 안 함, 앱에서 생성** | 카카오: `place.map.kakao.com/{kakao_place_id}`, 없으면 검색 링크 `map.kakao.com/?q={이름 주소}`, 네이버: `map.naver.com/p/search/{이름 주소}`. 2026-10-30: 상세·추천 카드에 **'네이버지도' · '카카오맵' 버튼 2개**(앱 설치 시 앱 스킴 `nmap://search?query=…&appname=…` / `kakaomap://search?q=…`, 실패 시 웹 링크). 검색어 = 가게명 + 도로명주소(좌표만 넘기면 가게 정보가 안 뜸). 링크 연결만 — 네이버·카카오 데이터 수집·저장 없음 |
 | 운영 시간 | `opening_hours(weekday, open/close, break, last_order)` | 요일별 1행, 자정 넘김은 `25:30` |
 | 운영 날짜(휴무) | `opening_hours`에 행 없는 요일 = 정기휴무, `holiday_note` = "매월 둘째 화요일" 등 | 임시휴무는 사용자 신고로 |
 

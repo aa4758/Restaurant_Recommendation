@@ -9,6 +9,7 @@ import { ReviewSheet } from '../src/components/ReviewSheet';
 import { GovBudgetBadge, Notice, PercentileBadge, ReasonList, StarRatingBadge } from '../src/components/ui';
 import * as store from '../src/state/deviceStore';
 import { useTheme } from '../src/theme';
+import { MapLinkButtons, mapLinks } from '../src/components/MapLinks';
 
 const RELAX_LABEL: Record<string, string> = { subtype: '세부 메뉴', distance: '거리', mood: '분위기', price: '가격', genre: '장르' };
 const EVIDENCE_LABEL: Record<Evidence, string> = { low: '리뷰 근거 적음', mid: '리뷰 근거 보통', high: '리뷰 근거 충분' };
@@ -77,12 +78,14 @@ function ReelCard({ item, height, onPress }: { item: RestaurantItem; height: num
   const t = useTheme();
   const band = t.getStarBand(item.star);
   const meta = [item.genre, item.price_band, item.distance_m != null ? `${item.distance_m}m` : null].filter(Boolean).join(' · ');
+  // 지도 버튼은 카드(버튼) 밖에 둔다 — 버튼 안 버튼은 접근성·웹에서 오류
   return (
+    <View style={{ height, paddingLeft: 20, paddingRight: RAIL_W + 8, paddingTop: 56, paddingBottom: 24 }}>
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={`${item.name}, 별점 ${item.star.toFixed(1)}, 이 지역 상위 ${item.percentile}퍼센트. 상세 보기`}
-      style={{ height, paddingLeft: 20, paddingRight: RAIL_W + 8, paddingTop: 56, paddingBottom: 24 }}
+      style={{ flexShrink: 1 }}
     >
       <ScrollView contentContainerStyle={{ gap: t.spacing.md }}>
         <OpenStatusTag />
@@ -101,6 +104,8 @@ function ReelCard({ item, height, onPress }: { item: RestaurantItem; height: num
         </View>
       </ScrollView>
     </Pressable>
+    <MapLinkButtons name={item.name} address={item.address} compact />
+    </View>
   );
 }
 
@@ -328,7 +333,7 @@ export default function RecommendationDeck() {
 
   const share = (item: RestaurantItem) => {
     const addr = item.address?.trim();
-    const link = `https://map.kakao.com/?q=${encodeURIComponent(addr ? `${item.name} ${addr}` : item.name)}`;
+    const link = mapLinks(item.name, addr).kakao.web;
     const lines = [`[찐맛] ${item.name}`, `★ ${item.star.toFixed(1)} · 이 지역 상위 ${item.percentile}%`];
     if (addr) lines.push(addr);
     if (item.reasons[0]) lines.push(item.reasons[0]);

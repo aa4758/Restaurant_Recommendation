@@ -6,6 +6,7 @@ import { api, RestaurantDetail, ScoreComponents } from '../../src/api/client';
 import { Button } from '../../src/components/Button';
 import { GovBudgetBadge, InlineErrorBanner, PercentileBadge, ReasonList, StarRatingBadge } from '../../src/components/ui';
 import { ReviewSheetEntryButton } from '../../src/components/ReviewSheet';
+import { MapLinkButtons } from '../../src/components/MapLinks';
 import { useTheme } from '../../src/theme';
 
 function Bar({ label, value, color }: { label: string; value: number; color: string }) {
@@ -123,6 +124,7 @@ export default function RestaurantDetailScreen() {
 
       <ReviewSheetEntryButton restaurantId={id} name={d.name} reviewCount={d.review_count} />
       <Button label="리뷰 쓰기" onPress={() => router.push({ pathname: '/review/[id]', params: { id, name: d.name } })} />
+      <MapLinkButtons name={d.name} address={d.address} />
       <Button label="정보 틀림 신고하기" variant="text" onPress={report} />
     </ScrollView>
   );
