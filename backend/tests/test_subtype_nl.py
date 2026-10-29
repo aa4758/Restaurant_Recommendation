@@ -100,3 +100,22 @@ def test_enrich_without_client_only_prunes(tmp_path, monkeypatch):
     appdb.init_schema(conn)
     monkeypatch.setattr(nlp_enrich, "_client", lambda: None)
     assert nlp_enrich.run(conn, date(2026, 10, 29))["batch_id"] is None
+
+
+def test_relax_keeps_subtype_before_missing_price_mood():
+    """가격대·분위기 데이터가 없어도 고른 세부 메뉴는 지킴(분위기→가격 먼저 완화)."""
+    cs = [_c(f"국밥{i}", "한식", "국밥/곰탕/설렁탕", 4.0) for i in range(3)] + [_c("냉면", "한식", "냉면/국수/칼국수", 5.0)]
+    for c in cs:
+        c.price_band = "가격 미확인"
+    q = Query(lat=37.5, lng=127.0, subtype=["국밥/곰탕/설렁탕"], price=["~1만"], mood=["혼밥"], limit=3)
+    items, relaxed = recommend(cs, q)
+    assert relaxed == ["mood", "price"] and all(s.cand.subtype == "국밥/곰탕/설렁탕" for s in items)
+
+
+def test_buffet_is_genre_chip_without_subtypes():
+    from app.constants import GENRES
+    from app.subtype import SUBTYPES
+    assert GENRES[-2:] == ["뷔페", "기타"] and "뷔페" not in SUBTYPES and "기타" not in SUBTYPES
+    assert decide("애슐리 퀸즈", None, [], None) == ("뷔페", "name")
+    assert decide("한식당", None, [], None, "기타", "뷔페식") == ("뷔페", "license")
+    assert parse("부페 가고 싶어", use_model=False)["filters"] == {"genre": ["뷔페"], "alcohol": "any"}

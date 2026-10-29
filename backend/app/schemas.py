@@ -37,7 +37,7 @@ class Item(BaseModel):
     updated_at: str
     address: Optional[str] = None  # 도로명 우선 (공유 문구·지도 링크용)
     evidence: Optional[Literal["low", "mid", "high"]] = None  # scores.evidence (재계산 전 null)
-    relaxed: list[Literal["subtype", "distance", "mood", "price", "genre"]] = []  # 이 가게가 원래 조건 중 충족 못한 항목
+    relaxed: list[Literal["mood", "price", "subtype", "distance", "genre"]] = []  # 이 가게가 원래 조건 중 충족 못한 항목
     subtype: Optional[str] = None  # 세부 분류(미분류 null)
 
 

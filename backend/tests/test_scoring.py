@@ -162,7 +162,7 @@ def test_relax_order_and_alcohol_never_relaxed():
              _cand(4, alcohol=True)]
     q = Query(lat=37.5663, lng=126.9779, radius_m=1000, genre=["한식"], mood=["조용한"], alcohol="no")
     items, relaxed = recommend(cands, q, day=date(2026, 1, 1))
-    assert relaxed == ["distance", "mood", "genre"]  # 지정된 조건만, 정해진 순서로
+    assert relaxed == ["mood", "distance", "genre"]  # 지정된 조건만, 정해진 순서로
     assert all(not s.cand.alcohol for s in items)  # 음주 조건은 유지
 
 

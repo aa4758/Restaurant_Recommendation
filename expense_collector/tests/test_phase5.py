@@ -3,7 +3,7 @@ import re
 
 import pandas as pd
 
-from src.phase5_merge import merge
+from src.phase5_merge import by_restaurant, merge
 from src.phase5_merge import normalize as nz
 
 
@@ -128,3 +128,16 @@ def test_by_restaurant_clean_and_score():
     assert p.loc["가나식당", "A"] == 2 and p.loc["가나식당", "B"] == 1
     assert p.loc["가나식당", "gov_score"] > p.loc["다라국밥", "gov_score"] and br.gov_score(500) == 1.0
     assert p.loc["다라국밥", "gov_score"] == 0 and br.gov_score(2) > 0
+
+
+def test_jjinmat_export_cleans_vendors():
+    common = dict(institution_name="가상시", exec_date="2025-10-05", amount=60000, source="BOARD", license="공공누리 1유형",
+                  vendor_category="restaurant", parse_confidence=0.9)
+    df = _df([{**common, "vendor_normalized": "가나식당, 다라카페", "purpose": "오찬"},
+              {**common, "vendor_normalized": "마바국밥 등 2개소", "purpose": "만찬"},
+              {**common, "vendor_normalized": "사아공예품전시관", "purpose": "간담회"},
+              {**common, "vendor_normalized": "자차식당", "purpose": "명절 격려품 구입"},
+              {**common, "vendor_normalized": "시흥대로73길 67, 1층 118.119호 카타곰탕", "purpose": "오찬"}])
+    ex = merge.to_jjinmat(df, ["restaurant"], 0.7)
+    assert ex["restaurant_name"].tolist() == ["가나식당", "마바국밥", "카타곰탕"]
+    assert by_restaurant.clean_rows(ex).equals(ex)  # 멱등

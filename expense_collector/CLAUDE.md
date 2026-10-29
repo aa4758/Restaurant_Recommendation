@@ -427,5 +427,6 @@ python -m src.cli export-jjinmat   # 찐맛 연동 CSV (13절)
 | `base_year` | `exec_date` 의 연도 | |
 
 - `vendor_category in config.jjinmat_export.categories` 인 레코드만, `parse_confidence >= 0.7` 만.
+- 상호 정리(2026-10-29): 선물·비음식점 행 제외, 묶음·주소 섞인 상호 정리(`phase5_merge/by_restaurant.clean_rows`).
 - **개인 이름·직위·인원 명단 컬럼 없음.** 찐맛 `GovExpenseCSVAdapter` 의 화이트리스트(`restaurant_name, exec_date, agency, amount, purpose, source, base_year`)와 호환. `address` 는 현재 어댑터가 무시하므로, 이름+주소 매칭 로더는 찐맛 백엔드 쪽 별도 작업으로 제안만 한다.
 - export 테스트: 출력 헤더가 위 표와 정확히 같고 PII 패턴(이름 마스킹 전 문자열, 전화번호, 카드번호)이 없음을 검사.
