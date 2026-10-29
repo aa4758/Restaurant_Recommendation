@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS menus (
     name TEXT NOT NULL,
     price INTEGER,                     -- 원
     is_signature INTEGER NOT NULL DEFAULT 0,
-    source TEXT,                       -- tourapi | good_price | receipt | owner
+    source TEXT,                       -- tourapi | good_price | receipt | owner | <지정 kind>(주된음식)
     updated_at TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_menus_restaurant ON menus(restaurant_id);
