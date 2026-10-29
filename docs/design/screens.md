@@ -73,7 +73,7 @@ ReelCard  (배경 colors.background, 상하 safe area 준수)
 ```
 - `EvidenceBadge`(evidence): low "리뷰 근거 적음" / mid "리뷰 근거 보통" / high "리뷰 근거 충분". 목록 응답에 evidence 없으면 `review_count` 로 대체("리뷰 {n}건"). 색만으로 구분 금지, 텍스트 필수.
 - `GovBudgetBadge`(gov_visits>0): "공공기관 업무추진비 기록 {N}회 ({출처}, {기준연도} 기준)". "공직자 맛집" 표현 금지.
-- `RelaxedBadge`(해당 항목이 relaxed에 속할 때): "{가격/장르/분위기/거리} 조건 완화됨". 음주 조건은 완화 대상 아님.
+- `RelaxedBadge`(해당 항목이 relaxed에 속할 때): "{분위기/가격/세부 메뉴/거리/장르} 조건 완화됨". 음주 조건은 완화 대상 아님.
 - 광고 감점 안내는 카드에서 제외(상세 화면 `AdPenaltyRow` 에서만).
 - 큰 글자 설정 시 `ReasonList` 는 스크롤 가능한 영역으로 전환, 카드 하단 잘림 금지.
 
@@ -134,7 +134,7 @@ ReviewSheet
 - 에러: `FullScreenErrorView` "추천을 불러오는 중 문제가 생겼어요." + `RetryButton` "다시 시도". 반응 전송 실패는 토스트로만 처리.
 - 위치 거부: 거리 없이 추천. `LocationDisabledNotice` "위치 정보 없이 추천 중이에요." + `MetaLine` 에서 거리 생략. 설정 이동 링크 "설정에서 허용하기".
 - 싫어요 후: 카드 즉시 사라짐 → 서버 재선정으로 덱 유지(`exclude_ids` 갱신, 새 카드는 덱 끝에 추가, 최대 5장) → `UndoToast` "30일간 숨겼어요 · 되돌리기" (5초). 되돌리기 = `POST /reactions` none + 카드를 원래 위치로 복원. 토스트는 ActionRail 아래에 위치, 스크린리더 live region.
-- 조건 완화: `RelaxedConditionBanner` "조건에 맞는 곳이 적어 {거리/분위기/가격/장르} 조건을 완화했어요."
+- 조건 완화: `RelaxedConditionBanner` "조건에 맞는 곳이 적어 {분위기/가격/세부 메뉴/거리/장르} 조건을 완화했어요."
 
 ### 2-9. 토큰 / 접근성
 - 신규 토큰 불필요(기존 `colors`, `typography`, `starScale`, `radius`, `elevation`, `spacing` 사용). 시트 배경 dim = `colors.overlay`.
@@ -228,7 +228,7 @@ ScoringExplainerScreen
 │  └─ AdPenaltyExplainCard           (하한/신뢰도 설명)
 ├─ BayesianShrinkExplainCard         (k=20 가상 리뷰, n건 누적 시 전환 예시)
 ├─ PercentileExplainCard             ("이 지역 상위 N%" 산정 방식)
-├─ RelaxOrderExplainCard             (완화 순서: 세부 메뉴→거리→분위기→가격→장르, 음주 제외)
+├─ RelaxOrderExplainCard             (완화 순서: 분위기→가격→세부 메뉴→거리→장르, 음주 제외)
 └─ ExternalDataDisclosureCard        (공공데이터/공식 API만 사용, 크롤링 금지 고지)
 ```
 
@@ -243,5 +243,5 @@ ScoringExplainerScreen
 - `GovWeightExplainCard`: "공공기관 업무추진비 공개 내역에 자주 등장하면 신뢰 신호로 일부 반영해요. 방문 횟수가 많아질수록 반영폭은 점점 줄어들어요(상한 있음)."
 - `AdPenaltyExplainCard`: "협찬·체험단 리뷰 비율이 높으면 감점하되, 판별 신뢰도가 낮으면 감점을 줄여요."
 - `BayesianShrinkExplainCard`: "리뷰가 없을 땐 사전 점수로 시작하고, 방문자 리뷰가 20개 쌓이면 사전 점수와 실제 리뷰를 절반씩 반영해요."
-- `RelaxOrderExplainCard`: "조건에 맞는 곳이 부족하면 세부 메뉴 → 거리 → 분위기 → 가격 → 장르 순으로 완화해요. 세부 메뉴는 같은 장르 전체로 넓혀요. 음주 조건은 바꾸지 않아요."
+- `RelaxOrderExplainCard`: "조건에 맞는 곳이 부족하면 분위기 → 가격 → 세부 메뉴 → 거리 → 장르 순으로 완화해요. 세부 메뉴는 같은 장르 전체로 넓혀요. 음주 조건은 바꾸지 않아요."
 - `ExternalDataDisclosureCard`: "네이버 등 크롤링 데이터는 사용하지 않아요. 공식 API와 공공데이터만 사용합니다."

@@ -1,4 +1,4 @@
-"""추천: 필터 → 완화(세부 분류→거리→분위기→가격→장르, 음주는 불완화) → rank_score → 동점대 로테이션 → reasons.
+"""추천: 필터 → 완화(분위기→가격→세부 분류→거리→장르, 음주는 불완화) → rank_score → 동점대 로테이션 → reasons.
 
 rank_score = final_star + 조건적합도 보너스 - 거리 패널티
 - 조건적합도 보너스: 사용자가 지정한 조건(가격/장르/분위기) 중 충족한 항목당 FIT_BONUS.
@@ -23,7 +23,8 @@ from app.subtype import PARENT
 FIT_BONUS = 0.1
 DIST_PENALTY = 0.3
 TIE_BAND = 0.1
-RELAX_ORDER = ("subtype", "distance", "mood", "price", "genre")  # 음주(alcohol)는 완화하지 않음
+RELAX_ORDER = ("mood", "price", "subtype", "distance", "genre")  # 음주(alcohol)는 완화하지 않음.
+# 가격대·분위기 데이터가 아직 거의 없어 먼저 완화(고른 메뉴를 지키는 쪽 우선, docs/01 2026-10-29)
 DISTANCE_RELAX_FACTOR = 2
 MAX_LIMIT = 5
 WALK_M_PER_MIN = 80
