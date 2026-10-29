@@ -42,6 +42,8 @@ CREATE TABLE IF NOT EXISTS restaurants (
     holiday_note TEXT,                 -- 정기휴무 자유기술 (예: 매월 둘째 화요일)
     sbiz_id TEXT UNIQUE,               -- 소상공인 상가업소번호
     sbiz_category TEXT,                -- 상가정보 업종 소분류 (ingest/link_sbiz.py, 예: 냉면/밀면)
+    subtype TEXT,                      -- 세부 분류 (app/subtype.py, docs/01 '세부 분류 필터')
+    subtype_src TEXT,                  -- name | sbiz | menu | model_menu
     license_id TEXT UNIQUE,            -- 인허가 관리번호
     kakao_place_id TEXT UNIQUE,        -- 지도 링크 place.map.kakao.com/{id}
     tour_content_id TEXT UNIQUE,       -- 한국관광공사 TourAPI
@@ -153,6 +155,29 @@ CREATE TABLE IF NOT EXISTS reports (
     message TEXT,
     created_at TEXT NOT NULL
 );
+-- 자연어 조건 입력(app/nlparse.py): 미인식 낱말 집계(원문·기기·위치 없음, 90일 지나면 삭제)
+CREATE TABLE IF NOT EXISTS unknown_terms (
+    term TEXT PRIMARY KEY,
+    count INTEGER NOT NULL DEFAULT 0,
+    first_seen TEXT NOT NULL,
+    last_seen TEXT NOT NULL
+);
+-- 동의어 사전 보강(app/nlp_enrich.py): LLM 제안 → 사람 승인(approved)만 해석에 사용
+CREATE TABLE IF NOT EXISTS synonyms (
+    term TEXT NOT NULL,
+    field TEXT NOT NULL,               -- genre | subtype | mood | price | alcohol | none
+    value TEXT NOT NULL,
+    status TEXT NOT NULL,              -- proposed | approved | rejected
+    batch_id TEXT,
+    updated_at TEXT NOT NULL,
+    PRIMARY KEY (term, field, value)
+);
+CREATE TABLE IF NOT EXISTS enrich_batches (
+    batch_id TEXT PRIMARY KEY,
+    created_at TEXT NOT NULL,
+    terms INTEGER NOT NULL,
+    collected_at TEXT
+);
 """
 
 
@@ -173,7 +198,7 @@ def connect(path: Path | str | None = None) -> sqlite3.Connection:
 MIGRATIONS = {
     "scores": (("components", "TEXT"), ("evidence", "TEXT")),
     "user_reviews": (("ad_disclosed", "INTEGER"),),
-    "restaurants": (("alcohol_src", "TEXT"), ("sbiz_category", "TEXT")),
+    "restaurants": (("alcohol_src", "TEXT"), ("sbiz_category", "TEXT"), ("subtype", "TEXT"), ("subtype_src", "TEXT")),
 }
 
 # 컬럼 마이그레이션 후에 만들어야 하는 인덱스(구 DB 에는 SCHEMA 실행 시점에 컬럼이 없음)

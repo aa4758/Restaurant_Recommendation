@@ -13,9 +13,13 @@
 HomeScreen
 ├─ LocationPermissionBanner        (권한 거부 시에만 표시)
 ├─ HomeHeader                      (앱 로고 + 현재 위치 텍스트)
-├─ FilterChipGroup (x5)
-│  ├─ title: "가격대" | "음식 장르" | "분위기" | "음주" | "거리"
-│  └─ FilterChip (다중/단일 선택, 옵션별)
+├─ ConditionTextInput              (2026-10-29: 문장 입력 → POST /filters/parse → 아래 칩에 반영, 칩으로 수정 가능)
+│  ├─ ParseButton ("문장으로 조건 고르기")
+│  └─ UnknownTermsCaption          ("인식 못함: {낱말} (적용하지 않았어요)", 있을 때만)
+├─ FilterChipGroup (x5 + 세부 메뉴)
+│  ├─ title: "가격대" | "음식 장르" | "세부 메뉴 · {장르}" | "분위기" | "음주" | "거리"
+│  │   세부 메뉴 그룹은 고른 장르와 고른 세부 메뉴의 상위 장르에 대해서만 표시(`/meta/filters` 의 subtype)
+│  └─ FilterChip (다중/단일 선택, 옵션별). 문장에서 나온 반경이 기본 옵션에 없으면 "{n}m" 칩 추가
 ├─ SelectedFilterSummary           (선택 조건 요약 텍스트, 선택 없으면 미표시)
 └─ RecommendCTAButton              ("3곳 추천받기")
 ```
@@ -31,6 +35,8 @@ HomeScreen
 - CTA: "3곳 추천받기"
 - 위치 배너: "위치 권한이 꺼져 있어요. 허용하면 더 정확한 추천을 드릴 수 있어요." + `SettingsLinkButton`("설정에서 허용하기")
 - 음주 필터 안내(툴팁): "음주 조건은 결과가 적어도 완화되지 않아요."
+- 문장 입력 placeholder: "예) 근처 만원 이하 국밥, 혼밥하기 좋고 술은 안 마셔요" · 해석 실패: "문장을 해석하지 못했어요. 칩으로 골라 주세요."
+- 세부 메뉴 안내: "세부 메뉴를 고르면 그 장르는 고른 메뉴만 추천해요." · 완화 배지 라벨: subtype → "세부 메뉴"
 
 ---
 
@@ -222,7 +228,7 @@ ScoringExplainerScreen
 │  └─ AdPenaltyExplainCard           (하한/신뢰도 설명)
 ├─ BayesianShrinkExplainCard         (k=20 가상 리뷰, n건 누적 시 전환 예시)
 ├─ PercentileExplainCard             ("이 지역 상위 N%" 산정 방식)
-├─ RelaxOrderExplainCard             (완화 순서: 거리→분위기→가격→장르, 음주 제외)
+├─ RelaxOrderExplainCard             (완화 순서: 세부 메뉴→거리→분위기→가격→장르, 음주 제외)
 └─ ExternalDataDisclosureCard        (공공데이터/공식 API만 사용, 크롤링 금지 고지)
 ```
 
@@ -237,5 +243,5 @@ ScoringExplainerScreen
 - `GovWeightExplainCard`: "공공기관 업무추진비 공개 내역에 자주 등장하면 신뢰 신호로 일부 반영해요. 방문 횟수가 많아질수록 반영폭은 점점 줄어들어요(상한 있음)."
 - `AdPenaltyExplainCard`: "협찬·체험단 리뷰 비율이 높으면 감점하되, 판별 신뢰도가 낮으면 감점을 줄여요."
 - `BayesianShrinkExplainCard`: "리뷰가 없을 땐 사전 점수로 시작하고, 방문자 리뷰가 20개 쌓이면 사전 점수와 실제 리뷰를 절반씩 반영해요."
-- `RelaxOrderExplainCard`: "조건에 맞는 곳이 부족하면 거리 → 분위기 → 가격 → 장르 순으로 완화해요. 음주 조건은 바꾸지 않아요."
+- `RelaxOrderExplainCard`: "조건에 맞는 곳이 부족하면 세부 메뉴 → 거리 → 분위기 → 가격 → 장르 순으로 완화해요. 세부 메뉴는 같은 장르 전체로 넓혀요. 음주 조건은 바꾸지 않아요."
 - `ExternalDataDisclosureCard`: "네이버 등 크롤링 데이터는 사용하지 않아요. 공식 API와 공공데이터만 사용합니다."

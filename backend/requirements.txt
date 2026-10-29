@@ -2,3 +2,4 @@ fastapi>=0.110
 uvicorn>=0.29
 pydantic>=2.6
 pyproj>=3.6
+anthropic>=1.4
