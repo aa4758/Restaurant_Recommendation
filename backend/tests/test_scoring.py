@@ -13,7 +13,7 @@ def test_gov_bonus_monotonic_and_capped():
     assert all(a <= b for a, b in zip(vals, vals[1:]))
     assert prior.gov_bonus(0) == 0
     assert abs(prior.gov_bonus(prior.GOV_CAP) - prior.W_GOV) < 1e-9
-    assert prior.gov_bonus(1000) == prior.gov_bonus(prior.GOV_CAP)  # cap 30회
+    assert prior.gov_bonus(1000) == prior.gov_bonus(prior.GOV_CAP)  # cap 300회 (v2.2)
 
 
 def test_tenure_capped_at_20y_and_uses_now():
