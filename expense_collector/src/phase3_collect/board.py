@@ -126,9 +126,9 @@ def collect_board(client: HttpClient, conn, raw: Path, row: dict, start: date, e
                 results = [fetch_file(client, conn, raw, iid, f, p, lic, page_html) for f in files]
                 for r in results:
                     stat[r] += 1
-                bad = sum(r in ("failed", "blocked") for r in results)
+                failed = "failed" in results  # 일부만 실패해도 다시 받게(받은 첨부는 seen 으로 건너뜀). blocked 는 영구라 제외
                 conn.execute("INSERT OR REPLACE INTO posts VALUES (?,?,?,?,?,?,?,?)",
-                             (iid, key, p["title"], p["date"], len(files), "failed" if bad and bad == len(results) else "ok",
+                             (iid, key, p["title"], p["date"], len(files), "failed" if failed else "ok",
                               "첨부 없음" if not files else None, db.now()))
                 conn.commit()
                 stat["posts"] += 1

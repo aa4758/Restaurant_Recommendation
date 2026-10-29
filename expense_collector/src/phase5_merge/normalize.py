@@ -130,12 +130,24 @@ def _pos(tok: str) -> bool:
     return bool(re.fullmatch(r"[가-힣\dⅠⅡⅢ]*" + POS + r"[ⅠⅡⅢ\d]*", tok))
 
 
+def _name_list(m) -> str:
+    """괄호 속·'참석:' 뒤 쉼표 나열에 이름 꼴이 둘 이상이면 이름 꼴을 모두 가린다."""
+    person = lambda x: _name(x) and categorize(x, "") == "unknown"  # '(가나식당, 다라식당)' 같은 상호 나열은 그대로
+    if sum(person(x) for x in re.split(r"\s*[,·]\s*", m[2])) < 2:
+        return m[0]
+    return m[1] + re.sub(r"[가-힣]{2,4}", lambda x: MASK if person(x[0]) else x[0], m[2])
+
+
 def mask_pii(s: str) -> str:
     """전화·카드번호와 사람 이름(직위 바로 앞뒤 낱말, 'OOO 외 N명', 'OOO님')을 가린다."""
     if not s:
         return ""
-    s = re.sub(r"\d{4}[-\s]?[\d*]{4}[-\s]?[\d*]{4}[-\s]?\d{3,4}", MASK, s)  # 카드번호(일부 가림 포함)
-    s = re.sub(r"0\d{1,2}[-.\s)]\s?\d{3,4}[-.\s]\d{4}|01\d{8,9}", MASK, s)  # 전화
+    s = re.sub(r"[\w.+-]+@[\w-]+(\.[\w-]+)+", MASK, s)  # 이메일
+    s = re.sub(r"(?<!\d)\d{6}\s*-\s*[1-4]\d{6}(?!\d)", MASK, s)  # 주민등록번호
+    s = re.sub(r"\d{4}[-.\s]?[\d*]{4}[-.\s]?[\d*]{4}[-.\s]?\d{3,4}", MASK, s)  # 카드번호(일부 가림 포함)
+    sep = r"\s*[-.)]?\s*"
+    s = re.sub(rf"(?:\+82\s*-?\s*\(?0?|(?<!\d)\(?0)\d{{1,2}}{sep}\d{{3,4}}{sep}\d{{4}}(?!\d)", MASK, s)  # 전화(+82 포함)
+    s = re.sub(r"(\(|참석자?\s*[:：]\s*)([가-힣]{2,4}(?:\s*[,·]\s*[가-힣]{2,4})+)", _name_list, s)
     parts = SEP.split(s)
     words = [i for i, p in enumerate(parts) if p and not SEP.fullmatch(p)]
     for k, i in enumerate(words):

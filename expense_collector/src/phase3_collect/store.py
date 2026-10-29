@@ -27,9 +27,16 @@ def seen(conn: sqlite3.Connection, inst_id: str, source_url: str) -> bool:
                         (inst_id, source_url)).fetchone() is not None
 
 
+def _forget_failed(conn, inst_id: str, source_url: str) -> None:
+    """같은 URL 의 이전 failed/blocked 등 상태 행은 지운다 — 재실행해도 URL 당 상태 1행."""
+    conn.execute("DELETE FROM files WHERE institution_id=? AND source_url=? AND status NOT IN ('ok','duplicate')",
+                 (inst_id, source_url))
+
+
 def record(conn, inst_id: str, source: str, source_url: str, *, status: str, title=None, date=None,
            filename=None, ext=None, license=None, note=None) -> None:
     """내용 없이 상태만 남긴다(failed / blocked / link / needs_key)."""
+    _forget_failed(conn, inst_id, source_url)
     conn.execute("""INSERT INTO files (institution_id, source, source_url, post_title, post_date, filename, ext,
                     downloaded_at, status, license, note) VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
                  (inst_id, source, source_url, title, date, filename, ext, db.now(), status, license, note))
@@ -42,6 +49,7 @@ def save(conn, raw: Path, inst_id: str, source: str, source_url: str, content: b
     sha = hashlib.sha256(content).hexdigest()
     ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
     status, rel = "duplicate", None
+    _forget_failed(conn, inst_id, source_url)
     if not conn.execute("SELECT 1 FROM files WHERE sha256=?", (sha,)).fetchone():
         d = raw / inst_id / source
         d.mkdir(parents=True, exist_ok=True)

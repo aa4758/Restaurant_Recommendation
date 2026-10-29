@@ -3,11 +3,13 @@
 - 산출: data/parsed/{file_id}_{table_index}.parquet(원본 컬럼명, 모두 문자열) + parsed_tables 행.
 - 표가 없거나 읽기 실패면 table_index=0, parse_status=failed, error 기록. 스캔 PDF·이미지는 OCR 미설치로 failed('OCR 필요').
 - 이어하기: parsed_tables 에 있는 file_id 는 건너뛴다. 파일별 처리는 프로세스 풀(메모리 누수 대비 자식 프로세스 재시작).
+- 자식 프로세스가 죽으면(BrokenProcessPool) 깨진 첫 파일을 혼자 다시 돌려 또 죽으면 failed 로 남기고, 나머지는 새 풀로 계속.
 """
 import io
 import zipfile
 from collections import Counter
 from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures.process import BrokenProcessPool
 from pathlib import Path
 
 import olefile
@@ -90,16 +92,37 @@ def run(cfg: dict, workers: int = 4, limit: int | None = None) -> dict:
     print(f"파싱 대상 {len(todo)}개 · 작업자 {workers}", flush=True)
     stat = Counter()
     try:
-        with ProcessPoolExecutor(workers, max_tasks_per_child=200) as ex:
-            futs = [ex.submit(parse_file, r[0], r[1], r[2], cfg["paths"]["raw"], str(out)) for r in todo]
-            for n, f in enumerate(futs, 1):
-                fid, kind, rows = f.result()
-                conn.executemany("INSERT OR REPLACE INTO parsed_tables VALUES (?,?,?,?,?,?,?,?)",
-                                 [(fid, i, p, nr, st, cf, err, db.now()) for i, p, nr, st, cf, err in rows])
-                stat[(kind, "ok" if rows[0][3] != "failed" else "failed")] += 1
-                if n % 500 == 0:
-                    conn.commit()
-                    print(f"  {n}/{len(todo)} {dict(stat)}", flush=True)
+        n = 0
+
+        def done(fid, kind, rows):
+            nonlocal n
+            n += 1
+            conn.executemany("INSERT OR REPLACE INTO parsed_tables VALUES (?,?,?,?,?,?,?,?)",
+                             [(fid, i, p, nr, st, cf, err, db.now()) for i, p, nr, st, cf, err in rows])
+            stat[(kind, "ok" if rows[0][3] != "failed" else "failed")] += 1
+            if n % 500 == 0:
+                conn.commit()
+                print(f"  {n}/{len(todo)} {dict(stat)}", flush=True)
+
+        def submit(ex, r):
+            return ex.submit(parse_file, r[0], r[1], r[2], cfg["paths"]["raw"], str(out))
+
+        pending = list(todo)
+        while pending:
+            broken = []
+            with ProcessPoolExecutor(workers, max_tasks_per_child=200) as ex:
+                for r, f in [(r, submit(ex, r)) for r in pending]:
+                    try:
+                        done(*f.result())
+                    except BrokenProcessPool:
+                        broken.append(r)
+            if broken:  # 깨진 첫 파일만 혼자 → 또 죽으면 그 파일 탓
+                with ProcessPoolExecutor(1) as ex:
+                    try:
+                        done(*submit(ex, broken[0]).result())
+                    except BrokenProcessPool:
+                        done(broken[0][0], broken[0][2] or "", [(0, None, 0, "failed", 0.0, "자식 프로세스 비정상 종료")])
+            pending = broken[1:]
         conn.commit()
         db.finish_run(conn, run_id, "ok", str(dict(stat)))
     except BaseException as e:

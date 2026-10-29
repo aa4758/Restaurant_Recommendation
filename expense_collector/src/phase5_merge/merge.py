@@ -141,8 +141,9 @@ def run(cfg: dict) -> dict:
 
 def to_jjinmat(df: pd.DataFrame, categories: list[str], min_conf: float) -> pd.DataFrame:
     """13절: 음식점·신뢰도 기준 통과분만, 개인 이름·직위·인원 칸 없이."""
+    amount = pd.to_numeric(df["amount"], errors="coerce")
     df = df[df["vendor_category"].isin(categories) & (df["parse_confidence"] >= min_conf)
-            & (df["vendor_normalized"].fillna("") != "")]
+            & (df["vendor_normalized"].fillna("") != "") & (amount > 0)]  # 금액 없음·취소(음수)는 방문으로 안 셈
     return pd.DataFrame({
         "restaurant_name": df["vendor_normalized"],
         "address": df["vendor_address"].fillna(""),
@@ -161,8 +162,7 @@ def export_jjinmat(cfg: dict) -> int:
     df["parse_confidence"] = pd.to_numeric(df["parse_confidence"])
     df["amount"] = pd.to_numeric(df["amount"], errors="coerce")
     ex = to_jjinmat(df, cfg["jjinmat_export"]["categories"], cfg["parse"]["low_confidence"])
-    path = Path(cfg["jjinmat_export"]["path"])
-    path = path if path.is_absolute() else Path(cfg["paths"]["output"]).parent.parent / path
+    path = Path(cfg["jjinmat_export"]["path"])  # load_config 가 config 폴더 기준 절대경로로 바꿔 둠
     ex.to_csv(path, index=False, encoding="utf-8-sig")
     print(f"찐맛 export {len(ex):,}행 → {path}", flush=True)
     return len(ex)

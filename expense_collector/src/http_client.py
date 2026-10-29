@@ -3,18 +3,23 @@
 - robots.txt 준수: 우리 UA 와 ClaudeBot 둘 다 허용일 때만 요청(이 수집기는 Claude 가 운영하므로 ClaudeBot 차단도 존중).
   '*'·'$' 와일드카드·최장 일치 우선은 Robots 가 직접 처리(표준 라이브러리는 무시함).
   robots.txt 가 404 면 전체 허용, 401/403/5xx/네트워크 오류면 전체 비허용(보수적).
-- 같은 도메인 요청 간격 ≥ max(config min_interval_sec, Crawl-delay). Crawl-delay > 60초면 비허용으로 본다.
-  동기 클라이언트라 동시 접속은 항상 1.
+- 같은 도메인 요청 간격 ≥ max(config min_interval_sec, 우리 UA·ClaudeBot Crawl-delay 중 큰 값). Crawl-delay > 60초면 비허용.
+  마지막 요청 시각은 프로세스 안 모든 클라이언트가 공유(잠금) → 작업자 스레드가 같은 호스트를 쳐도 간격 유지.
+- 리다이렉트는 직접 따라가며 hop 마다 robots·간격을 다시 확인한다(최대 10회).
 - 429/5xx/전송 오류는 지수 백오프 재시도. 로그인·CAPTCHA 우회 없음.
 """
 import re
+import threading
 import time
-from urllib.parse import unquote, urlsplit
+from urllib.parse import unquote, urljoin, urlsplit
 
 import httpx
 
 ROBOTS_ALSO_CHECK = "ClaudeBot"
 MAX_CRAWL_DELAY = 60  # 초. 이보다 길면 비허용으로 본다
+MAX_REDIRECTS = 10
+_LAST: dict = {}  # clock → {host: 다음 요청 가능 기준 시각} (클라이언트 간 공유. clock 별로 나눠 테스트 가짜 시계끼리 섞이지 않게)
+_LOCK = threading.Lock()
 
 
 class RobotsDisallowed(Exception):
@@ -89,6 +94,9 @@ class Robots:
     def crawl_delay(self, agent: str) -> float | None:
         return self._group(agent)[1]
 
+    def max_delay(self, agent: str) -> float:
+        return max(float(self.crawl_delay(agent) or 0), float(self.crawl_delay(ROBOTS_ALSO_CHECK) or 0))
+
 
 class HttpClient:
     def __init__(self, cfg_http: dict, transport=None, sleep=time.sleep, clock=time.monotonic):
@@ -100,11 +108,11 @@ class HttpClient:
         self.retries = int(cfg_http.get("retries", 4))
         self.respect_robots = cfg_http.get("respect_robots", True)
         self.sleep, self.clock = sleep, clock
-        self._last: dict[str, float] = {}
+        self._last = _LAST.setdefault(clock, {})
         self._robots: dict[str, Robots] = {}
         self._client = httpx.Client(
             headers={"User-Agent": ua}, timeout=cfg_http.get("timeout_sec", 30),
-            follow_redirects=True, transport=transport,
+            follow_redirects=False, transport=transport,
         )
 
     def close(self):
@@ -112,12 +120,12 @@ class HttpClient:
 
     # --- 내부 ---
     def _wait(self, host: str, interval: float):
-        last = self._last.get(host)
-        if last is not None:
-            gap = interval - (self.clock() - last)
-            if gap > 0:
-                self.sleep(gap)
-        self._last[host] = self.clock()
+        with _LOCK:  # 자리를 먼저 잡고(마지막 시각 = 이번 요청 시각) 잠금 밖에서 잔다
+            now, last = self.clock(), self._last.get(host)
+            gap = 0.0 if last is None else max(0.0, interval - (now - last))
+            self._last[host] = now + gap
+        if gap > 0:
+            self.sleep(gap)
 
     def _raw(self, method: str, url: str, interval: float, retries: int | None = None, **kw) -> httpx.Response:
         host = urlsplit(url).netloc
@@ -143,7 +151,7 @@ class HttpClient:
             rp = Robots()
             try:
                 # 1회만 시도(응답 없는 서버에서 재시도로 수 분 묶이지 않게). 실패 = 전체 비허용
-                r = self._raw("GET", key + "/robots.txt", self.min_interval, retries=0, timeout=20)
+                r = self._follow("GET", key + "/robots.txt", None, retries=0, timeout=20)
                 code = r.status_code
             except httpx.TransportError as e:
                 code, rp.reason = 503, f"robots.txt 응답 없음({type(e).__name__})"
@@ -161,25 +169,42 @@ class HttpClient:
         if not self.respect_robots:
             return True
         rp = self.robots(url)
-        if float(rp.crawl_delay(self.ua_token) or 0) > MAX_CRAWL_DELAY:
+        if rp.max_delay(self.ua_token) > MAX_CRAWL_DELAY:
             return False  # 사실상 수집 거부(예: Crawl-delay 3600) → 비허용과 같이 취급
         return rp.can_fetch(self.ua_token, url) and rp.can_fetch(ROBOTS_ALSO_CHECK, url)
 
     def why_blocked(self, url: str) -> str:
         """비허용 사유: 'robots.txt 응답 없음(...)' / 'robots.txt HTTP 403' / 'Crawl-delay N초' / 'robots 규칙'"""
         rp = self.robots(url)
-        delay = float(rp.crawl_delay(self.ua_token) or 0)
+        delay = rp.max_delay(self.ua_token)
         return rp.reason or (f"Crawl-delay {delay:g}초" if delay > MAX_CRAWL_DELAY else "robots 규칙")
 
     def interval_for(self, url: str) -> float:
-        delay = self.robots(url).crawl_delay(self.ua_token) if self.respect_robots else None
-        return max(self.min_interval, float(delay or 0))
+        delay = self.robots(url).max_delay(self.ua_token) if self.respect_robots else 0
+        return max(self.min_interval, delay)
+
+    def _follow(self, method: str, url: str, check, **kw) -> httpx.Response:
+        """리다이렉트를 hop 마다 check(url)(robots) → 간격 대기로 따라간다. check=None 은 robots.txt 자체."""
+        for _ in range(MAX_REDIRECTS + 1):
+            if check:
+                check(url)
+            r = self._raw(method, url, self.interval_for(url) if check else self.min_interval, **kw)
+            if not r.is_redirect or "location" not in r.headers:
+                return r
+            url = urljoin(str(r.url), r.headers["location"])
+            if r.status_code == 303 or (r.status_code in (301, 302) and method not in ("GET", "HEAD")):
+                method = "GET"
+                for k in ("data", "content", "files", "json"):
+                    kw.pop(k, None)
+        raise httpx.TooManyRedirects(f"리다이렉트 {MAX_REDIRECTS}회 초과: {url}")
+
+    def _check(self, url: str) -> None:
+        if not self.allowed(url):
+            raise RobotsDisallowed(self.why_blocked(url))
 
     # --- 공개 ---
     def request(self, method: str, url: str, **kw) -> httpx.Response:
-        if not self.allowed(url):
-            raise RobotsDisallowed(self.why_blocked(url))
-        return self._raw(method, url, self.interval_for(url), **kw)
+        return self._follow(method, url, self._check, **kw)
 
     def get(self, url: str, **kw) -> httpx.Response:
         return self.request("GET", url, **kw)
