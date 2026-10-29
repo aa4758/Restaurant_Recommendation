@@ -3,7 +3,7 @@
 - 선물·격려품 구매, 음식점 아닌 곳(전시관·회의실·주무관 이름 칸)은 버림.
 - '가나식당 등 2개소' → 첫 가게, 'A, B' → 음식점 규칙에 걸리는 가게만(없으면 첫 가게), 주소·층·호수·잘린 괄호 제거.
 - 띄어쓰기만 다른 이름은 하나로(가장 흔한 표기). 지역이 다른 동명 가게는 합쳐진다(이름이 키).
-- gov_score: 찐맛 prior v2.1 의 업무추진비 항 min(log1p(방문수)/log1p(30), 1) (`backend/app/scoring/prior.py` GOV_CAP).
+- gov_score: 찐맛 prior v2.1 의 업무추진비 항 min(log1p(방문수)/log1p(GOV_CAP), 1) 꼴(`backend/app/scoring/prior.py`), 상한만 300회.
   단, 1회 방문은 0점(2026-10-29 사용자 결정 — 재방문 근거 없음). 앱 prior 는 그대로.
 """
 import math
@@ -15,7 +15,7 @@ import pandas as pd
 
 from src.phase5_merge.normalize import categorize, normalize_vendor
 
-GOV_CAP = 30
+GOV_CAP = 300  # 2026-10-29 사용자 결정(앱 prior 는 30)
 GIFT = re.compile(r"격려품|기념품|선물|상품권|화환|답례품")
 NOT_PLACE = re.compile(r"주무관|회의실|전시관|문화관|전수관|공예|직매장|보호작업장")
 MULTI = re.compile(r"\s*(등\s*\d*\s*(개소|곳|개업체|개)?|\d+\s*개소)\s*$")
