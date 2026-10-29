@@ -12,3 +12,4 @@ dist/
 *.log
 backend/data/raw/
 backend/data/out/
+backend/data/models/

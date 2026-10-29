@@ -1,4 +1,4 @@
-"""추천: 필터 → 완화(거리→분위기→가격→장르, 음주는 불완화) → rank_score → 동점대 로테이션 → reasons.
+"""추천: 필터 → 완화(세부 분류→거리→분위기→가격→장르, 음주는 불완화) → rank_score → 동점대 로테이션 → reasons.
 
 rank_score = final_star + 조건적합도 보너스 - 거리 패널티
 - 조건적합도 보너스: 사용자가 지정한 조건(가격/장르/분위기) 중 충족한 항목당 FIT_BONUS.
@@ -6,7 +6,9 @@ rank_score = final_star + 조건적합도 보너스 - 거리 패널티
 - 거리 패널티: DIST_PENALTY * distance_m / 원래 반경 (반경 끝에서 0.3)
 - 동점대: 선두 점수와 ±TIE_BAND 이내 묶음은 후보별 sha256(날짜|id) 순으로 일 단위 셔플
   (그룹 구성과 무관 → 보이지 않는 후보를 숨겨도 남은 후보의 상대 순서 불변).
-- 항목별 relaxed: 그 가게가 원래 조건(distance/mood/price/genre) 중 충족 못한 항목.
+- 항목별 relaxed: 그 가게가 원래 조건(subtype/distance/mood/price/genre) 중 충족 못한 항목.
+- 음식 조건(장르 + 세부 분류, 2단계): 세부 분류를 고른 장르는 그 세부 분류만, 안 고른 장르는 장르 전체.
+  세부 분류 완화 = 그 상위 장르 전체로 넓힘. 세부 분류가 없는(미분류) 가게는 세부 분류 조건에 안 걸림.
 """
 from __future__ import annotations
 
@@ -16,10 +18,12 @@ from dataclasses import dataclass, field
 from datetime import date
 from typing import Iterable, Sequence
 
+from app.subtype import PARENT
+
 FIT_BONUS = 0.1
 DIST_PENALTY = 0.3
 TIE_BAND = 0.1
-RELAX_ORDER = ("distance", "mood", "price", "genre")  # 음주(alcohol)는 완화하지 않음
+RELAX_ORDER = ("subtype", "distance", "mood", "price", "genre")  # 음주(alcohol)는 완화하지 않음
 DISTANCE_RELAX_FACTOR = 2
 MAX_LIMIT = 5
 WALK_M_PER_MIN = 80
@@ -58,6 +62,7 @@ class Candidate:
     guides: list[str] = field(default_factory=list)  # 가이드 선정 문구, 점수 높은 순 (예: 서울미식 100선 선정(2025))
     century_store: bool = False  # 백년가게 지정
     evidence: str | None = None  # low | mid | high (None = 미계산)
+    subtype: str | None = None  # 세부 분류 (None = 미분류)
     extra: dict = field(default_factory=dict)
 
 
@@ -71,6 +76,7 @@ class Query:
     mood: list[str] | None = None
     alcohol: str = "any"
     limit: int = 3
+    subtype: list[str] | None = None
 
 
 @dataclass
@@ -90,6 +96,18 @@ def _alcohol_ok(c: Candidate, alcohol: str) -> bool:
     return True
 
 
+def _food_ok(c: Candidate, q: Query, relaxed: set[str]) -> bool:
+    """장르 + 세부 분류(2단계) 조건. relaxed 에 subtype 이면 세부 분류를 상위 장르로, genre 면 음식 조건 해제."""
+    if "genre" in relaxed or not (q.genre or q.subtype):
+        return True
+    subs = set(q.subtype or [])
+    genres = set(q.genre or [])
+    if "subtype" in relaxed:
+        return c.genre in genres | {PARENT[s] for s in subs if s in PARENT}
+    narrowed = {PARENT[s] for s in subs if s in PARENT}
+    return c.subtype in subs or c.genre in genres - narrowed
+
+
 def _matches(c: Candidate, dist: float, q: Query, relaxed: set[str]) -> bool:
     if not _alcohol_ok(c, q.alcohol):
         return False
@@ -100,9 +118,7 @@ def _matches(c: Candidate, dist: float, q: Query, relaxed: set[str]) -> bool:
         return False
     if q.price and "price" not in relaxed and c.price_band not in q.price:
         return False
-    if q.genre and "genre" not in relaxed and c.genre not in q.genre:
-        return False
-    return True
+    return _food_ok(c, q, relaxed)
 
 
 def _fit_count(c: Candidate, q: Query) -> int:
@@ -111,7 +127,7 @@ def _fit_count(c: Candidate, q: Query) -> int:
         n += 1
     if q.price and c.price_band in q.price:
         n += 1
-    if q.genre and c.genre in q.genre:
+    if (q.genre or q.subtype) and _food_ok(c, q, set()):
         n += 1
     return n
 
@@ -119,13 +135,15 @@ def _fit_count(c: Candidate, q: Query) -> int:
 def unmet(c: Candidate, dist: float, q: Query) -> list[str]:
     """원래(완화 전) 조건 중 이 가게가 충족 못한 항목. 음주는 완화하지 않으므로 항상 충족."""
     out = []
+    if q.subtype and not _food_ok(c, q, set()):
+        out.append("subtype")
     if dist > q.radius_m:
         out.append("distance")
     if q.mood and not set(q.mood) & set(c.moods):
         out.append("mood")
     if q.price and c.price_band not in q.price:
         out.append("price")
-    if q.genre and c.genre not in q.genre:
+    if (q.genre or q.subtype) and not _food_ok(c, q, {"subtype"}):
         out.append("genre")
     return out
 
@@ -137,7 +155,7 @@ def rank_score(c: Candidate, dist: float, q: Query) -> float:
 def _relaxable(q: Query) -> list[str]:
     out = []
     for key in RELAX_ORDER:
-        if key == "distance" or getattr(q, key):
+        if key == "distance" or getattr(q, key) or (key == "genre" and q.subtype):
             out.append(key)
     return out
 
@@ -182,8 +200,8 @@ def make_reasons(s: Scored, q: Query) -> list[str]:
     c = s.cand
     line1 = f"엄격 별점 {c.star:.1f} · 이 지역 상위 {c.percentile}%"
     fit = []
-    if q.genre and c.genre in q.genre:
-        fit.append(f"{c.genre}")
+    if (q.genre or q.subtype) and _food_ok(c, q, set()):
+        fit.append(c.subtype if q.subtype and c.subtype in q.subtype else c.genre)
     if q.price and c.price_band in q.price:
         fit.append(f"가격 {c.price_band}")
     matched_moods = [m for m in c.moods if q.mood and m in q.mood]

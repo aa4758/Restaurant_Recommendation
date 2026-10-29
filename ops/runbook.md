@@ -46,6 +46,12 @@ curl http://localhost:8000/health   # {"status":"ok"}
    python -m app.ingest.load_designations data\raw\designations\경기_모범음식점현황.csv --kind model_restaurant --source "경기도 모범음식점" --sido 경기 --base-date 2026-06-30
    python -m app.ingest.load_designations data\raw\designations\경기도으뜸맛집현황.csv --kind gyeonggi_best --source "경기도 으뜸맛집"
    python -m app.ingest.link_sbiz   # 상가정보(data\raw\sbiz\*.csv, 분기 갱신) → 기존 가게에 sbiz_id·업종 소분류 연결
+   # 세부 분류(docs/01 '세부 분류 필터'): 위 적재·인허가 재적재 뒤에 항상 다시 실행(genre 보정 포함, 점수 무관)
+   python -m app.subtype assign
+   ```
+   세부 분류 모델(최초 1회·AI-Hub 데이터 갱신 시, 학습용으로만 — 원본·모델은 git 제외):
+   ```powershell
+   python -m app.subtype train "$env:USERPROFILE\Downloads\222.관광 음식메뉴판 데이터\01-1.정식개방데이터"   # → data\models\menu_subtype.json
    ```
    결과: 모범 3,941(서울 2,860 + 경기 1,081) / 원산지 193 / 백년 489 / 착한가격 6,939 (+메뉴 13,878) / 경기 으뜸맛집 78. 재적재는 멱등(UNIQUE + INSERT OR IGNORE).
 5. 미매칭 가게는 `data\out\unmatched_<출처>.csv` (PII 없음) — 분기마다 수기 검토.
@@ -95,3 +101,13 @@ npx eas-cli submit -p android
 - [x] 리뷰 레이트리밋(기기 분당 30 + IP 분당 300) — `docs/qa/report.md` 이슈 #2. 프록시 뒤면 `FORWARDED_ALLOW_IPS` 확인
 - [ ] CORS `allow_origins=["*"]` 제한 (웹 클라이언트 없으면 무관)
 - [ ] 법무 검토: 업무추진비 배지 문구, 광고 감점
+
+## 자연어 조건 사전 보강 (매주, docs/01 '자연어 조건 입력')
+- 매주 월요일 04:00 작업 스케줄러가 `python -m app.nlp_enrich run` 실행: 지난주 배치 결과 수거 → 90일 지난 미인식 낱말 삭제 → 새 Batch 제출(Claude Haiku 5.5).
+  키는 사용자 환경변수 `ANTHROPIC_API_KEY`(없으면 보강만 건너뜀). 로그 `backend\data\out\nlp_enrich.log`.
+- 등록(최초 1회, PowerShell. 2026-10-29 이 PC 에 등록됨):
+  ```powershell
+  schtasks /Create /TN "JJINMAT nlp_enrich" /SC WEEKLY /D MON /ST 04:00 /F /TR "cmd /c cd /d C:\Restaurant_Recommendation\backend && python -m app.nlp_enrich run >> data\out\nlp_enrich.log 2>&1"
+  schtasks /Query /TN "JJINMAT nlp_enrich"     # 확인 · 삭제: schtasks /Delete /TN "JJINMAT nlp_enrich" /F
+  ```
+- 승인(사람): `python -m app.nlp_enrich list` → `python -m app.nlp_enrich approve 얼큰한 땡초` (또는 `--all`) / `reject <낱말>`. 승인한 것만 다음 요청부터 해석에 쓰임.

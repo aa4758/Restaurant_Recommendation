@@ -11,6 +11,7 @@ class RecommendRequest(BaseModel):
     radius_m: int = Field(default=1000, gt=0, le=20000)
     price: Optional[list[str]] = None
     genre: Optional[list[str]] = None
+    subtype: Optional[list[str]] = None  # 세부 분류(2026-10-29)
     mood: Optional[list[str]] = None
     alcohol: Literal["any", "yes", "no"] = "any"
     limit: int = Field(default=3, ge=1, le=5)
@@ -36,7 +37,26 @@ class Item(BaseModel):
     updated_at: str
     address: Optional[str] = None  # 도로명 우선 (공유 문구·지도 링크용)
     evidence: Optional[Literal["low", "mid", "high"]] = None  # scores.evidence (재계산 전 null)
-    relaxed: list[Literal["distance", "mood", "price", "genre"]] = []  # 이 가게가 원래 조건 중 충족 못한 항목
+    relaxed: list[Literal["subtype", "distance", "mood", "price", "genre"]] = []  # 이 가게가 원래 조건 중 충족 못한 항목
+    subtype: Optional[str] = None  # 세부 분류(미분류 null)
+
+
+class ParseIn(BaseModel):
+    text: str = Field(min_length=1, max_length=200)
+
+
+class ParsedFilters(BaseModel):
+    price: list[str] = []
+    genre: list[str] = []
+    subtype: list[str] = []
+    mood: list[str] = []
+    alcohol: Literal["any", "yes", "no"] = "any"
+    radius_m: Optional[int] = None
+
+
+class ParseOut(BaseModel):
+    filters: ParsedFilters
+    unknown: list[str]
 
 
 class RecommendResponse(BaseModel):

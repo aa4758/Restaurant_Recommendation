@@ -10,7 +10,7 @@ import { GovBudgetBadge, Notice, PercentileBadge, ReasonList, StarRatingBadge } 
 import * as store from '../src/state/deviceStore';
 import { useTheme } from '../src/theme';
 
-const RELAX_LABEL: Record<string, string> = { distance: '거리', mood: '분위기', price: '가격', genre: '장르' };
+const RELAX_LABEL: Record<string, string> = { subtype: '세부 메뉴', distance: '거리', mood: '분위기', price: '가격', genre: '장르' };
 const EVIDENCE_LABEL: Record<Evidence, string> = { low: '리뷰 근거 적음', mid: '리뷰 근거 보통', high: '리뷰 근거 충분' };
 const DISLIKE_REASONS: { value: DislikeReason; label: string }[] = [
   { value: 'far', label: '너무 멀어요' },

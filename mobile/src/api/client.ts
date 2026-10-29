@@ -31,8 +31,24 @@ export interface HealthResponse {
 export interface FiltersResponse {
   price: string[];
   genre: string[];
+  /** 장르 → 세부 분류 (2026-10-29) */
+  subtype: Record<string, string[]>;
   mood: string[];
   alcohol: AlcoholFilter[];
+}
+
+/** POST /filters/parse — 자연어 조건 → 필터(규칙 기반) */
+export interface ParseResponse {
+  filters: {
+    price?: string[];
+    genre?: string[];
+    subtype?: string[];
+    mood?: string[];
+    alcohol: AlcoholFilter;
+    radius_m?: number | null;
+  };
+  /** 못 알아들은 낱말(적용 안 됨) */
+  unknown: string[];
 }
 
 export interface RecommendRequest {
@@ -41,6 +57,7 @@ export interface RecommendRequest {
   radius_m?: number;
   price?: string[];
   genre?: string[];
+  subtype?: string[];
   mood?: string[];
   alcohol?: AlcoholFilter;
   limit?: number;
@@ -52,6 +69,8 @@ export interface RestaurantItem {
   id: string;
   name: string;
   genre: string;
+  /** 세부 분류, 미분류 null */
+  subtype?: string | null;
   price_band: string;
   moods: string[];
   alcohol: boolean;
@@ -205,6 +224,9 @@ export const api = {
   health: () => request<HealthResponse>('/health'),
 
   getFilters: () => request<FiltersResponse>('/meta/filters'),
+
+  parseFilters: (text: string) =>
+    request<ParseResponse>('/filters/parse', { method: 'POST', body: JSON.stringify({ text }) }),
 
   recommend: (body: RecommendRequest) =>
     request<RecommendResponse>('/recommend', {

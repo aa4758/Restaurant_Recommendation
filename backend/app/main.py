@@ -12,8 +12,11 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app import db
 from app.constants import ALCOHOL, GENRES, MOODS, PRICE_BANDS
+from app.nlparse import parse
 from app.schemas import (
     Item,
+    ParseIn,
+    ParseOut,
     RecommendRequest,
     RecommendResponse,
     ReactionIn,
@@ -28,6 +31,7 @@ from app.ratelimit import IP_LIMIT_PER_MIN, WRITE_LIMIT_PER_MIN, write_limiter
 from app.scoring.prior import is_ad_text
 from app.scoring.recommend import DISTANCE_RELAX_FACTOR, Query, Scored as RecScored, make_reasons, recommend
 from app.service import candidates_near, get_scored, rebuild_scores, region_of
+from app.subtype import SUBTYPES
 
 app = FastAPI(title="JJINMAT API", version="0.1.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
@@ -52,6 +56,7 @@ def _item_dict(s: RecScored) -> dict:
         "id": c.id,
         "name": c.name,
         "genre": c.genre,
+        "subtype": c.subtype,
         "price_band": c.price_band,
         "moods": c.moods,
         "alcohol": c.alcohol,
@@ -78,7 +83,13 @@ def health() -> dict:
 
 @app.get("/meta/filters")
 def meta_filters() -> dict:
-    return {"price": PRICE_BANDS, "genre": GENRES, "mood": MOODS, "alcohol": ALCOHOL}
+    return {"price": PRICE_BANDS, "genre": GENRES, "subtype": SUBTYPES, "mood": MOODS, "alcohol": ALCOHOL}
+
+
+@app.post("/filters/parse", response_model=ParseOut)
+def post_filters_parse(body: ParseIn, conn=Depends(get_conn)) -> dict:
+    """자연어 조건 → 필터(규칙 기반). 미인식 낱말만 집계, 원문은 저장하지 않음."""
+    return parse(body.text, conn)
 
 
 @app.post("/recommend", response_model=RecommendResponse)
