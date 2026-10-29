@@ -1,7 +1,7 @@
-"""prior_raw 계산 — 점수 모델 v2.1 (docs/01_planning_decision.md "점수 모델 v2" + "v2.1").
+"""prior_raw 계산 — 점수 모델 v2.2 (docs/01_planning_decision.md "점수 모델 v2" + "v2.1" + "v2.2").
 
 prior_raw = 0.30 * 업력      min(log1p(영업연수)/log1p(20), 1)     # opened_at, 없으면 0. 백년가게는 최소 30년 간주
-          + 0.25 * 업무추진비  min(log1p(방문수)/log1p(30), 1)
+          + 0.25 * 업무추진비  min(log1p(방문수)/log1p(300), 1), 1회 이하는 0   # v2.2
           + 0.15 * 위생등급    매우우수 1 / 우수 0.7 / 좋음 0.4 / 없음 0
           + 0.10 * 지정업소    모범음식점·안심식당·원산지표시 우수 중 1개 이상이면 1
           + 0.20 * 외부 평판   max(가이드 선정 점수, 제휴 평점 0~1), 둘 다 없으면 0.4(중립)
@@ -26,7 +26,8 @@ from typing import Iterable, Sequence
 W_TENURE = 0.30
 TENURE_CAP_YEARS = 20
 W_GOV = 0.25
-GOV_CAP = 30
+GOV_CAP = 300  # v2.2 (v2.1: 30)
+GOV_MIN_VISITS = 2  # v2.2: 1회 방문은 재방문 근거가 없어 0점
 W_HYGIENE = 0.15
 HYGIENE_SCORES = {"매우우수": 1.0, "우수": 0.7, "좋음": 0.4}
 HYGIENE_ALIASES = {"★★★": "매우우수", "★★": "우수", "★": "좋음", "3": "매우우수", "2": "우수", "1": "좋음"}
@@ -137,6 +138,8 @@ def tenure_score(opened_at: str | date | None, now: date, century_store: bool = 
 
 def gov_score(gov_visits: int) -> float:
     visits = max(0, int(gov_visits or 0))
+    if visits < GOV_MIN_VISITS:
+        return 0.0
     return min(math.log1p(visits) / math.log1p(GOV_CAP), 1.0)
 
 

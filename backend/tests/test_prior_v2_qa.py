@@ -27,7 +27,7 @@ REPO = Path(__file__).resolve().parents[2]
 def test_constants_match_spec():
     assert (prior.W_TENURE, prior.W_GOV, prior.W_HYGIENE, prior.W_DESIGNATION, prior.W_REPUTATION) == (
         0.30, 0.25, 0.15, 0.10, 0.20)
-    assert prior.TENURE_CAP_YEARS == 20 and prior.GOV_CAP == 30
+    assert prior.TENURE_CAP_YEARS == 20 and prior.GOV_CAP == 300
     assert prior.HYGIENE_SCORES == {"매우우수": 1.0, "우수": 0.7, "좋음": 0.4}
     assert prior.REPUTATION_NEUTRAL == 0.4  # v2.1
     assert (prior.SANCTION_UNIT, prior.SANCTION_CAP, prior.SANCTION_YEARS) == (0.05, 0.15, 3)
@@ -48,10 +48,11 @@ def test_tenure_formula():
 
 
 def test_gov_formula_and_cap():
-    assert prior.gov_score(30) == pytest.approx(1.0)
+    assert prior.gov_score(300) == pytest.approx(1.0)
     assert prior.gov_score(500) == 1.0
-    assert prior.gov_score(5) == pytest.approx(math.log1p(5) / math.log1p(30))
-    assert prior.gov_bonus(5) == pytest.approx(0.25 * math.log1p(5) / math.log1p(30))
+    assert prior.gov_score(5) == pytest.approx(math.log1p(5) / math.log1p(300))
+    assert prior.gov_bonus(5) == pytest.approx(0.25 * math.log1p(5) / math.log1p(300))
+    assert prior.gov_score(1) == 0.0 and prior.gov_score(2) > 0  # v2.2: 1회는 0점
 
 
 def test_hygiene_designation_partner():
@@ -92,7 +93,9 @@ def test_evidence_bands():
     assert prior.prior_parts(now=NOW).evidence == "low"  # 외부 평판 결측 중립값은 신호 아님
     assert prior.prior_parts(now=NOW, hygiene_grade="좋음").evidence == "mid"
     assert prior.prior_parts(now=NOW, partner_rating=1.0).evidence == "mid"  # 제휴 값 존재 = 신호(기여 0 이어도)
-    assert prior.prior_parts(now=NOW, hygiene_grade="좋음", gov_visits=1, opened_at="2020-01-01").evidence == "high"
+    assert prior.prior_parts(now=NOW, hygiene_grade="좋음", gov_visits=2, opened_at="2020-01-01").evidence == "high"
+    # v2.2: 업무추진비 1회는 기여 0 → 근거 신호 아님
+    assert prior.prior_parts(now=NOW, hygiene_grade="좋음", gov_visits=1, opened_at="2020-01-01").evidence == "mid"
 
 
 # --- 2. 경계/엣지 ----------------------------------------------------------------
