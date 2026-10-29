@@ -93,8 +93,9 @@ def test_dedupe_prefers_datagokr():
     df = _df([{**a, "record_id": "b", "source": "BOARD"}, {**a, "record_id": "d", "source": "DATAGOKR", "parse_confidence": 0.7},
               {**a, "record_id": "x", "source": "BOARD", "amount": 50000},
               {**a, "record_id": "p1", "source": "BOARD", "vendor_normalized": "", "purpose": "오찬"},
-              {**a, "record_id": "p2", "source": "BOARD", "vendor_normalized": "", "purpose": "만찬"}])
-    assert sorted(merge.dedupe(df)["record_id"]) == ["d", "p1", "p2", "x"]
+              {**a, "record_id": "p2", "source": "BOARD", "vendor_normalized": "", "purpose": "만찬"},
+              {**a, "record_id": "v", "source": "BOARD", "executor_position": "부시장"}])  # 다른 직위 = 다른 집행
+    assert sorted(merge.dedupe(df)["record_id"]) == ["d", "p1", "p2", "v", "x"]
 
 
 def test_jjinmat_export_contract():

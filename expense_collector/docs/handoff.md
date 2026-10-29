@@ -81,7 +81,7 @@ claude                          # docs/prompts.md 의 P0 부터 붙여넣기
 
 ### Phase 5 통합·찐맛 export (2026-10-29, OCR 없이 먼저)
 - `phase5`(약 4분) → `data/output/expenses_merged.csv`·`unmapped_columns.csv`·`quality_report.md`, `export-jjinmat` → `gov_expense_for_jjinmat.csv`. 컬럼 매핑 `phase5_merge/column_map.yaml`(공백 지운 이름에 정규식), 음식점 분류 `categories.yaml`(상호 → 목적 키워드).
-- 결과: 레코드 295,826(128개 기관) · 찐맛 export 128,641행(restaurant·신뢰도 ≥0.7). 분류 restaurant 44% · unknown 33% · cafe 14% · other 8%. 저신뢰(<0.7) 5,178.
+- 결과(QA 수정·중복 키에 직위 추가 후): 레코드 296,760(128개 기관) · 찐맛 export 128,075행(금액 > 0)(restaurant·신뢰도 ≥0.7). 분류 restaurant 44% · unknown 33% · cafe 14% · other 8%. 저신뢰(<0.7) 5,178.
 - 버린 행: 날짜 없음 152,331(대부분 빈 서식 행·한 기관의 2016~17 자료 — 날짜 칸이 비고 금액만 있는 병합 칸은 윗 날짜를 이어 받음) · 기간 밖 96,109(2024-10 이전분) · 중복 19,792 · 합계 행 8,828 · 계약현황 등 비업무추진비 표 9,282.
 - PII: 참석자 칸은 저장 안 함(인원수만), 전화·카드번호·직위 옆/'외 N명' 앞 이름 → ○○○. 실데이터 스캔에서 직위+이름 꼴 잔존 0(남은 것은 '격려를'·'부임에' 같은 일반 낱말). 원문 집행목적의 '공직자 재산등록' 같은 행정 용어는 그대로 둠(배지 문구 아님).
 - 결측: 주소 98.9%(대부분 원문에 없음) · 부서 88% · 직위 34% · 시간 22% · 인원 12%. 파일은 받았지만 레코드 0인 기관 25곳(경북 교육지원청 다수 = 스캔 PDF, 통일부·법무부 등 = 표 형식 불일치) → `quality_report.md`.

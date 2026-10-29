@@ -11,11 +11,11 @@ COLUMNS = ["record_id", "institution_id", "institution_name", "institution_type"
            "exec_date", "exec_time", "vendor_raw", "vendor_normalized", "vendor_address", "vendor_category", "amount",
            "headcount", "purpose", "payment_method", "source", "license", "source_file_id", "parse_confidence"]
 JJINMAT = ["restaurant_name", "address", "exec_date", "agency", "amount", "purpose", "source", "base_year"]
-DEDUPE_KEY = ["institution_id", "exec_date", "amount", "_vendor_key"]
+DEDUPE_KEY = ["institution_id", "executor_position", "exec_date", "amount", "_vendor_key"]
 
 
 def dedupe(df: pd.DataFrame) -> pd.DataFrame:
-    """8.4: (기관, 일자, 금액, 상호) 같으면 하나만 — DATAGOKR > BOARD, 그다음 신뢰도 높은 것. 상호가 없으면 목적으로 비교."""
+    """8.4: (기관, 직위, 일자, 금액, 상호) 같으면 하나만(직위: 기관장·부기관장 각각의 같은 집행은 남김) — DATAGOKR > BOARD, 그다음 신뢰도 높은 것. 상호가 없으면 목적으로 비교."""
     df = df.assign(_vendor_key=df["vendor_normalized"].where(df["vendor_normalized"] != "", df["purpose"]),
                    _rank=(df["source"] != "DATAGOKR").astype(int))
     df = df.sort_values(["_rank", "parse_confidence"], ascending=[True, False], kind="stable")
