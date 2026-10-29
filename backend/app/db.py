@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS restaurants (
     takeout INTEGER,
     holiday_note TEXT,                 -- 정기휴무 자유기술 (예: 매월 둘째 화요일)
     sbiz_id TEXT UNIQUE,               -- 소상공인 상가업소번호
+    sbiz_category TEXT,                -- 상가정보 업종 소분류 (ingest/link_sbiz.py, 예: 냉면/밀면)
     license_id TEXT UNIQUE,            -- 인허가 관리번호
     kakao_place_id TEXT UNIQUE,        -- 지도 링크 place.map.kakao.com/{id}
     tour_content_id TEXT UNIQUE,       -- 한국관광공사 TourAPI
@@ -55,7 +56,7 @@ CREATE TABLE IF NOT EXISTS menus (
     name TEXT NOT NULL,
     price INTEGER,                     -- 원
     is_signature INTEGER NOT NULL DEFAULT 0,
-    source TEXT,                       -- tourapi | good_price | receipt | owner
+    source TEXT,                       -- tourapi | good_price | receipt | owner | <지정 kind>(주된음식)
     updated_at TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_menus_restaurant ON menus(restaurant_id);
@@ -172,7 +173,7 @@ def connect(path: Path | str | None = None) -> sqlite3.Connection:
 MIGRATIONS = {
     "scores": (("components", "TEXT"), ("evidence", "TEXT")),
     "user_reviews": (("ad_disclosed", "INTEGER"),),
-    "restaurants": (("alcohol_src", "TEXT"),),
+    "restaurants": (("alcohol_src", "TEXT"), ("sbiz_category", "TEXT")),
 }
 
 # 컬럼 마이그레이션 후에 만들어야 하는 인덱스(구 DB 에는 SCHEMA 실행 시점에 컬럼이 없음)

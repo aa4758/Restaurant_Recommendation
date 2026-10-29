@@ -45,6 +45,7 @@ curl http://localhost:8000/health   # {"status":"ok"}
    # 경기: 주소 없음 → 상호+시군 유일 매칭(프랜차이즈·동명 복수는 미매칭)
    python -m app.ingest.load_designations data\raw\designations\경기_모범음식점현황.csv --kind model_restaurant --source "경기도 모범음식점" --sido 경기 --base-date 2026-06-30
    python -m app.ingest.load_designations data\raw\designations\경기도으뜸맛집현황.csv --kind gyeonggi_best --source "경기도 으뜸맛집"
+   python -m app.ingest.link_sbiz   # 상가정보(data\raw\sbiz\*.csv, 분기 갱신) → 기존 가게에 sbiz_id·업종 소분류 연결
    ```
    결과: 모범 3,941(서울 2,860 + 경기 1,081) / 원산지 193 / 백년 489 / 착한가격 6,939 (+메뉴 13,878) / 경기 으뜸맛집 78. 재적재는 멱등(UNIQUE + INSERT OR IGNORE).
 5. 미매칭 가게는 `data\out\unmatched_<출처>.csv` (PII 없음) — 분기마다 수기 검토.

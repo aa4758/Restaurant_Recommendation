@@ -16,6 +16,8 @@
 - 착한가격업소(good_price): 대표메뉴·가격(번호 붙은 대표메뉴1·가격1… 포함)이 있으면 menus 에
   source='good_price', is_signature=1 로 upsert(가게당 메뉴명 중복 없음). 가격은 만·천 단위 환산
   ('1만2천원'=12000, '8천원'=8000), 범위('7,000~8,000원')는 하한, 100원 미만·해석 불가는 None.
+- 그 외 kind(모범음식점·으뜸맛집 등): 주된음식·주메뉴명·대표음식명이 있으면 쉼표·슬래시로 나눠 menus 에
+  source=<kind>, is_signature=1, 가격 None 으로 upsert(점수 무관, 메뉴 분류·표시용).
 - CP949/UTF-8 자동. xlsx 미지원(CSV 로 저장 안내).
 
 매칭 실패 행은 수기 검토용 data/out/unmatched_<source>.csv(화이트리스트 컬럼 + reason, PII·전화 없음).
@@ -56,7 +58,8 @@ ALIASES = {
     "kind": ("kind", "지정종류", "지정구분명", "지정구분"),
     "base_date": ("base_date", "지정일자", "지정일", "선정일자", "선정일", "인증일자", "인증일", "선정연도",
                   "기준일자", "데이터기준일자", "데이터기준일"),
-    "menu": ("menu", "대표메뉴", "대표메뉴명", "메뉴", "메뉴명", "대표품목", "품목명", "품목"),
+    "menu": ("menu", "대표메뉴", "대표메뉴명", "메뉴", "메뉴명", "대표품목", "품목명", "품목",
+             "주된음식", "주메뉴명", "주메뉴", "대표음식명", "대표음식"),
     "price": ("price", "가격", "가격원", "대표메뉴가격", "메뉴가격", "판매가격", "대표가격", "금액"),
     # 주소·좌표 없는 목록(경기 모범음식점)의 상호+시군 매칭용 — 시도 열이 없으면 --sido
     "sido": ("sido", "시도", "시도명"),
@@ -152,6 +155,10 @@ def _menus_of(rec: dict) -> list[tuple[str, int | None]]:
     return uniq
 
 
+def _split_menus(s: str | None) -> list[str]:
+    return list(dict.fromkeys(m.strip() for m in re.split(r"[,/·、]", s or "") if m.strip()))
+
+
 def _table(path) -> sc.Table:
     t = sc.Table(path, ALIASES)
     t.numbered = NUMBERED
@@ -243,6 +250,8 @@ def load_designations(
             regions.add(matcher.region.get(rid))
             if k == prior.GOOD_PRICE_KIND:
                 menus.extend((rid, m, price, GOOD_PRICE_SOURCE, updated) for m, price in _menus_of(rec))
+            else:  # 지정목록의 주된음식('돼지갈비, 삼겹살')은 나눠서, 가격 없음
+                menus.extend((rid, m, None, k, updated) for m in _split_menus(rec.get("menu")))
     inserted, n_menu = sc.apply_signals(conn, rows, menus, dry_run, "load_designations")
     stats.update(inserted=inserted, duplicate=len(rows) - inserted, menus=n_menu)
     if not dry_run:

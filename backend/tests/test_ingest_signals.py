@@ -130,6 +130,20 @@ def test_good_price_menus_upsert(conn, tmp_path):
     assert tuple(conn.execute("SELECT COUNT(*), MAX(price) FROM menus WHERE restaurant_id='S2' AND name='떡볶이'").fetchone()) == (1, 4500)
 
 
+def test_designation_main_dish_menus(conn, tmp_path):
+    header = ["업소명", "도로명주소", "위도", "경도", "주된음식"]
+    src = write(tmp_path / "mr.csv", header, [
+        ["착한분식", "서울특별시 중구 을지로 100", "37.5660", "126.9900", "돼지갈비, 삼겹살/돼지갈비"],
+    ])
+    res = load_designations(conn, src, tmp_path / "out", kind="model_restaurant", source="모범음식점(테스트)")
+    assert res["inserted"] == 1 and res["menus"] == 2
+    rows = sorted(tuple(r) for r in conn.execute(
+        "SELECT name, price, is_signature, source FROM menus WHERE restaurant_id='S2'"))
+    assert rows == [("돼지갈비", None, 1, "model_restaurant"), ("삼겹살", None, 1, "model_restaurant")]
+    load_designations(conn, src, tmp_path / "out", kind="model_restaurant", source="모범음식점(테스트)")
+    assert conn.execute("SELECT COUNT(*) FROM menus WHERE restaurant_id='S2'").fetchone()[0] == 2  # 재적재 멱등
+
+
 # --- 위생등급 ------------------------------------------------------------------------
 @pytest.mark.parametrize("raw,want", [
     ("매우우수", "매우우수"), ("매우 우수(★★★)", "매우우수"), ("★★★", "매우우수"), ("★3", "매우우수"),

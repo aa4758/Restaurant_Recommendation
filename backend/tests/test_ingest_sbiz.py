@@ -69,3 +69,23 @@ def test_scores_by_region_and_closed_excluded(tmp_path):
     rebuild_scores(c, "11140")
     assert {r[0] for r in c.execute("SELECT restaurant_id FROM scores")} == {"SA2", "SA3"}
     assert [x.id for x in candidates_near(c, 37.56, 126.97, 3000)] == ["SA3"]
+
+
+def test_link_sbiz_attaches_category_without_new_rows(tmp_path):
+    from app import db as appdb
+    from app.ingest.link_sbiz import link_sbiz
+
+    conn = appdb.connect(tmp_path / "t.db")
+    appdb.init_schema(conn)
+    conn.executemany(
+        "INSERT INTO restaurants(id,name,address,lat,lng,sido,sigungu,sigungu_code,genre,status) VALUES(?,?,?,?,?,?,?,?,'한식','open')",
+        [("L1", "할매국밥", "서울특별시 중구 세종대로 1", 37.56, 126.97, "서울특별시", "중구", "11140"),
+         ("L2", "동네호프", None, 37.5701, 126.9801, "서울특별시", "중구", "11140")])
+    conn.commit()
+    res = link_sbiz(conn, [_csv(tmp_path)], dry_run=True)
+    assert res["linked"] == 2 and conn.execute("SELECT COUNT(sbiz_id) FROM restaurants").fetchone()[0] == 0
+    for _ in range(2):  # 재실행 멱등
+        res = link_sbiz(conn, [_csv(tmp_path)])
+    rows = sorted(tuple(r) for r in conn.execute("SELECT id, sbiz_id, sbiz_category, genre FROM restaurants"))
+    assert rows == [("L1", "A1", "국/탕/찌개류", "한식"), ("L2", "A3", "생맥주 전문", "한식")]  # 장르는 그대로
+    assert res["미매칭 · 상호 불일치"] == 1  # 바다횟집: 신규 생성 안 함
