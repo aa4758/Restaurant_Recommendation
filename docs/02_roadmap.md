@@ -19,7 +19,7 @@
 ## 배포 단계에 사용자가 준비해야 할 것
 1. **Expo 계정** (무료) — EAS 빌드용.
 2. **Google Play 개발자 계정** ($25 1회) / **Apple Developer** ($99/년, iOS 배포 시).
-3. **서버 호스팅** — **Railway + 볼륨**(2026-10-30 결정, 예상 월 약 $5. GitHub Student Developer Pack 혜택 먼저 확인).
+3. **서버 호스팅** — **Railway + 볼륨**(2026-10-30 결정, 예상 월 약 $5. GitHub Student Developer Pack 혜택 먼저 확인). 절차: `ops/deploy_railway.md`(배포는 최종 단계).
 4. **카카오 개발자 REST API 키** — 음식점 기본정보.
 5. **공공데이터** — 서울 열린데이터광장/각 기관 업무추진비 공개 CSV 다운로드.
 6. **광고 리뷰 통계** — 크롤링 없이 확보할 방법(제휴·수기 표본) 결정. 
