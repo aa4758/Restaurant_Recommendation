@@ -156,6 +156,8 @@ export interface CreateReviewRequest {
 export interface MyReview {
   restaurant_id: string;
   name: string;
+  sido: string | null; // 리뷰 지도(I-3)
+  sigungu: string | null;
   stars: number;
   text: string;
   tags: string[];

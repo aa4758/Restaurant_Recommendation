@@ -128,6 +128,7 @@ def test_my_reviews_list_and_validation(client, login):
                                                    "menus": [{"name": "국밥", "price": 8000}]}, headers=h)
     items = client.get("/me/reviews", headers=h).json()["items"]
     assert len(items) == 1 and items[0]["restaurant_id"] == "R002" and items[0]["name"]
+    assert "sido" in items[0] and "sigungu" in items[0]  # I-3 지도
     assert items[0]["menus"] == [{"name": "국밥", "price": 8000}] and items[0]["moods"] == ["노포"]
     bad = [{"spend": "5만"}, {"moods": ["시끄러운"]}, {"menus": [{"name": "a"}] * 4}, {"menus": [{"name": " "}]},
            {"menus": [{"name": "x", "price": 500}]}, {"positions": [{"lat": 1, "lng": 1}] * 3}]
