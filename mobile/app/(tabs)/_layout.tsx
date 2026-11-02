@@ -34,7 +34,7 @@ export default function TabLayout() {
             tabBarLabel: tab.title,
             tabBarAccessibilityLabel: `${tab.title} 탭`,
             tabBarIcon: ({ color, size, focused }) => (
-              <Ionicons name={(focused ? tab.icon : `${tab.icon}-outline`) as IconName} color={color} size={size} />
+              <Ionicons name={(focused ? tab.icon : `${tab.icon}-outline`) as IconName} color={color as string} size={size} />
             ),
           }}
         />

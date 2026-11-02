@@ -7,9 +7,6 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
-    "splash": {
-      "backgroundColor": "#FFFFFF"
-    },
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -23,7 +20,8 @@
         }
       ],
       "expo-web-browser",
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-font"
     ],
     "ios": {
       "supportsTablet": false,
