@@ -256,7 +256,8 @@ MIGRATIONS = {
                      ("spend", "TEXT"), ("moods", "TEXT")),
     # price_src·moods_src = 'review' 면 리뷰 집계값(app/reviews.py), 집계 미달 시 비움
     "restaurants": (("alcohol_src", "TEXT"), ("sbiz_category", "TEXT"), ("subtype", "TEXT"), ("subtype_src", "TEXT"),
-                    ("price_src", "TEXT"), ("moods_src", "TEXT")),
+                    ("price_src", "TEXT"), ("moods_src", "TEXT"),
+                    ("exclude_reason", "TEXT")),  # app/exclude.py: cafeteria | corporate → 점수·추천 제외
 }
 
 # 컬럼 마이그레이션 후에 만들어야 하는 인덱스(구 DB 에는 SCHEMA 실행 시점에 컬럼이 없음)

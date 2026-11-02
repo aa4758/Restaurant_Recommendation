@@ -33,9 +33,20 @@ def _ids(r):
 
 
 # --- /recommend ----------------------------------------------------------
-def test_recommend_limit_max_5(client):
-    assert len(client.post("/recommend", json={**CITY_HALL, "limit": 5}).json()["items"]) == 5
-    assert client.post("/recommend", json={**CITY_HALL, "limit": 6}).status_code == 422
+def test_recommend_limit_max_20_and_paging(client):
+    """2026-11-02: 표시 별점 내림차순으로 이어 보기(offset), 페이지끼리 겹치거나 빠지지 않음."""
+    first = client.post("/recommend", json={**CITY_HALL, "limit": 5, "radius_m": 20000}).json()
+    assert len(first["items"]) == 5 and first["total"] >= 10
+    rest = client.post("/recommend", json={**CITY_HALL, "limit": 20, "offset": 5, "radius_m": 20000}).json()
+    whole = client.post("/recommend", json={**CITY_HALL, "limit": 20, "radius_m": 20000}).json()
+    assert _ids_of(first) + _ids_of(rest)[:15] == _ids_of(whole)
+    stars = [round(i["star"], 1) for i in whole["items"]]
+    assert stars == sorted(stars, reverse=True)
+    assert client.post("/recommend", json={**CITY_HALL, "limit": 21}).status_code == 422
+
+
+def _ids_of(body):
+    return [it["id"] for it in body["items"]]
 
 
 def test_recommend_exclude_ids_reselects(client):

@@ -38,7 +38,7 @@ SYSTEM = (
     "각 낱말을 앱 필터 값 하나에 대응시켜라. 허용 값:\n"
     + "\n".join(f"- {k}: {', '.join(v)}" for k, v in ALLOWED.items())
     + "\n음식·맛·분위기·가격·음주 조건을 뜻하지 않거나(동사·지명·인사 등) 대응이 애매하면 field=none, value=none. "
-    "맛 표현은 가장 대표적인 세부 분류 하나로(예: 얼큰한 → 찌개/전골), 음주 가능은 alcohol=yes, 음주 불가는 alcohol=no."
+    "맛 표현은 가장 대표적인 세부 분류 하나로(예: 얼큰한 → 찌개/탕 기타), 음주 가능은 alcohol=yes, 음주 불가는 alcohol=no."
 )
 SCHEMA = {
     "type": "object",

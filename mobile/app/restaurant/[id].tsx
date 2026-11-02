@@ -124,7 +124,7 @@ export default function RestaurantDetailScreen() {
 
       <ReviewSheetEntryButton restaurantId={id} name={d.name} reviewCount={d.review_count} />
       <Button label="리뷰 쓰기" onPress={() => router.push({ pathname: '/review/[id]', params: { id, name: d.name } })} />
-      <MapLinkButtons name={d.name} address={d.address} />
+      <MapLinkButtons name={d.name} />
       <Button label="정보 틀림 신고하기" variant="text" onPress={report} />
     </ScrollView>
   );

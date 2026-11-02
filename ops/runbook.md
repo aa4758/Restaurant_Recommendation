@@ -24,6 +24,14 @@ curl http://localhost:8000/health   # {"status":"ok"}
 - 로컬 확인: 백엔드 `uvicorn app.main:app --port 8000` + 앱 `npx expo start --web`(`EXPO_PUBLIC_API_URL=http://localhost:8000`) → 계정 화면에서 로그인.
 - 구글은 OAuth 동의 화면이 '테스트' 상태인 동안 등록한 테스트 사용자만 로그인 가능 → 배포 단계에서 앱 게시.
 
+## 추천 제외 상호 (구내식당·회사명, docs/01 '추천 제외 상호')
+인허가 재적재 뒤 다시 실행(점수 재계산 포함, 약 1분). 규칙은 `backend/app/exclude.py`.
+```powershell
+cd backend
+python -m app.exclude --dry-run   # 건수만
+python -m app.exclude
+```
+
 ## 리뷰 지도 경계 (I-3, app/ingest/build_regions.py)
 - 결과물 `mobile/assets/regions.json`(git 포함, 약 160KB). 행정구역이 바뀌거나(구 신설·통합) 가게 DB 를 새로 적재했을 때 다시 만듦.
 - 키: SGIS 개발지원센터 인증키 → 사용자 환경변수 `SGIS_CONSUMER_KEY`, `SGIS_CONSUMER_SECRET`.

@@ -123,10 +123,12 @@ def test_equal_prior_gives_equal_star():
 
 
 def test_strict_map_mean_and_top_share():
-    stars = strict.strict_map(list(range(1000)))
+    stars = strict.strict_map(list(range(10000)))  # v2.3: 5.0 = 상위 약 0.1%, 4.5 이상 약 0.7%
     assert abs(mean(stars) - 2.5) < 0.05
+    five = sum(s >= 4.95 for s in stars) / len(stars)  # 화면 표시 5.0(소수 첫째 자리)
+    assert 0.0005 <= five <= 0.002
     top = sum(s >= 4.5 for s in stars) / len(stars)
-    assert 0.02 <= top <= 0.04
+    assert 0.004 <= top <= 0.01
     assert all(0 <= s <= 5 for s in stars)
     assert stars == sorted(stars)  # 단조
 

@@ -14,7 +14,8 @@ class RecommendRequest(BaseModel):
     subtype: Optional[list[str]] = None  # 세부 분류(2026-10-29)
     mood: Optional[list[str]] = None
     alcohol: Literal["any", "yes", "no"] = "any"
-    limit: int = Field(default=3, ge=1, le=5)
+    limit: int = Field(default=3, ge=1, le=20)  # 한 번에 받을 개수(2026-11-02: 목록 이어 보기, 최대 20)
+    offset: int = Field(default=0, ge=0, le=5000)  # 이어 받기 시작 위치
     exclude_ids: list[Annotated[str, Field(max_length=64)]] = Field(default=[], max_length=200)  # 싫어요 숨김
 
 
@@ -62,6 +63,7 @@ class ParseOut(BaseModel):
 class RecommendResponse(BaseModel):
     items: list[Item]
     relaxed: list[str]
+    total: int = 0  # 조건(완화 후)에 맞는 전체 가게 수 — offset+len(items) < total 이면 더 있음
 
 
 class ScoreComponents(BaseModel):

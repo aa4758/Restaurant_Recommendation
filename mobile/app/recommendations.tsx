@@ -104,7 +104,7 @@ function ReelCard({ item, height, onPress }: { item: RestaurantItem; height: num
         </View>
       </ScrollView>
     </Pressable>
-    <MapLinkButtons name={item.name} address={item.address} compact />
+    <MapLinkButtons name={item.name} compact />
     </View>
   );
 }
@@ -205,11 +205,18 @@ function UndoToast({ onUndo }: { onUndo: () => void }) {
   );
 }
 
+const PAGE = 10; // 한 번에 받는 개수
+const PREFETCH = 3; // 끝에서 몇 장 앞에서 다음 묶음을 받을지
+
 export default function RecommendationDeck() {
   const t = useTheme();
   const router = useRouter();
   const { q, fallback } = useLocalSearchParams<{ q: string; fallback?: string }>();
   const [items, setItems] = useState<RestaurantItem[] | null>(null);
+  const [total, setTotal] = useState(0);
+  const fetched = useRef(0); // 서버에서 받은 개수(싫어요로 화면에서 뺀 것 포함) = 다음 offset
+  const loadingMore = useRef(false);
+  const baseReq = useRef<RecommendRequest | null>(null);
   const [relaxed, setRelaxed] = useState<string[]>([]);
   const [showRelaxed, setShowRelaxed] = useState(true);
   const [error, setError] = useState(false);
@@ -249,10 +256,14 @@ export default function RecommendationDeck() {
       setDeviceId(id);
       setLikes(liked);
       const query = JSON.parse(q) as RecommendRequest;
-      const req: RecommendRequest = { ...query, limit: Math.min(query.limit ?? 3, 5), ...(exclude.length ? { exclude_ids: exclude } : {}) };
+      // 표시 별점 내림차순으로 끝까지 이어 보기(2026-11-02): PAGE 개씩 받음
+      const req: RecommendRequest = { ...query, limit: PAGE, offset: 0, ...(exclude.length ? { exclude_ids: exclude } : {}) };
+      baseReq.current = req;
       const res = await api.recommend(req);
       if (stale()) return;
-      setItems(res.items.slice(0, 5));
+      fetched.current = res.items.length;
+      setTotal(res.total ?? res.items.length);
+      setItems(res.items);
       setPage(0);
       setRelaxed(res.relaxed);
       store.consumeSwipeHint().then((first) => first && !stale() && res.items.length > 1 && setHint(true));
@@ -263,6 +274,33 @@ export default function RecommendationDeck() {
   useEffect(() => {
     load();
   }, [load]);
+
+  const loadMore = useCallback(async () => {
+    const req = baseReq.current;
+    if (!req || loadingMore.current || fetched.current >= total) return;
+    loadingMore.current = true;
+    const tok = loadToken.current;
+    try {
+      const res = await api.recommend({ ...req, offset: fetched.current });
+      if (tok !== loadToken.current || !mounted.current) return;
+      fetched.current += res.items.length;
+      if (!res.items.length) fetched.current = total; // 서버 쪽 개수가 줄었으면 끝
+      setItems((cur) => {
+        const have = new Set((cur ?? []).map((x) => x.id));
+        return [...(cur ?? []), ...res.items.filter((x) => !have.has(x.id))];
+      });
+    } catch {
+      showToast('다음 가게를 불러오지 못했어요.');
+    } finally {
+      loadingMore.current = false;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [total]);
+
+  // 끝에서 PREFETCH 장 앞에 오면 다음 묶음
+  useEffect(() => {
+    if (items && page >= items.length - PREFETCH) loadMore();
+  }, [page, items, loadMore]);
   useEffect(() => {
     mounted.current = true;
     return () => {
@@ -277,7 +315,7 @@ export default function RecommendationDeck() {
     if (!items || !announceId) return;
     const idx = items.findIndex((x) => x.id === announceId);
     if (idx < 0) return;
-    AccessibilityInfo.announceForAccessibility(`${idx + 1}번째, 총 ${items.length}곳, ${items[idx].name}`);
+    AccessibilityInfo.announceForAccessibility(`${idx + 1}번째, 총 ${items.length + Math.max(0, total - fetched.current)}곳, ${items[idx].name}`);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [announceId]);
 
@@ -333,7 +371,7 @@ export default function RecommendationDeck() {
 
   const share = (item: RestaurantItem) => {
     const addr = item.address?.trim();
-    const link = mapLinks(item.name, addr).kakao.web;
+    const link = mapLinks(item.name).kakao.web;
     const lines = [`[찐맛] ${item.name}`, `★ ${item.star.toFixed(1)} · 이 지역 상위 ${item.percentile}%`];
     if (addr) lines.push(addr);
     if (item.reasons[0]) lines.push(item.reasons[0]);
@@ -353,9 +391,11 @@ export default function RecommendationDeck() {
   if (!items) return <ActivityIndicator accessibilityLabel="추천을 불러오는 중" style={{ marginTop: t.spacing.xxl }} />;
 
   const data: (RestaurantItem | typeof END)[] = [...items, END];
+  const hasMore = fetched.current < total;
+  const count = items.length + Math.max(0, total - fetched.current); // 화면에서 뺀(싫어요) 곳 제외한 전체
   const onEnd = page >= items.length;
   const current = items[page];
-  const a11yLabel = current && !onEnd ? `${page + 1}번째, 총 ${items.length}곳, ${current.name}` : '마지막 카드';
+  const a11yLabel = current && !onEnd ? `${page + 1}번째, 총 ${count}곳, ${current.name}` : '마지막 카드';
   const moveBy = (delta: number) => {
     const n = Math.max(0, Math.min(data.length - 1, page + delta));
     listRef.current?.scrollToIndex({ index: n, animated: true });
@@ -377,10 +417,19 @@ export default function RecommendationDeck() {
             setPage(Math.round(e.nativeEvent.contentOffset.y / deckH));
             setHint(false);
           }}
+          // 웹은 momentum 이벤트가 없어 스크롤 위치로도 현재 장을 맞춤(같은 값이면 다시 그리지 않음)
+          onScroll={(e) => setPage(Math.round(e.nativeEvent.contentOffset.y / deckH))}
+          scrollEventThrottle={100}
+          onEndReached={loadMore}
+          onEndReachedThreshold={PREFETCH}
           renderItem={({ item: d }) =>
-            d === END ? (
+            d === END && hasMore ? (
               <View style={[center, { height: deckH, alignItems: 'center' }]}>
-                <Text style={[t.typography.heading, { color: t.colors.textPrimary, textAlign: 'center' }]}>오늘의 추천은 여기까지예요</Text>
+                <ActivityIndicator accessibilityLabel="다음 가게를 불러오는 중" />
+              </View>
+            ) : d === END ? (
+              <View style={[center, { height: deckH, alignItems: 'center' }]}>
+                <Text style={[t.typography.heading, { color: t.colors.textPrimary, textAlign: 'center' }]}>조건에 맞는 곳을 모두 봤어요</Text>
                 <Text style={[t.typography.body, { color: t.colors.textSecondary, textAlign: 'center' }]}>조건을 바꿔 다시 찾아볼 수 있어요.</Text>
                 <Button label="조건 다시 선택하기" variant="secondary" onPress={() => router.back()} />
               </View>
@@ -413,7 +462,7 @@ export default function RecommendationDeck() {
         >
           {!onEnd ? (
             <Text style={[t.typography.captionStrong, { color: t.colors.textSecondary }]}>
-              {page + 1}/{items.length}
+              {page + 1}/{count}
             </Text>
           ) : null}
         </View>

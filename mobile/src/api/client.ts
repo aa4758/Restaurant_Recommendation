@@ -61,6 +61,8 @@ export interface RecommendRequest {
   mood?: string[];
   alcohol?: AlcoholFilter;
   limit?: number;
+  /** 이어 받기 시작 위치(표시 별점 내림차순 목록 기준) */
+  offset?: number;
   /** 싫어요로 숨긴 가게 id (최대 200) */
   exclude_ids?: string[];
 }
@@ -95,6 +97,8 @@ export interface RestaurantItem {
 export interface RecommendResponse {
   items: RestaurantItem[];
   relaxed: string[];
+  /** 조건(완화 후)에 맞는 전체 수 — offset + items 수 < total 이면 더 있음 */
+  total: number;
 }
 
 /** 점수 모델 v2.1 구성요소별 사전 점수 기여분 (감점 항목 sanction·ad 는 음수) */

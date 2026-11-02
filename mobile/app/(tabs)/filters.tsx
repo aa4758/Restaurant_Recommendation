@@ -1,12 +1,13 @@
-/** 1. 조건선택 (Home) — docs/design/screens.md */
+/** 탭 2. 필터 (Filters) — docs/design/screens.md 1. 칩으로 조건을 골라 추천. */
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Linking, ScrollView, Text, TextInput, View } from 'react-native';
-import { Link, useRouter } from 'expo-router';
-import { api, AlcoholFilter, FiltersResponse, RecommendRequest } from '../src/api/client';
-import { useLocation } from '../src/state/useLocation';
-import { Button } from '../src/components/Button';
-import { FilterChipGroup, InlineErrorBanner, Notice } from '../src/components/ui';
-import { useTheme } from '../src/theme';
+import { ActivityIndicator, Linking, ScrollView, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { api, AlcoholFilter, FiltersResponse } from '../../src/api/client';
+import { goRecommend } from '../../src/goRecommend';
+import { useLocation } from '../../src/state/useLocation';
+import { Button } from '../../src/components/Button';
+import { FilterChipGroup, InlineErrorBanner, Notice } from '../../src/components/ui';
+import { useTheme } from '../../src/theme';
 
 const RADIUS_OPTIONS = [
   { value: '500', label: '500m' },
@@ -18,7 +19,7 @@ const ALCOHOL_LABEL: Record<AlcoholFilter, string> = { any: '상관없음', yes:
 const toggle = (list: string[], v: string) => (list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
 const opts = (vals: string[]) => vals.map((v) => ({ value: v, label: v }));
 
-export default function HomeScreen() {
+export default function FiltersScreen() {
   const t = useTheme();
   const router = useRouter();
   const loc = useLocation();
@@ -30,10 +31,6 @@ export default function HomeScreen() {
   const [alcohol, setAlcohol] = useState<AlcoholFilter>('any');
   const [radius, setRadius] = useState('1000');
   const [subtype, setSubtype] = useState<string[]>([]);
-  const [text, setText] = useState('');
-  const [parsing, setParsing] = useState(false);
-  const [unknown, setUnknown] = useState<string[]>([]);
-  const [parseError, setParseError] = useState(false);
 
   const loadFilters = useCallback(() => {
     setError(false);
@@ -51,42 +48,16 @@ export default function HomeScreen() {
     ? RADIUS_OPTIONS
     : [...RADIUS_OPTIONS, { value: radius, label: `${radius}m` }];
 
-  // 문장 → 칩(사용자가 칩으로 고칠 수 있음). 못 알아들은 낱말은 적용 안 하고 표시만.
-  const applyText = () => {
-    if (!text.trim()) return;
-    setParsing(true);
-    setParseError(false);
-    api.parseFilters(text.trim()).then(
-      ({ filters: f, unknown: u }) => {
-        setPrice(f.price ?? []);
-        setGenre(f.genre ?? []);
-        setSubtype(f.subtype ?? []);
-        setMood(f.mood ?? []);
-        setAlcohol(f.alcohol);
-        if (f.radius_m) setRadius(String(f.radius_m));
-        setUnknown(u);
-        setParsing(false);
-      },
-      () => {
-        setParseError(true);
-        setParsing(false);
-      },
-    );
-  };
+  const submit = () =>
+    goRecommend(router, loc, { price, genre, subtype, mood, alcohol, radius_m: Number(radius) });
 
-  const submit = () => {
-    const req: RecommendRequest = {
-      lat: loc.lat,
-      lng: loc.lng,
-      // 위치 없음 → 거리 조건 없이 (스키마 최대 반경)
-      radius_m: loc.isFallback ? 20000 : Number(radius),
-      price: price.length ? price : undefined,
-      genre: genre.length ? genre : undefined,
-      subtype: subtype.length ? subtype : undefined,
-      mood: mood.length ? mood : undefined,
-      alcohol,
-    };
-    router.push({ pathname: '/recommendations', params: { q: JSON.stringify(req), fallback: loc.isFallback ? '1' : '' } });
+  const reset = () => {
+    setPrice([]);
+    setGenre([]);
+    setSubtype([]);
+    setMood([]);
+    setAlcohol('any');
+    setRadius('1000');
   };
 
   return (
@@ -97,28 +68,6 @@ export default function HomeScreen() {
           <Button label="설정에서 허용하기" variant="text" onPress={() => Linking.openSettings()} />
         </View>
       ) : null}
-
-      <Text style={[t.typography.title, { color: t.colors.textPrimary }]}>지금 이 근처, 진짜 맛집만</Text>
-
-      <View style={{ gap: t.spacing.sm }}>
-        <TextInput
-          value={text}
-          onChangeText={setText}
-          onSubmitEditing={applyText}
-          placeholder="예) 근처 만원 이하 국밥, 혼밥하기 좋고 술은 안 마셔요"
-          placeholderTextColor={t.colors.textDisabled}
-          maxLength={200}
-          returnKeyType="search"
-          style={[t.typography.body, { color: t.colors.textPrimary, borderColor: t.colors.border, borderWidth: 1, borderRadius: t.radius.md, padding: t.spacing.md }]}
-        />
-        <Button label="문장으로 조건 고르기" variant="text" onPress={applyText} loading={parsing} disabled={!text.trim()} />
-        {unknown.length ? (
-          <Text style={[t.typography.caption, { color: t.colors.textSecondary }]}>
-            인식 못함: {unknown.join(', ')} (적용하지 않았어요)
-          </Text>
-        ) : null}
-        {parseError ? <InlineErrorBanner message="문장을 해석하지 못했어요. 칩으로 골라 주세요." /> : null}
-      </View>
 
       {error ? (
         <InlineErrorBanner message="필터 정보를 불러오지 못했어요. 다시 시도해 주세요." onRetry={loadFilters} />
@@ -160,13 +109,8 @@ export default function HomeScreen() {
       {summary.length ? (
         <Text style={[t.typography.caption, { color: t.colors.textSecondary }]}>선택: {summary.join(' · ')}</Text>
       ) : null}
-      <Button label="3곳 추천받기" onPress={submit} loading={loc.isLoading} />
-      <Link href="/scoring" style={[t.typography.caption, { color: t.colors.accent, textAlign: 'center' }]}>
-        찐맛 점수는 어떻게 매기나요?
-      </Link>
-      <Link href="/account" style={[t.typography.caption, { color: t.colors.accent, textAlign: 'center' }]}>
-        계정
-      </Link>
+      <Button label="추천받기" onPress={submit} loading={loc.isLoading} />
+      {summary.length ? <Button label="선택 초기화" variant="text" onPress={reset} /> : null}
     </ScrollView>
   );
 }

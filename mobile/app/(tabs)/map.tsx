@@ -1,15 +1,15 @@
-/** 리뷰 지도 (ReviewMap) — docs/design/screens.md, docs/01 '리뷰 지도'(I-3). 본인만 보는 화면. */
+/** 탭 3. 내 지도 (ReviewMap) — docs/design/screens.md, docs/01 '리뷰 지도'(I-3). 리뷰한 지역 지도 + 내가 다녀온 가게. 본인만. */
 import React, { useCallback, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { api, ApiError, MyReview } from '../src/api/client';
-import { clearToken, getToken } from '../src/state/authStore';
-import { Button } from '../src/components/Button';
-import { LoginButtons } from '../src/components/LoginButtons';
-import { RegionMap } from '../src/components/RegionMap';
-import { Notice } from '../src/components/ui';
-import { REGIONS, sidoProgress, visitedUnits } from '../src/regions';
-import { useTheme } from '../src/theme';
+import { api, ApiError, MyReview } from '../../src/api/client';
+import { clearToken, getToken } from '../../src/state/authStore';
+import { Button } from '../../src/components/Button';
+import { LoginButtons } from '../../src/components/LoginButtons';
+import { RegionMap } from '../../src/components/RegionMap';
+import { Notice } from '../../src/components/ui';
+import { REGIONS, sidoProgress, visitedUnits } from '../../src/regions';
+import { useTheme } from '../../src/theme';
 
 export default function ReviewMapScreen() {
   const t = useTheme();
@@ -105,6 +105,26 @@ export default function ReviewMapScreen() {
             </Pressable>
           ))
         : null}
+      {!sido ? (
+        <View style={{ gap: t.spacing.xs, marginTop: t.spacing.md }}>
+          <Text style={h1}>내가 다녀온 가게 {reviews.length}곳</Text>
+          {reviews.length ? (
+            reviews.map((v) => (
+              <Pressable key={v.restaurant_id} onPress={() => router.push(`/restaurant/${v.restaurant_id}`)} accessibilityRole="button"
+                accessibilityLabel={`${v.name}, 내 별점 ${v.stars}점${v.onsite ? ', 현장 작성' : ''}`}
+                style={{ paddingVertical: t.spacing.sm, borderBottomWidth: 1, borderBottomColor: t.colors.border, gap: 2 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <Text style={[t.typography.bodyStrong, { color: t.colors.textPrimary, flex: 1 }]}>{v.name}</Text>
+                  <Text style={[t.typography.bodyStrong, { color: t.colors.textPrimary }]}>★ {v.stars.toFixed(1)}</Text>
+                </View>
+                <Text style={cap}>{(v.updated_at ?? v.created_at).slice(0, 10)}{v.onsite ? ' · 현장 작성' : ''}</Text>
+              </Pressable>
+            ))
+          ) : (
+            <Text style={cap}>리뷰를 쓰면 여기에 가게가 저장되고 지도가 칠해져요.</Text>
+          )}
+        </View>
+      ) : null}
       <Text style={[t.typography.micro, { color: t.colors.textDisabled }]}>경계: 통계청 SGIS · 북한 윤곽: Natural Earth</Text>
     </ScrollView>
   );

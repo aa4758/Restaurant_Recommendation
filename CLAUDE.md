@@ -1,6 +1,6 @@
 # 찐맛 (JJINMAT) — 위치 기반 음식점 큐레이션 앱
 
-엄격 별점(평균 ≈ 2.5)과 소수 큐레이션(기본 3곳)으로 추천하는 모바일 앱. 백엔드 FastAPI + SQLite, 앱 Expo(React Native, TS).
+엄격 별점(평균 ≈ 2.5)으로 근처 가게를 별점 내림차순 카드 덱으로 추천하는 모바일 앱. 백엔드 FastAPI + SQLite, 앱 Expo(React Native, TS).
 **현재 상태·다음 할 일·명령어는 `docs/03_handoff.md` 를 먼저 읽을 것.**
 
 ## 문서 (결정이 바뀌면 코드보다 문서를 먼저 고친다)

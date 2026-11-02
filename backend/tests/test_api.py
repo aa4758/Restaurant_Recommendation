@@ -22,7 +22,7 @@ def test_health_and_filters(client):
     assert client.get("/health").json() == {"status": "ok"}
     f = client.get("/meta/filters").json()
     assert set(f) == {"price", "genre", "subtype", "mood", "alcohol"}
-    assert "국밥/곰탕/설렁탕" in f["subtype"]["한식"]  # 2026-10-29 세부 분류
+    assert "국밥" in f["subtype"]["국밥/탕/찌개"]  # 2026-11-02 세분화
 
 
 def test_recommend_contract(client):
@@ -39,7 +39,7 @@ def test_recommend_contract(client):
 
 def test_recommend_validation(client):
     assert client.post("/recommend", json={**CITY_HALL, "alcohol": "maybe"}).status_code == 422
-    assert client.post("/recommend", json={**CITY_HALL, "limit": 9}).status_code == 422
+    assert client.post("/recommend", json={**CITY_HALL, "limit": 21}).status_code == 422
 
 
 def test_seed_star_distribution(client):
@@ -112,7 +112,7 @@ def test_filters_parse_and_subtype_recommend(client):
     r = client.post("/filters/parse", json={"text": "만원 이하 국밥 혼밥, 술은 안 마셔"})
     assert r.status_code == 200
     f = r.json()["filters"]
-    assert f["subtype"] == ["국밥/곰탕/설렁탕"] and f["alcohol"] == "no" and f["price"] == ["~1만"]
+    assert f["subtype"] == ["국밥"] and f["alcohol"] == "no" and f["price"] == ["~1만"]
     assert client.post("/filters/parse", json={"text": ""}).status_code == 422
-    body = client.post("/recommend", json={**CITY_HALL, "subtype": ["국밥/곰탕/설렁탕"]}).json()
+    body = client.post("/recommend", json={**CITY_HALL, "subtype": ["국밥"]}).json()
     assert len(body["items"]) == 3 and all("subtype" in i for i in body["items"])

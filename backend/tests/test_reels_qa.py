@@ -148,7 +148,7 @@ def test_exclude_everything_returns_empty_not_error(client):
 
 
 @pytest.mark.parametrize("body", [
-    {"limit": 6}, {"limit": 0}, {"limit": 100},
+    {"limit": 21}, {"limit": 0}, {"limit": 100},
     {"exclude_ids": ["x"] * 201},
     {"exclude_ids": ["x" * 65]},
     {"exclude_ids": "R001"},
