@@ -1,6 +1,6 @@
 /** 기기 저장소: device_id, 찜 목록, 숨김 목록(30일 만료). AsyncStorage 실패 시 메모리 fallback. */
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { randomUUID } from 'expo-crypto';
+import { getRandomBytes } from 'expo-crypto';
 
 const K_DEVICE = 'jjinmat.device_id';
 const K_LIKES = 'jjinmat.likes';
@@ -38,7 +38,8 @@ async function set(key: string, value: string): Promise<void> {
 export async function getDeviceId(): Promise<string> {
   const v = await get(K_DEVICE);
   if (v && /^[A-Za-z0-9_-]{8,64}$/.test(v)) return v;
-  const id = randomUUID(); // 36자, [A-Za-z0-9-] 규칙 충족
+  // randomUUID 는 웹에서 https·localhost 에서만 동작 → 어디서나 되는 getRandomBytes 로 만듦(32자 hex)
+  const id = Array.from(getRandomBytes(16), (b) => b.toString(16).padStart(2, '0')).join('');
   await set(K_DEVICE, id);
   return id;
 }
