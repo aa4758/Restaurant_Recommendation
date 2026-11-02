@@ -228,11 +228,15 @@ def logout(authorization: str | None = Header(default=None), uid: int = Depends(
 @router.delete("/me", status_code=204)
 def delete_me(uid: int = Depends(current_user), conn=Depends(get_conn)) -> Response:
     """회원 탈퇴(L-7): 계정·로그인 수단·토큰·그 계정의 리뷰 삭제 후 영향받은 시군구 점수 재계산."""
-    from app.service import rebuild_scores, region_of  # 순환 import 회피
+    from app.reviews import aggregate  # 순환 import 회피
+    from app.service import rebuild_scores, region_of
 
     rids = [r[0] for r in conn.execute("SELECT DISTINCT restaurant_id FROM user_reviews WHERE user_id=?", (str(uid),))]
-    conn.execute("DELETE FROM user_reviews WHERE user_id=?", (str(uid),))
+    conn.execute("DELETE FROM user_reviews WHERE user_id=?", (str(uid),))  # review_menus 는 CASCADE
+    conn.execute("DELETE FROM review_deletions WHERE user_id=?", (str(uid),))
     conn.execute("DELETE FROM users WHERE id=?", (uid,))  # identities·sessions 는 ON DELETE CASCADE
+    for rid in rids:
+        aggregate(conn, rid)  # 확정 메뉴·가격대·분위기 다시 계산
     conn.commit()
     for region in {region_of(conn, rid) for rid in rids}:
         rebuild_scores(conn, region)

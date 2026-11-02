@@ -29,7 +29,7 @@ from app.schemas import (
     ReviewPage,
 )
 from app.ratelimit import IP_LIMIT_PER_MIN, WRITE_LIMIT_PER_MIN, write_limiter
-from app.scoring.prior import is_ad_text
+from app import reviews
 from app.scoring.recommend import DISTANCE_RELAX_FACTOR, Query, Scored as RecScored, make_reasons, recommend
 from app.service import candidates_near, get_scored, rebuild_scores, region_of
 from app.subtype import SUBTYPES
@@ -147,7 +147,7 @@ def _decode_cursor(cur: str) -> tuple[int, str, int]:
         raise HTTPException(status_code=400, detail="invalid cursor")
 
 
-_REVIEW_COLS = "SELECT id, stars, text, tags, created_at, ad_disclosed FROM user_reviews"
+_REVIEW_COLS = "SELECT id, stars, text, tags, created_at, ad_disclosed, onsite, updated_at FROM user_reviews"
 _REVIEW_ORDER = " ORDER BY ad_disclosed ASC, created_at DESC, id DESC LIMIT ?"
 
 
@@ -174,7 +174,7 @@ def get_reviews(
         ReviewItem(
             id=r["id"], stars=float(r["stars"]), text=r["text"] or "",
             tags=json.loads(r["tags"]) if r["tags"] else [], created_at=r["created_at"],
-            ad_disclosed=bool(r["ad_disclosed"]),
+            ad_disclosed=bool(r["ad_disclosed"]), onsite=bool(r["onsite"]), edited=r["updated_at"] is not None,
         ).model_dump()
         for r in page
     ]
@@ -204,18 +204,36 @@ def post_reaction(body: ReactionIn, request: Request, conn=Depends(get_conn)) ->
 @app.post("/restaurants/{rid}/reviews", response_model=ReviewOut, status_code=201)
 def post_review(rid: str, body: ReviewIn, request: Request, uid: int = Depends(current_user),
                 conn=Depends(get_conn)) -> dict:
+    """계정·가게당 1개(있으면 덮어씀). docs/01 R-0~R-6."""
     _rate_limit("review", request, f"u{uid}")  # 계정 키 + IP (docs/01 L-5: 리뷰는 로그인 필수)
     if get_scored(conn, rid) is None:  # 없는 가게·폐업 가게
         raise HTTPException(status_code=404, detail="restaurant not found")
-    cur = conn.execute(
-        "INSERT INTO user_reviews(restaurant_id,stars,text,tags,user_id,ad_disclosed,created_at)"
-        " VALUES(?,?,?,?,?,?,?)",
-        (rid, body.stars, body.text, json.dumps(body.tags, ensure_ascii=False), str(uid),
-         int(is_ad_text(body.text)), datetime.now(timezone.utc).isoformat()),
-    )
-    conn.commit()
+    out = reviews.write_review(conn, uid, rid, body)
     rebuild_scores(conn, region_of(conn, rid))  # ponytail: 리뷰마다 시군구 재계산(수천 건, ms 단위). 트래픽 커지면 큐/주기 배치
-    return {"id": cur.lastrowid, "final_star": get_scored(conn, rid)[0].star}
+    return {**out, "final_star": get_scored(conn, rid)[0].star}
+
+
+@app.delete("/restaurants/{rid}/reviews/me", status_code=204)
+def delete_my_review(rid: str, request: Request, uid: int = Depends(current_user), conn=Depends(get_conn)) -> Response:
+    _rate_limit("review", request, f"u{uid}")
+    reviews.delete_review(conn, uid, rid)
+    rebuild_scores(conn, region_of(conn, rid))
+    return Response(status_code=204)
+
+
+@app.get("/restaurants/{rid}/menus")
+def get_menus(rid: str, conn=Depends(get_conn)) -> dict:
+    """리뷰 메뉴 입력 자동완성(R-4): 그 가게의 알려진 메뉴(지정목록·확정 메뉴 등)."""
+    _require(conn, rid)
+    rows = conn.execute("SELECT name, MAX(price) AS price FROM menus WHERE restaurant_id=? GROUP BY name"
+                        " ORDER BY is_signature DESC, name LIMIT 30", (rid,)).fetchall()
+    return {"items": [{"name": r["name"], "price": r["price"]} for r in rows]}
+
+
+@app.get("/me/reviews")
+def get_my_reviews(uid: int = Depends(current_user), conn=Depends(get_conn)) -> dict:
+    """내가 다녀온 가게 = 내 리뷰 목록(R-7)."""
+    return {"items": reviews.my_reviews(conn, uid)}
 
 
 @app.post("/restaurants/{rid}/report", status_code=202)

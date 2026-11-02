@@ -93,11 +93,34 @@ class RestaurantDetail(Item):
 DeviceId = Annotated[str, Field(min_length=8, max_length=64, pattern=r"^[A-Za-z0-9_-]+$")]
 
 
+class MenuIn(BaseModel):
+    name: str = Field(min_length=1, max_length=30)
+    price: Optional[int] = Field(default=None, ge=1000, le=300_000)
+
+    @field_validator("name")
+    @classmethod
+    def not_blank(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("blank menu name")
+        return v
+
+
+class Position(BaseModel):
+    """현장 작성 판정용(docs/01 R-2). 저장하지 않음."""
+    lat: float = Field(ge=-90, le=90)
+    lng: float = Field(ge=-180, le=180)
+    accuracy: Optional[float] = Field(default=None, ge=0)
+
+
 class ReviewIn(BaseModel):
     stars: float = Field(ge=0.5, le=5)
     text: str = Field(default="", max_length=1000)
     tags: list[Annotated[str, Field(max_length=20)]] = Field(default=[], max_length=10)
     device_id: Optional[DeviceId] = None  # 무시(하위 호환). 작성자는 로그인 계정(app/auth.py)
+    spend: Optional[Literal["~1만", "1~2만", "2~4만", "4만+"]] = None  # constants.PRICE_BANDS (R-5)
+    moods: list[Literal["조용한", "회식", "데이트", "혼밥", "가성비", "노포"]] = Field(default=[], max_length=6)  # MOODS (R-6)
+    menus: list[MenuIn] = Field(default=[], max_length=3)  # R-4
+    positions: list[Position] = Field(default=[], max_length=2)  # 쓰기 화면 열 때·등록할 때
 
     @field_validator("stars")
     @classmethod
@@ -110,6 +133,8 @@ class ReviewIn(BaseModel):
 class ReviewOut(BaseModel):
     id: int
     final_star: float
+    updated: bool = False  # 기존 리뷰를 덮어씀
+    onsite: bool = False
 
 
 class ReportIn(BaseModel):
@@ -124,6 +149,8 @@ class ReviewItem(BaseModel):
     tags: list[str]
     created_at: str
     ad_disclosed: bool
+    onsite: bool = False
+    edited: bool = False
 
 
 class ReviewPage(BaseModel):

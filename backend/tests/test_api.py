@@ -78,10 +78,11 @@ def test_existing_db_gets_new_score_columns(tmp_path):
     assert {"components", "evidence"} <= cols
 
 
-def test_own_review_ad_keywords_trigger_penalty(client):
+def test_own_review_ad_keywords_trigger_penalty(client, login):
     before = client.get("/restaurants/R005").json()["score_breakdown"]
-    for _ in range(12):
-        client.post("/restaurants/R005/reviews", json={"stars": 3, "text": "체험단으로 제공받아 작성", "tags": []})
+    for _ in range(12):  # 계정·가게당 1개(docs/01 R-1) → 서로 다른 계정 12개
+        client.post("/restaurants/R005/reviews", json={"stars": 3, "text": "체험단으로 제공받아 작성", "tags": []},
+                    headers=login())
     after = client.get("/restaurants/R005").json()["score_breakdown"]
     assert after["ad_penalty"] > before["ad_penalty"] and after["components"]["ad"] < 0
 

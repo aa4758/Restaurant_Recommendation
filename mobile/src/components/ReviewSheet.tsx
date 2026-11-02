@@ -20,19 +20,29 @@ function SponsoredLabel() {
   );
 }
 
+function OnsiteLabel() {
+  const t = useTheme();
+  return (
+    <View style={{ alignSelf: 'flex-start', backgroundColor: t.colors.surfaceAlt, borderRadius: t.radius.pill, paddingHorizontal: t.spacing.sm, paddingVertical: 2 }}>
+      <Text style={[t.typography.micro, { color: t.colors.accent }]}>현장 작성</Text>
+    </View>
+  );
+}
+
 function ReviewItem({ r }: { r: ReviewListItem }) {
   const t = useTheme();
   return (
     <View
       accessible
-      accessibilityLabel={`별점 ${r.stars}점, ${r.text}${r.ad_disclosed ? ', 협찬 표시된 리뷰' : ''}`}
+      accessibilityLabel={`별점 ${r.stars}점, ${r.text}${r.onsite ? ', 현장 작성' : ''}${r.ad_disclosed ? ', 협찬 표시된 리뷰' : ''}${r.edited ? ', 수정됨' : ''}`}
       style={{ gap: t.spacing.xs, paddingVertical: t.spacing.md, borderBottomWidth: 1, borderBottomColor: t.colors.border }}
     >
       <Text style={[t.typography.bodyStrong, { color: t.colors.textPrimary }]}>★ {r.stars.toFixed(1)}</Text>
+      {r.onsite ? <OnsiteLabel /> : null}
       {r.ad_disclosed ? <SponsoredLabel /> : null}
       <Text style={[t.typography.body, { color: t.colors.textPrimary }]}>{r.text}</Text>
       {r.tags.length ? <Text style={[t.typography.caption, { color: t.colors.textSecondary }]}>{r.tags.map((x) => `#${x}`).join(' ')}</Text> : null}
-      <Text style={[t.typography.caption, { color: t.colors.textDisabled }]}>{(r.created_at || '').slice(0, 10)}</Text>
+      <Text style={[t.typography.caption, { color: t.colors.textDisabled }]}>{(r.created_at || '').slice(0, 10)}{r.edited ? ' · 수정됨' : ''}</Text>
     </View>
   );
 }

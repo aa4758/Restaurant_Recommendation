@@ -134,7 +134,11 @@ CREATE TABLE IF NOT EXISTS user_reviews (
     user_id TEXT,                      -- 계정 ID(users.id 문자열, 2026-11-02~). 이전 행은 기기 ID
     verified INTEGER NOT NULL DEFAULT 0,  -- 영수증 인증 = 1
     created_at TEXT NOT NULL,
-    ad_disclosed INTEGER               -- 광고·협찬 표시(prior.is_ad_text) 1/0, 작성 시 저장. NULL = 미계산 → 백필
+    ad_disclosed INTEGER,              -- 광고·협찬 표시(prior.is_ad_text) 1/0, 작성 시 저장. NULL = 미계산 → 백필
+    updated_at TEXT,                   -- 수정 시각(NULL = 수정 안 함, docs/01 R-1)
+    onsite INTEGER NOT NULL DEFAULT 0, -- 현장 작성(200m, R-2). 위치 자체는 저장 안 함
+    spend TEXT,                        -- 1인 지출 가격대(R-5), 선택
+    moods TEXT                         -- 분위기 JSON 배열(R-6), 선택
 );
 CREATE INDEX IF NOT EXISTS idx_reviews_restaurant ON user_reviews(restaurant_id);
 CREATE INDEX IF NOT EXISTS idx_gov_restaurant ON gov_expense(restaurant_id);
@@ -177,6 +181,20 @@ CREATE TABLE IF NOT EXISTS enrich_batches (
     created_at TEXT NOT NULL,
     terms INTEGER NOT NULL,
     collected_at TEXT
+);
+-- 리뷰 개편(app/reviews.py, docs/01 R-4·R-1): 리뷰에 적은 메뉴(확정 전 원본), 삭제 기록(24시간 1회 제한)
+CREATE TABLE IF NOT EXISTS review_menus (
+    review_id INTEGER NOT NULL REFERENCES user_reviews(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    norm TEXT NOT NULL,                -- 띄어쓰기 제거 + 소문자(일치 판정용)
+    price INTEGER
+);
+CREATE INDEX IF NOT EXISTS idx_review_menus_review ON review_menus(review_id);
+CREATE TABLE IF NOT EXISTS review_deletions (
+    user_id TEXT NOT NULL,
+    restaurant_id TEXT NOT NULL,
+    deleted_at TEXT NOT NULL,
+    PRIMARY KEY (user_id, restaurant_id)
 );
 -- 소셜 로그인(app/auth.py, docs/01 L-1~L-8): 공급자 고유번호는 HMAC 해시만, 이메일·닉네임 미수집
 CREATE TABLE IF NOT EXISTS users (
@@ -233,8 +251,12 @@ def get_conn():
 # 기존 DB 호환: CREATE TABLE IF NOT EXISTS 는 컬럼을 추가하지 않으므로 없으면 ALTER
 MIGRATIONS = {
     "scores": (("components", "TEXT"), ("evidence", "TEXT")),
-    "user_reviews": (("ad_disclosed", "INTEGER"),),
-    "restaurants": (("alcohol_src", "TEXT"), ("sbiz_category", "TEXT"), ("subtype", "TEXT"), ("subtype_src", "TEXT")),
+    # updated_at·onsite·spend·moods: 리뷰 개편(docs/01 R-1·R-2·R-5·R-6)
+    "user_reviews": (("ad_disclosed", "INTEGER"), ("updated_at", "TEXT"), ("onsite", "INTEGER NOT NULL DEFAULT 0"),
+                     ("spend", "TEXT"), ("moods", "TEXT")),
+    # price_src·moods_src = 'review' 면 리뷰 집계값(app/reviews.py), 집계 미달 시 비움
+    "restaurants": (("alcohol_src", "TEXT"), ("sbiz_category", "TEXT"), ("subtype", "TEXT"), ("subtype_src", "TEXT"),
+                    ("price_src", "TEXT"), ("moods_src", "TEXT")),
 }
 
 # 컬럼 마이그레이션 후에 만들어야 하는 인덱스(구 DB 에는 SCHEMA 실행 시점에 컬럼이 없음)
@@ -244,6 +266,7 @@ POST_MIGRATION_INDEXES = (
     "(restaurant_id, ad_disclosed, created_at DESC, id DESC)",
     # 백필 대상(미계산) 행만 담는 부분 인덱스 → 요청마다 확인해도 저렴
     "CREATE INDEX IF NOT EXISTS idx_reviews_ad_pending ON user_reviews(id) WHERE ad_disclosed IS NULL",
+    "CREATE INDEX IF NOT EXISTS idx_reviews_user ON user_reviews(user_id, restaurant_id)",
 )
 
 

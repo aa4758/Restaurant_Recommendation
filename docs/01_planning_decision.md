@@ -160,6 +160,11 @@ v1(외부 평점 base 기반)은 폐기. 업무추진비 배지 문구·크롤�
   → `{"items":[{"id","name","genre","subtype":str?,"price_band","moods":[str],"alcohol":bool,"lat","lng","distance_m","star":float,"percentile":int,"review_count":int,"gov_visits":int,"gov_source":str?,"reasons":[str],"updated_at":str,"address":str?,"evidence":"low|mid|high"?,"relaxed":[str] (이 가게가 원래 조건 중 충족 못한 항목)}],"relaxed":[str]}`
 - `GET /restaurants/{id}` → 위 item + `"score_breakdown":{"prior_star","user_mean","n","k","gov_bonus","ad_penalty","components":{"tenure","gov","hygiene","designation","reputation","sanction","ad"},"evidence":"low|mid|high"}` (v2: components·evidence 추가, 기존 키 유지. v2.1: components 의 `partner` → `reputation`(외부 평판)으로 변경). item `moods` 에는 착한가격업소면 `가성비` 가 조회 시 합성됨
 - `POST /restaurants/{id}/reviews` **헤더 `Authorization: Bearer <token>` 필수(2026-11-02, 없거나 만료면 401)** body `{"stars":0.5~5 (0.5단위),"text":str,"tags":[str],"device_id":str? (무시, 하위 호환)}` → 201 `{"id","final_star"}`
+- `POST /restaurants/{id}/reviews` 확장(2026-11-02 R-1~R-6): body 에 `"spend":"~1만|1~2만|2~4만|4만+"?`, `"moods":[str]?`, `"menus":[{"name":str(≤30),"price":int?}]?(≤3)`, `"positions":[{"lat","lng","accuracy"?}]?(≤2, 저장 안 함)` 추가. 같은 계정·가게면 덮어씀 → `{"id","final_star","updated":bool,"onsite":bool}`. 한도 초과 429(한국어 detail)
+- `DELETE /restaurants/{id}/reviews/me` (Bearer) → 204 (같은 가게 24시간 1회, 초과 429)
+- `GET /restaurants/{id}/reviews` item 에 `"onsite":bool,"edited":bool` 추가
+- `GET /restaurants/{id}/menus` → `{"items":[{"name","price":int?}]}` (자동완성용, 최대 30)
+- `GET /me/reviews` (Bearer) → `{"items":[{"restaurant_id","name","stars","text","tags","spend","moods","menus","onsite","created_at","updated_at"}]}` (내가 다녀온 가게, 최신순)
 - `GET /auth/{kakao|google}/start?redirect=<앱 주소>&challenge=<base64url(SHA-256(verifier))>` → 302 공급자 로그인. 완료 후 `<앱 주소>?code=<1회용, 5분>` (실패 시 `?error=`)
 - `POST /auth/token` body `{"code":str,"verifier":str}` → `{"token":str,"expires_at":str,"provider":str}`
 - `GET /auth/me` (Bearer) → `{"provider":str,"created_at":str}` · `POST /auth/logout` (Bearer) → 204 · `DELETE /auth/me` (Bearer) → 204 (탈퇴: 계정·리뷰 삭제)
@@ -204,6 +209,21 @@ v1(외부 평점 base 기반)은 폐기. 업무추진비 배지 문구·크롤�
 | L-6 | 익명 데이터 이전 | 안 함(배포 전이라 실사용자 리뷰 0건). 리뷰는 처음부터 로그인 필수 |
 | L-7 | 회원 탈퇴 | 앱 안 + 웹 경로(Google Play 정책, 웹 경로는 배포 단계). 탈퇴 시 계정·로그인 수단·토큰·**그 계정의 리뷰 삭제** |
 | L-8 | 카카오 동의 항목 | 없음(고유번호만). 이메일·닉네임 미수집, 리뷰에 작성자 이름 미표시 |
+
+### 리뷰 개편 세부 (2026-11-02, 찬성/반대 토론 중재 → 사용자 승인)
+| # | 안건 | 결정 |
+|---|---|---|
+| R-0 | 로그인 범위 | 가게 탐색·**리뷰 읽기는 로그인 없이**, 리뷰 쓰기·수정·삭제만 로그인 |
+| R-1 | 수정·삭제 | 계정·가게당 1개, 다시 쓰면 **덮어씀**(점수는 최신만, 화면 '수정됨'). 본인 삭제 가능, 같은 가게 삭제는 24시간에 1회 |
+| R-2 | 현장 작성 | 쓰기 화면을 열 때·등록할 때 위치 중 하나라도 가게 **200m 이내**(GPS 오차 최대 100m 허용)면 '현장 작성'. 위치는 거리 계산에만 쓰고 저장 안 함(결과 0/1만) |
+| R-2a | 수정 시 | 한 번 현장 작성이면 유지, 나중에 현장에서 고치면 붙음 |
+| R-2b | 가중치 | 지금은 **표시만**(점수 미반영). 재검토: 현장 리뷰 500건 이상 |
+| R-3 | 새 계정 제한 | 가입 7일 이내 **24시간 3개·합계 10개**, 이후 24시간 20개(새 리뷰만 셈, 수정은 제외) |
+| R-4 | 메뉴·가격 | 선택, 최대 3개. 메뉴명 30자 + 가격(원, 1,000~300,000, 선택). 그 가게의 알려진 메뉴 **자동완성**, 띄어쓰기·대소문자 무시 비교 |
+| R-4a | 메뉴 확정 | 서로 다른 2계정 이상 같은 메뉴명 → `menus`(source=user). 가격 = 중앙값, 중앙값의 ½ 미만·2배 초과 제외 |
+| R-5 | 가격대 | 리뷰에 **'1인 지출' 칩**(가격대 4구간, 선택). 응답 리뷰 3개 이상이면 최빈값 → `price_band`(price_src=review) |
+| R-6 | 분위기 | 리뷰에 **분위기 칩**(분위기 필터 항목, 여러 개, 선택). 응답 리뷰 3개 이상 + 절반 이상 고른 분위기 → `moods`(moods_src=review). 태그 '조용해요'는 분위기 칩으로 이동 |
+| R-7 | 계정 저장 | **리뷰를 써야 계정에 가게가 저장**됨: 계정 화면 '내가 다녀온 가게' = 내 리뷰 목록(별도 저장 없음). 찜·숨김은 기기에만. 리뷰 삭제·탈퇴 시 빠짐. I-3 지도의 데이터 |
 
 ## 아이디어 백로그 (2026-10-29, 사용자 제안 — 기획 토론·결정 전, 나중에 진행)
 결정 순서: 찬성/반대 토론 → 사용자 승인 → 이 절에서 위 결정 절로 옮기고 개발. 아래 '검토 메모'는 토론 때 다룰 쟁점.
