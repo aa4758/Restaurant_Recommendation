@@ -27,7 +27,7 @@ def _region_rows(conn: sqlite3.Connection, region) -> list[sqlite3.Row]:
     return conn.execute(
         "SELECT r.id, r.opened_at, s.restaurant_id AS has_stats, s.ext_rating, s.ad_ratio, s.ad_conf"
         " FROM restaurants r LEFT JOIN review_stats s ON s.restaurant_id = r.id"
-        " WHERE r.status = 'open' AND r.sigungu_code IS ? ORDER BY r.id",
+        " WHERE r.status = 'open' AND r.exclude_reason IS NULL AND r.sigungu_code IS ? ORDER BY r.id",
         (region,),
     ).fetchall()
 

@@ -11,13 +11,13 @@ from app.subtype import classify, decide
 
 
 def test_classify_and_decide_order():
-    assert classify("문성돼지국밥") == "국밥/곰탕/설렁탕"
+    assert classify("문성돼지국밥") == "돼지국밥" and classify("모두의죽 주안점") == "죽"
     assert classify("멕시카나미룡점") == "치킨" and classify("진주회관") is None
-    assert decide("운정", "냉면/밀면", [], None) == ("냉면/국수/칼국수", "sbiz")
-    assert decide("운정", None, ["김치찌개", "된장찌개", "제육덮밥"], None) == ("찌개/전골", "menu")
+    assert decide("운정", "냉면/밀면", [], None) == ("냉면", "sbiz")
+    assert decide("운정", None, ["김치찌개", "김치찌개백반", "된장찌개"], None) == ("김치찌개", "menu")
     # 넓은 상가 소분류(백반/한정식)는 기존 장르가 한식·기타일 때만
     assert decide("태성골뱅이", "백반/한정식", [], None, "주점") == (None, None)
-    assert decide("왕코", "백반/한정식", [], None, "기타") == ("백반·가정식", "sbiz")
+    assert decide("왕코", "백반/한정식", [], None, "기타") == ("백반/가정식", "sbiz")
 
 
 def _c(i, genre, subtype=None, star=3.0, d=0.001):
@@ -26,24 +26,25 @@ def _c(i, genre, subtype=None, star=3.0, d=0.001):
 
 
 def test_two_level_food_filter_and_relax():
-    cs = [_c("국밥A", "한식", "국밥/곰탕/설렁탕", 4.0), _c("냉면B", "한식", "냉면/국수/칼국수", 4.5),
-          _c("미분류C", "한식", None, 4.8), _c("짬뽕D", "중식", "짜장/짬뽕", 3.5), _c("피자E", "양식", "피자", 3.0)]
-    q = Query(lat=37.5, lng=127.0, subtype=["국밥/곰탕/설렁탕"], genre=["중식"], limit=2)
+    g = "국밥/탕/찌개"
+    cs = [_c("국밥A", g, "국밥", 4.0), _c("곰탕B", g, "곰탕/설렁탕", 4.5),
+          _c("미분류C", g, None, 4.8), _c("짬뽕D", "중식", "짜장/짬뽕", 3.5), _c("피자E", "패스트푸드", "피자", 3.0)]
+    q = Query(lat=37.5, lng=127.0, subtype=["국밥"], genre=["중식"], limit=2)
     items, relaxed = recommend(cs, q)
-    assert {s.cand.id for s in items} == {"국밥A", "짬뽕D"} and relaxed == []  # 한식은 국밥만, 중식은 전체
-    q = Query(lat=37.5, lng=127.0, subtype=["국밥/곰탕/설렁탕"], limit=3)
+    assert {s.cand.id for s in items} == {"국밥A", "짬뽕D"} and relaxed == []  # 국밥/탕/찌개는 국밥만, 중식은 전체
+    q = Query(lat=37.5, lng=127.0, subtype=["국밥"], limit=3)
     items, relaxed = recommend(cs, q)
-    assert relaxed == ["subtype"] and {s.cand.id for s in items} == {"국밥A", "냉면B", "미분류C"}  # 상위 장르로
-    assert next(s for s in items if s.cand.id == "냉면B").relaxed == ["subtype"]
-    assert "국밥/곰탕/설렁탕" in next(s for s in items if s.cand.id == "국밥A").reasons[1]
+    assert relaxed == ["subtype"] and {s.cand.id for s in items} == {"국밥A", "곰탕B", "미분류C"}  # 상위 장르로
+    assert next(s for s in items if s.cand.id == "곰탕B").relaxed == ["subtype"]
+    assert "국밥" in next(s for s in items if s.cand.id == "국밥A").reasons[1]
 
 
 def test_parse_rules():
     r = parse("회사 근처 만원 이하 국밥집, 혼밥하기 좋고 술은 안 마셔", use_model=False)["filters"]
-    assert r == {"price": ["~1만"], "subtype": ["국밥/곰탕/설렁탕"], "mood": ["혼밥"], "alcohol": "no", "radius_m": 500}
+    assert r == {"price": ["~1만"], "subtype": ["국밥"], "mood": ["혼밥"], "alcohol": "no", "radius_m": 500}
     r = parse("도보 10분 2만원대 고기집 회식", use_model=False)["filters"]
     assert r["radius_m"] == 800 and r["price"] == ["2~4만"] and r["genre"] == ["고기/구이"] and r["mood"] == ["회식"]
-    assert parse("꾹밥 먹고 싶어", use_model=False)["filters"]["subtype"] == ["국밥/곰탕/설렁탕"]  # 자모 오타 1
+    assert parse("꾹밥 먹고 싶어", use_model=False)["filters"]["subtype"] == ["국밥"]  # 자모 오타 1
     assert parse("소주 한잔 곱창", use_model=False)["filters"] == {"subtype": ["곱창/막창"], "alcohol": "yes"}
 
 
@@ -54,8 +55,8 @@ def test_unknown_recorded_and_approved_synonym(tmp_path):
         out = parse("얼큰한 거 먹고 싶어", conn, use_model=False)
     assert out["unknown"] == ["얼큰한"] and out["filters"] == {"alcohol": "any"}
     assert tuple(conn.execute("SELECT term, count FROM unknown_terms").fetchone()) == ("얼큰한", 3)
-    conn.execute("INSERT INTO synonyms VALUES('얼큰한','subtype','찌개/전골','approved',NULL,'2026-10-29')")
-    assert parse("얼큰한 거", conn, use_model=False)["filters"]["subtype"] == ["찌개/전골"]
+    conn.execute("INSERT INTO synonyms VALUES('얼큰한','subtype','찌개/탕 기타','approved',NULL,'2026-10-29')")
+    assert parse("얼큰한 거", conn, use_model=False)["filters"]["subtype"] == ["찌개/탕 기타"]
 
 
 class FakeBatches:
@@ -80,8 +81,8 @@ def test_weekly_enrich_cycle(tmp_path):
     conn.executemany("INSERT INTO unknown_terms VALUES(?,?,?,?)", [
         ("얼큰한", 5, "2026-10-01", "2026-10-28"), ("땡초", 2, "2026-10-27", "2026-10-28"),  # 3회 미만 → 안 보냄
         ("옛말", 9, "2026-01-01", "2026-07-01")])  # 90일 지남 → 삭제
-    fb = FakeBatches([{"term": "얼큰한", "field": "subtype", "value": "찌개/전골"},
-                      {"term": "얼큰한", "field": "mood", "value": "찌개/전골"},  # field·value 불일치 → 버림
+    fb = FakeBatches([{"term": "얼큰한", "field": "subtype", "value": "찌개/탕 기타"},
+                      {"term": "얼큰한", "field": "mood", "value": "찌개/탕 기타"},  # field·value 불일치 → 버림
                       {"term": "남의말", "field": "genre", "value": "한식"}])  # 보내지 않은 낱말 → 버림
     client = SimpleNamespace(messages=SimpleNamespace(batches=fb))
     r1 = nlp_enrich.run(conn, date(2026, 10, 29), client)
@@ -92,7 +93,7 @@ def test_weekly_enrich_cycle(tmp_path):
     assert r2["collected"] == 1 and r2["proposed"] == 1 and r2["submitted_terms"] == 0  # 제안 대기 낱말은 재전송 안 함
     assert parse("얼큰한", conn, use_model=False)["filters"] == {"alcohol": "any"}  # 승인 전엔 미사용
     assert nlp_enrich.set_status(conn, None, "approved") == 1
-    assert parse("얼큰한", conn, use_model=False)["filters"]["subtype"] == ["찌개/전골"]
+    assert parse("얼큰한", conn, use_model=False)["filters"]["subtype"] == ["찌개/탕 기타"]
 
 
 def test_enrich_without_client_only_prunes(tmp_path, monkeypatch):
@@ -104,18 +105,24 @@ def test_enrich_without_client_only_prunes(tmp_path, monkeypatch):
 
 def test_relax_keeps_subtype_before_missing_price_mood():
     """가격대·분위기 데이터가 없어도 고른 세부 메뉴는 지킴(분위기→가격 먼저 완화)."""
-    cs = [_c(f"국밥{i}", "한식", "국밥/곰탕/설렁탕", 4.0) for i in range(3)] + [_c("냉면", "한식", "냉면/국수/칼국수", 5.0)]
+    cs = [_c(f"국밥{i}", "국밥/탕/찌개", "국밥", 4.0) for i in range(3)] + [_c("곰탕", "국밥/탕/찌개", "곰탕/설렁탕", 5.0)]
     for c in cs:
         c.price_band = "가격 미확인"
-    q = Query(lat=37.5, lng=127.0, subtype=["국밥/곰탕/설렁탕"], price=["~1만"], mood=["혼밥"], limit=3)
+    q = Query(lat=37.5, lng=127.0, subtype=["국밥"], price=["~1만"], mood=["혼밥"], limit=3)
     items, relaxed = recommend(cs, q)
-    assert relaxed == ["mood", "price"] and all(s.cand.subtype == "국밥/곰탕/설렁탕" for s in items)
+    assert relaxed == ["mood", "price"] and all(s.cand.subtype == "국밥" for s in items)
 
 
-def test_buffet_is_genre_chip_without_subtypes():
+def test_genres_2026_11_and_buffet():
+    """2026-11-02 세분화: 장르 17개, 뷔페도 세부 분류, 기타는 세부 분류 없음."""
     from app.constants import GENRES
-    from app.subtype import SUBTYPES
-    assert GENRES[-2:] == ["뷔페", "기타"] and "뷔페" not in SUBTYPES and "기타" not in SUBTYPES
-    assert decide("애슐리 퀸즈", None, [], None) == ("뷔페", "name")
-    assert decide("한식당", None, [], None, "기타", "뷔페식") == ("뷔페", "license")
+    from app.subtype import PARENT, SUBTYPES
+    assert len(GENRES) == 17 and GENRES[-3:] == ["카페/디저트", "뷔페", "기타"] and "기타" not in SUBTYPES
+    assert set(PARENT.values()) == set(GENRES) - {"기타"} and len(PARENT) >= 100
+    assert decide("애슐리 퀸즈", None, [], None) == ("뷔페 일반", "name")
+    assert decide("쿠우쿠우 강남점", None, [], None) == ("해산물/초밥 뷔페", "name")
+    assert decide("한식당", None, [], None, "기타", "뷔페식") == ("뷔페 일반", "license")
+    # 오탐 방지: 베이커리의 '커리', 지명 '사천', 공항 라운지, '태평양'
+    assert classify("원 고양 베이커리") == "베이커리" and classify("골프존카운티사천그늘집2") is None
+    assert classify("태평양") is None and classify("봄베이인도요리전문점") == "인도/네팔"
     assert parse("부페 가고 싶어", use_model=False)["filters"] == {"genre": ["뷔페"], "alcohol": "any"}

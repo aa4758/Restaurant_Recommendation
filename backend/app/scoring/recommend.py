@@ -1,4 +1,7 @@
-"""추천: 필터 → 완화(분위기→가격→세부 분류→거리→장르, 음주는 불완화) → rank_score → 동점대 로테이션 → reasons.
+"""추천: 필터 → 완화(분위기→가격→세부 분류→거리→장르, 음주는 불완화) → 정렬 → 페이지 → reasons.
+
+정렬(2026-11-02 사용자 결정): **표시 별점(소수 첫째 자리) 내림차순**으로 조건에 맞는 가게를 모두 이어 보여 줌.
+같은 표시 별점 안에서는 rank_score 와 동점대 로테이션(아래).
 
 rank_score = final_star + 조건적합도 보너스 - 거리 패널티
 - 조건적합도 보너스: 사용자가 지정한 조건(가격/장르/분위기) 중 충족한 항목당 FIT_BONUS.
@@ -26,7 +29,7 @@ TIE_BAND = 0.1
 RELAX_ORDER = ("mood", "price", "subtype", "distance", "genre")  # 음주(alcohol)는 완화하지 않음.
 # 가격대·분위기 데이터가 아직 거의 없어 먼저 완화(고른 메뉴를 지키는 쪽 우선, docs/01 2026-10-29)
 DISTANCE_RELAX_FACTOR = 2
-MAX_LIMIT = 5
+MAX_LIMIT = 20
 WALK_M_PER_MIN = 80
 
 
@@ -78,6 +81,7 @@ class Query:
     alcohol: str = "any"
     limit: int = 3
     subtype: list[str] | None = None
+    offset: int = 0
 
 
 @dataclass
@@ -241,10 +245,18 @@ def make_reasons(s: Scored, q: Query) -> list[str]:
     return [line1, line2, line3]
 
 
+def order(scored: list[Scored], day: date) -> list[Scored]:
+    """표시 별점 내림차순, 같은 표시 별점 안에서는 rank_score + 동점대 로테이션."""
+    groups: dict[float, list[Scored]] = {}
+    for s in scored:
+        groups.setdefault(round(s.cand.star, 1), []).append(s)
+    return [s for star in sorted(groups, reverse=True) for s in rotate_ties(groups[star], day)]
+
+
 def recommend(
-    candidates: Iterable[Candidate], q: Query, day: date | None = None
-) -> tuple[list[Scored], list[str]]:
-    """반환: (추천 목록, 완화된 조건 목록)."""
+    candidates: Iterable[Candidate], q: Query, day: date | None = None, with_total: bool = False
+):
+    """반환: (추천 목록, 완화된 조건 목록[, 전체 개수]). 완화는 limit 개를 채우는 기준(offset 무관 → 페이지마다 같음)."""
     day = day or date.today()
     limit = max(1, min(MAX_LIMIT, q.limit))
     with_dist = [(c, haversine_m(q.lat, q.lng, c.lat, c.lng)) for c in candidates]
@@ -259,8 +271,9 @@ def recommend(
         relaxed.append(steps.pop(0))
 
     scored = [Scored(c, d, rank_score(c, d, q)) for c, d in hits]
-    ordered = rotate_ties(scored, day)[:limit]
-    for s in ordered:
+    ranked = order(scored, day)
+    page = ranked[q.offset : q.offset + limit]
+    for s in page:
         s.reasons = make_reasons(s, q)
         s.relaxed = unmet(s.cand, s.distance_m, q)
-    return ordered, relaxed
+    return (page, relaxed, len(ranked)) if with_total else (page, relaxed)

@@ -95,8 +95,8 @@ def post_recommend(req: RecommendRequest, conn=Depends(get_conn), day: date = De
     if req.exclude_ids:  # 싫어요 숨김: 후보에서 먼저 빼고 기존 선정·완화·로테이션 그대로
         excl = set(req.exclude_ids)
         cands = [c for c in cands if c.id not in excl]
-    items, relaxed = recommend(cands, q, day=day)
-    return {"items": [_item_dict(s) for s in items], "relaxed": relaxed}
+    items, relaxed, total = recommend(cands, q, day=day, with_total=True)
+    return {"items": [_item_dict(s) for s in items], "relaxed": relaxed, "total": total}
 
 
 def _require(conn, rid: str) -> None:
