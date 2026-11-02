@@ -7,6 +7,8 @@ import { clearToken, getToken } from '../src/state/authStore';
 import { Button } from '../src/components/Button';
 import { LoginButtons } from '../src/components/LoginButtons';
 import { InlineErrorBanner, Notice } from '../src/components/ui';
+import { RegionMap } from '../src/components/RegionMap';
+import { REGIONS, visitedUnits } from '../src/regions';
 import { useTheme } from '../src/theme';
 
 const PROVIDER_LABEL = { kakao: '카카오', google: 'Google' } as const;
@@ -67,6 +69,15 @@ export default function AccountScreen() {
       {me ? (
         <>
           <Text style={[t.typography.body, { color: t.colors.textPrimary }]}>{PROVIDER_LABEL[me.provider]} 계정으로 로그인했어요.</Text>
+          <Pressable onPress={() => router.push('/map')} accessibilityRole="button" accessibilityLabel="리뷰 지도 열기"
+            style={{ borderRadius: t.radius.md, backgroundColor: t.colors.surface, padding: t.spacing.sm, gap: t.spacing.xs }}>
+            <View pointerEvents="none">
+              <RegionMap visited={new Set(visitedUnits(visited).keys())} sido={null} height={220} />
+            </View>
+            <Text style={[t.typography.caption, { color: t.colors.textSecondary, textAlign: 'center' }]}>
+              전국 {REGIONS.units.length}곳 중 {visitedUnits(visited).size}곳 · 지도 크게 보기
+            </Text>
+          </Pressable>
           <Text style={[t.typography.heading, { color: t.colors.textPrimary }]}>내가 다녀온 가게 {visited.length}곳</Text>
           {visited.length ? (
             visited.map((v) => (

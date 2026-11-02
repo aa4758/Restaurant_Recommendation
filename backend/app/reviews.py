@@ -136,7 +136,7 @@ def aggregate(conn: sqlite3.Connection, rid: str) -> None:
 
 def my_reviews(conn: sqlite3.Connection, uid: int) -> list[dict]:
     rows = conn.execute(
-        "SELECT u.id, u.restaurant_id, r.name, u.stars, u.text, u.tags, u.spend, u.moods, u.onsite, u.created_at, u.updated_at"
+        "SELECT u.id, u.restaurant_id, r.name, r.sido, r.sigungu, u.stars, u.text, u.tags, u.spend, u.moods, u.onsite, u.created_at, u.updated_at"
         " FROM user_reviews u JOIN restaurants r ON r.id=u.restaurant_id WHERE u.user_id=?"
         " ORDER BY COALESCE(u.updated_at, u.created_at) DESC", (str(uid),)).fetchall()
     menus: dict[int, list] = {}
@@ -144,7 +144,7 @@ def my_reviews(conn: sqlite3.Connection, uid: int) -> list[dict]:
                           " (SELECT id FROM user_reviews WHERE user_id=?)", (str(uid),)):
         menus.setdefault(m["review_id"], []).append({"name": m["name"], "price": m["price"]})
     return [{
-        "restaurant_id": r["restaurant_id"], "name": r["name"], "stars": float(r["stars"]), "text": r["text"] or "",
+        "restaurant_id": r["restaurant_id"], "name": r["name"], "sido": r["sido"], "sigungu": r["sigungu"], "stars": float(r["stars"]), "text": r["text"] or "",
         "tags": json.loads(r["tags"]) if r["tags"] else [], "spend": r["spend"],
         "moods": json.loads(r["moods"]) if r["moods"] else [], "menus": menus.get(r["id"], []),
         "onsite": bool(r["onsite"]), "created_at": r["created_at"], "updated_at": r["updated_at"],
