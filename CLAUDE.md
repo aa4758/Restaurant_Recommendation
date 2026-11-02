@@ -26,6 +26,7 @@
 
 ## 코드 지도
 - `backend/app/scoring/` prior(v2.1)·strict(시군구 분위수)·bayes(k=20)·recommend(완화·로테이션·이유)
+- `backend/app/auth.py` 소셜 로그인(카카오·구글, 서버 중계 + PKCE, 리뷰 작성만 로그인 필수)
 - `backend/app/service.py` 점수 배치(`rebuild_scores`)·후보 조회 · `backend/app/db.py` 스키마·자동 마이그레이션(v1 업그레이드 포함)
 - `backend/app/ingest/` license(인허가)·sbiz(상가정보)·load_designations(지정목록)·load_food_safety(위생·처분)·signal_common·matcher
 - `mobile/app/` expo-router 화면(recommendations = 릴스 덱) · `mobile/src/api/client.ts` 계약 타입

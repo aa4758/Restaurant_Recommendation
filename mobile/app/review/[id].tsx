@@ -1,10 +1,11 @@
 /** 4. 리뷰작성 (WriteReview) — docs/design/screens.md */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, Text, TextInput, View } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { api } from '../../src/api/client';
-import * as store from '../../src/state/deviceStore';
+import { Link, useLocalSearchParams, useRouter } from 'expo-router';
+import { api, ApiError } from '../../src/api/client';
+import { clearToken, getToken } from '../../src/state/authStore';
 import { Button } from '../../src/components/Button';
+import { LoginButtons } from '../../src/components/LoginButtons';
 import { FilterChip, InlineErrorBanner, Notice } from '../../src/components/ui';
 import { useTheme } from '../../src/theme';
 
@@ -34,17 +35,26 @@ export default function WriteReviewScreen() {
   const [text, setText] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
+  const [loggedIn, setLoggedIn] = useState<boolean | null>(null); // null = 확인 중
+
+  useEffect(() => {
+    getToken().then((tok) => setLoggedIn(!!tok));
+  }, []);
 
   const submit = async () => {
     if (stars == null) return;
     setBusy(true);
     setError(false);
     try {
-      const device_id = await store.getDeviceId();
-      await api.createReview(id, { stars, text, tags, device_id });
+      const token = await getToken();
+      if (!token) return setLoggedIn(false);
+      await api.createReview(id, { stars, text, tags }, token);
       router.back();
-    } catch {
-      setError(true);
+    } catch (e) {
+      if (e instanceof ApiError && e.status === 401) {
+        await clearToken(); // 만료·탈퇴 → 다시 로그인(작성 중인 내용은 유지)
+        setLoggedIn(false);
+      } else setError(true);
     } finally {
       setBusy(false);
     }
@@ -82,7 +92,17 @@ export default function WriteReviewScreen() {
         style={[t.typography.body, { minHeight: 100, color: t.colors.textPrimary, borderColor: t.colors.border, borderWidth: 1, borderRadius: t.radius.md, padding: t.spacing.md, textAlignVertical: 'top' }]}
       />
       {error ? <InlineErrorBanner message="리뷰 등록에 실패했어요. 다시 시도해 주세요." /> : null}
-      <Button label="리뷰 등록하기" onPress={submit} disabled={stars == null} loading={busy} />
+      {loggedIn === false ? (
+        <>
+          <Notice text={'리뷰는 로그인 후 등록할 수 있어요.\n한 사람이 여러 번 쓰는 걸 막기 위해서예요.'} />
+          <LoginButtons onLoggedIn={() => setLoggedIn(true)} />
+        </>
+      ) : (
+        <Button label="리뷰 등록하기" onPress={submit} disabled={stars == null || loggedIn == null} loading={busy} />
+      )}
+      <Link href="/account" style={[t.typography.caption, { color: t.colors.accent, textAlign: 'center' }]}>
+        계정 관리
+      </Link>
     </ScrollView>
   );
 }

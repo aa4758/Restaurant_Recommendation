@@ -11,6 +11,19 @@ curl http://localhost:8000/health   # {"status":"ok"}
 - 호스팅(Fly.io/Render 등)은 **영구 볼륨을 `/data` 에 마운트** 해야 리뷰가 보존됨. `PORT` 환경변수 자동 반영.
 - LB/리버스 프록시 뒤라면 `-e FORWARDED_ALLOW_IPS=<LB 대역, 예: 10.0.0.0/8>` 설정(미설정 시 127.0.0.1 만 신뢰 → 모든 요청이 LB IP 하나로 묶여 레이트리밋 오차단).
 
+## 소셜 로그인 (app/auth.py, docs/01 L-1~L-8)
+환경변수(사용자 환경변수는 `setx`, 배포 시 Railway 변수):
+| 이름 | 값 |
+|---|---|
+| `AUTH_SECRET` | **필수.** 고유번호 HMAC 키(16자 이상). 생성: `setx AUTH_SECRET (python -c "import secrets; print(secrets.token_urlsafe(32))")`. **바꾸면 기존 계정과 연결이 끊김**(같은 사람이 새 계정이 됨) → 한 번 정하면 유지, 백업 |
+| `KAKAO_REST_KEY` / `KAKAO_CLIENT_SECRET` | 카카오 REST 키 / Client Secret(콘솔에서 켰을 때만) |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | 구글 OAuth 웹 클라이언트 |
+| `PUBLIC_BASE_URL` | 서버 외부 주소(기본 `http://localhost:8000`). 공급자 콘솔 Redirect URI = `<PUBLIC_BASE_URL>/auth/kakao/callback`, `/auth/google/callback` |
+| `AUTH_REDIRECTS` | 로그인 후 돌아갈 앱 주소 접두어(기본 `jjinmat://,exp://,http://localhost:8081/` — 개발용). 배포 시 `jjinmat://` 만 |
+- 미설정이면 `/auth/*` 는 503, 리뷰 작성 불가(읽기·추천은 정상).
+- 로컬 확인: 백엔드 `uvicorn app.main:app --port 8000` + 앱 `npx expo start --web`(`EXPO_PUBLIC_API_URL=http://localhost:8000`) → 계정 화면에서 로그인.
+- 구글은 OAuth 동의 화면이 '테스트' 상태인 동안 등록한 테스트 사용자만 로그인 가능 → 배포 단계에서 앱 게시.
+
 ## 데이터 갱신 (업무추진비·리뷰 통계·카카오)
 > ⚠️ `python -m app.ingest.load_seed` 는 **DB 파일을 삭제 후 재생성** 한다 → `user_reviews`, `reports` 소실.
 1. 백업: `docker cp <컨테이너>:/data/jjinmat.db ./backup-$(date +%F).db`

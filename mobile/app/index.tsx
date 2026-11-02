@@ -164,6 +164,9 @@ export default function HomeScreen() {
       <Link href="/scoring" style={[t.typography.caption, { color: t.colors.accent, textAlign: 'center' }]}>
         찐맛 점수는 어떻게 매기나요?
       </Link>
+      <Link href="/account" style={[t.typography.caption, { color: t.colors.accent, textAlign: 'center' }]}>
+        계정
+      </Link>
     </ScrollView>
   );
 }

@@ -131,7 +131,7 @@ CREATE TABLE IF NOT EXISTS user_reviews (
     stars REAL NOT NULL,
     text TEXT,
     tags TEXT,
-    user_id TEXT,                      -- 기기 ID (로그인 전)
+    user_id TEXT,                      -- 계정 ID(users.id 문자열, 2026-11-02~). 이전 행은 기기 ID
     verified INTEGER NOT NULL DEFAULT 0,  -- 영수증 인증 = 1
     created_at TEXT NOT NULL,
     ad_disclosed INTEGER               -- 광고·협찬 표시(prior.is_ad_text) 1/0, 작성 시 저장. NULL = 미계산 → 백필
@@ -178,6 +178,32 @@ CREATE TABLE IF NOT EXISTS enrich_batches (
     terms INTEGER NOT NULL,
     collected_at TEXT
 );
+-- 소셜 로그인(app/auth.py, docs/01 L-1~L-8): 공급자 고유번호는 HMAC 해시만, 이메일·닉네임 미수집
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS identities (
+    provider TEXT NOT NULL,            -- kakao | google
+    subject_hash TEXT NOT NULL,        -- HMAC-SHA256(AUTH_SECRET, provider:고유번호)
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    PRIMARY KEY (provider, subject_hash)
+);
+CREATE TABLE IF NOT EXISTS sessions (
+    token_hash TEXT PRIMARY KEY,       -- SHA-256(토큰), 토큰 원문은 앱에만
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    expires_at TEXT NOT NULL
+);
+-- 로그인 진행 중 상태(10분): start 에서 state 생성 → callback 에서 1회용 code·user_id 기록 → /auth/token 에서 삭제
+CREATE TABLE IF NOT EXISTS auth_flows (
+    state TEXT PRIMARY KEY,
+    provider TEXT NOT NULL,
+    redirect TEXT NOT NULL,
+    challenge TEXT NOT NULL,           -- base64url(SHA-256(verifier)), 앱이 생성
+    code TEXT UNIQUE,
+    user_id INTEGER,
+    expires_at TEXT NOT NULL
+);
 """
 
 
@@ -192,6 +218,16 @@ def connect(path: Path | str | None = None) -> sqlite3.Connection:
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
     return conn
+
+
+def get_conn():
+    """FastAPI 의존성: 요청마다 연결 + 스키마 보장."""
+    conn = connect()
+    init_schema(conn)
+    try:
+        yield conn
+    finally:
+        conn.close()
 
 
 # 기존 DB 호환: CREATE TABLE IF NOT EXISTS 는 컬럼을 추가하지 않으므로 없으면 ALTER

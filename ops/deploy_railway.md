@@ -36,6 +36,10 @@
    | `FORWARDED_ALLOW_IPS` | `*` | Railway 프록시 뒤라 실제 사용자 IP 로 레이트리밋 |
    | `DB_DOWNLOAD_URL` | (P-1 압축 파일 링크) | 첫 배포 후 DB 가 생기면 **삭제** |
    | `KAKAO_REST_KEY` 등 | 필요한 키만 | 키는 Railway 변수에만, 저장소에 넣지 않음 |
+   | `AUTH_SECRET` | **PC 와 같은 값** | 바꾸면 기존 계정이 끊김(`ops/runbook.md` '소셜 로그인') |
+   | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | 구글 OAuth | |
+   | `PUBLIC_BASE_URL` | `https://<2-5 에서 받은 주소>` | 주소 발급 후 입력 |
+   | `AUTH_REDIRECTS` | `jjinmat://` | 개발용 주소(`exp://`, `localhost`) 제외 |
    `PORT` 는 Railway 가 자동으로 넣음(Dockerfile 이 `${PORT:-8000}` 사용).
 5. **Networking → Generate Domain** → `https://<이름>.up.railway.app` 같은 주소 발급.
 6. 배포 로그에서 `Uvicorn running` 확인 → 브라우저로 `https://<주소>/health` → `{"status":"ok"}`, `/meta/filters` 응답 확인.
@@ -55,6 +59,11 @@ tar -czf jjinmat_db.tgz jjinmat.db ..\data\models\menu_subtype.json   # 모델�
 2. 같은 볼륨 `/data` 연결 가능 여부 확인(안 되면 백엔드 서비스 안에서 주 1회 실행하는 방식으로 대체 — 배포 직전에 결정).
 3. 변수 `ANTHROPIC_API_KEY`, `JJINMAT_DB=/data/jjinmat.db`.
 4. 승인(`list`/`approve`)은 Railway 서비스의 셸/명령 실행 기능으로.
+
+## 4-1. 소셜 로그인 운영 전환
+1. 카카오 콘솔 Redirect URI, 구글 '승인된 리디렉션 URI' 에 `https://<주소>/auth/kakao/callback`, `/auth/google/callback` 추가.
+2. 구글 OAuth 동의 화면 **앱 게시**(테스트 → 프로덕션). 개인정보처리방침 URL 필요.
+3. **웹 탈퇴 경로**(Google Play 정책): 탈퇴 방법 안내 웹페이지(앱 → 계정 → 회원 탈퇴, 또는 문의 이메일) URL 을 Play Console 에 등록.
 
 ## 5. 앱(EAS) 연결
 1. `mobile/eas.json` 의 `EXPO_PUBLIC_API_URL`(`https://CHANGE-ME.example.com`) → 2-5 에서 받은 주소로 수정·커밋.
