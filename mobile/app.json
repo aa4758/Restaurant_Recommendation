@@ -10,7 +10,9 @@
     "splash": {
       "backgroundColor": "#FFFFFF"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "plugins": [
       "expo-router",
       [
@@ -19,7 +21,9 @@
           "locationAlwaysAndWhenInUsePermission": "찐맛이 내 주변 진짜 맛집을 추천할 수 있도록 위치 정보를 사용해요.",
           "locationWhenInUsePermission": "찐맛이 내 주변 진짜 맛집을 추천할 수 있도록 위치 정보를 사용해요."
         }
-      ]
+      ],
+      "expo-web-browser",
+      "expo-secure-store"
     ],
     "ios": {
       "supportsTablet": false,

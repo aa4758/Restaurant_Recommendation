@@ -197,9 +197,12 @@ WriteReviewScreen
 ├─ RatingHintText                   (선택한 점수에 따라 동적 문구)
 ├─ ReviewTagPicker                  (선택 태그 다중선택)
 ├─ ReviewTextInput
-├─ SubmitReviewButton               ("리뷰 등록하기")
-└─ SubmitErrorNotice                (제출 실패 시)
+├─ SubmitReviewButton               ("리뷰 등록하기") — 로그인 상태일 때만
+├─ LoginButtons                     (로그인 안 됨·토큰 만료 시 버튼 자리에 표시, 작성 중 내용 유지)
+├─ SubmitErrorNotice                (제출 실패 시)
+└─ AccountLink                      ("계정 관리" → Account)
 ```
+- 로그인 안내(2026-11-02, docs/01 L-5): "리뷰는 로그인 후 등록할 수 있어요. / 한 사람이 여러 번 쓰는 걸 막기 위해서예요."
 
 **상태**
 - 로딩: `SubmitReviewButton` 내 `LoadingSpinner` (제출 중, 버튼 비활성)
@@ -215,6 +218,18 @@ WriteReviewScreen
   - "4.5 = 일부러 찾아올 곳이에요"
 - `RatingHintText` 동적 예시: 사용자가 4.0 선택 시 "3.5(또 올 의향)와 4.5(일부러 찾아올 곳) 사이예요"
 - `SubmitReviewButton`: "리뷰 등록하기"
+
+---
+
+### 4-1. LoginButtons (2026-11-02, docs/01 '소셜 로그인 세부')
+- "카카오로 로그인"(primary) / "Google로 로그인"(secondary). 진행 중 해당 버튼 스피너, 둘 다 비활성.
+- 사용자 취소는 조용히 무시, 실패만 "로그인에 실패했어요. 다시 시도해 주세요."
+- 브랜드 가이드(카카오 노란 버튼·구글 로고)는 디자인 단계에서 적용(스토어 출시 전 필수).
+
+### 4-2. Account (계정, 홈 하단 "계정" 링크·리뷰작성 "계정 관리")
+- 로그인 안 됨: 안내 "로그인은 리뷰를 쓸 때만 필요해요. / 이메일·닉네임은 받지 않아요." + LoginButtons
+- 로그인 됨: "{카카오|Google} 계정으로 로그인했어요." + "로그아웃"(secondary) + "회원 탈퇴"(text)
+- 회원 탈퇴 → 확인 단계: "탈퇴하면 계정과 내가 쓴 리뷰가 모두 삭제되고 되돌릴 수 없어요." + "탈퇴하기" / "취소"
 
 ---
 

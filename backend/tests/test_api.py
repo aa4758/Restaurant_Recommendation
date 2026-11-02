@@ -7,13 +7,15 @@ CITY_HALL = {"lat": 37.5663, "lng": 126.9779}
 
 
 @pytest.fixture()
-def client(tmp_path, monkeypatch):
+def client(tmp_path, monkeypatch, login):
     db = tmp_path / "t.db"
     monkeypatch.setenv("JJINMAT_DB", str(db))
     monkeypatch.delenv("KAKAO_REST_KEY", raising=False)
     load(db)
     from app.main import app
-    return TestClient(app)
+    c = TestClient(app)
+    c.headers.update(login())
+    return c
 
 
 def test_health_and_filters(client):

@@ -21,9 +21,11 @@ def dbp(tmp_path, monkeypatch):
 
 
 @pytest.fixture()
-def client(dbp):
+def client(dbp, login):
     from app.main import app
-    return TestClient(app)
+    c = TestClient(app)
+    c.headers.update(login())
+    return c
 
 
 def _ids(r):
@@ -195,13 +197,13 @@ def test_reactions_rate_limited(client):
     assert codes[:-1] == [204] * WRITE_LIMIT_PER_MIN and codes[-1] == 429
 
 
-def test_review_write_rate_limited_by_device(client):
+def test_review_write_rate_limited_by_account(client, login):
     codes = [client.post("/restaurants/R007/reviews", json={"stars": 3, "device_id": DEV}).status_code
              for _ in range(WRITE_LIMIT_PER_MIN + 1)]
     assert codes[:-1] == [201] * WRITE_LIMIT_PER_MIN and codes[-1] == 429
-    # 같은 IP 의 다른 기기는 영향 없음(IP 버킷은 분당 IP_LIMIT_PER_MIN)
-    assert client.post("/restaurants/R007/reviews", json={"stars": 3, "device_id": "device-other1"}).status_code == 201
-    assert client.post("/restaurants/R007/reviews", json={"stars": 3}).status_code == 201
+    # 기기 ID 를 바꿔도 같은 계정은 막힘, 같은 IP 의 다른 계정은 영향 없음(IP 버킷은 분당 IP_LIMIT_PER_MIN)
+    assert client.post("/restaurants/R007/reviews", json={"stars": 3, "device_id": "device-other1"}).status_code == 429
+    assert client.post("/restaurants/R007/reviews", json={"stars": 3}, headers=login()).status_code == 201
     assert client.get("/restaurants/R007/reviews").status_code == 200  # 읽기는 제한 없음
 
 
@@ -223,12 +225,12 @@ def test_review_write_without_device_uses_ip_bucket_only():
                     [(f"review:dev:{DEV}", WRITE_LIMIT_PER_MIN), ("review:ip:1.2.3.4", IP_LIMIT_PER_MIN)]]
 
 
-def test_review_device_id_stored_not_exposed(client, dbp):
+def test_review_account_stored_not_exposed(client, dbp):
     r = client.post("/restaurants/R007/reviews", json={"stars": 4, "text": "협찬 받았어요", "device_id": DEV})
     assert r.status_code == 201 and set(r.json()) == {"id", "final_star"} and DEV not in r.text
     c = sqlite3.connect(dbp)
-    assert c.execute("SELECT user_id, ad_disclosed FROM user_reviews WHERE id=?", (r.json()["id"],)).fetchone() \
-        == (DEV, 1)
+    uid, ad = c.execute("SELECT user_id, ad_disclosed FROM user_reviews WHERE id=?", (r.json()["id"],)).fetchone()
+    assert ad == 1 and uid != DEV and c.execute("SELECT 1 FROM users WHERE id=?", (int(uid),)).fetchone()
     c.close()
     sheet = client.get("/restaurants/R007/reviews?limit=50")
     assert DEV not in sheet.text and "user_id" not in sheet.text

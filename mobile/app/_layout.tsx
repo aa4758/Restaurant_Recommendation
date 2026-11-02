@@ -19,6 +19,8 @@ export default function RootLayout() {
         <Stack.Screen name="restaurant/[id]" options={{ title: '상세' }} />
         <Stack.Screen name="review/[id]" options={{ title: '리뷰 쓰기' }} />
         <Stack.Screen name="scoring" options={{ title: '점수 기준' }} />
+        <Stack.Screen name="account" options={{ title: '계정' }} />
+        <Stack.Screen name="auth" options={{ title: '로그인' }} />
       </Stack>
     </>
   );

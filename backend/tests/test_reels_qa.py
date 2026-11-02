@@ -30,9 +30,11 @@ def dbp(tmp_path, monkeypatch):
 
 
 @pytest.fixture()
-def client(dbp):
+def client(dbp, login):
     from app.main import app
-    yield TestClient(app)
+    c = TestClient(app)
+    c.headers.update(login())
+    yield c
     app.dependency_overrides.clear()
 
 

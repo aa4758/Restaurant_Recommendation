@@ -159,7 +159,10 @@ v1(외부 평점 base 기반)은 폐기. 업무추진비 배지 문구·크롤�
 - `POST /recommend` body `{"lat":float,"lng":float,"radius_m":int=1000,"price":[str]?,"genre":[str]?,"subtype":[str]?,"mood":[str]?,"alcohol":"any|yes|no","limit":int=3 (최대 5),"exclude_ids":[str]? (최대 200, 싫어요 숨김)}` (2026-10-29: `subtype` 추가)
   → `{"items":[{"id","name","genre","subtype":str?,"price_band","moods":[str],"alcohol":bool,"lat","lng","distance_m","star":float,"percentile":int,"review_count":int,"gov_visits":int,"gov_source":str?,"reasons":[str],"updated_at":str,"address":str?,"evidence":"low|mid|high"?,"relaxed":[str] (이 가게가 원래 조건 중 충족 못한 항목)}],"relaxed":[str]}`
 - `GET /restaurants/{id}` → 위 item + `"score_breakdown":{"prior_star","user_mean","n","k","gov_bonus","ad_penalty","components":{"tenure","gov","hygiene","designation","reputation","sanction","ad"},"evidence":"low|mid|high"}` (v2: components·evidence 추가, 기존 키 유지. v2.1: components 의 `partner` → `reputation`(외부 평판)으로 변경). item `moods` 에는 착한가격업소면 `가성비` 가 조회 시 합성됨
-- `POST /restaurants/{id}/reviews` body `{"stars":0.5~5 (0.5단위),"text":str,"tags":[str],"device_id":str? (레이트리밋·D6용, 응답 비노출)}` → 201 `{"id","final_star"}`
+- `POST /restaurants/{id}/reviews` **헤더 `Authorization: Bearer <token>` 필수(2026-11-02, 없거나 만료면 401)** body `{"stars":0.5~5 (0.5단위),"text":str,"tags":[str],"device_id":str? (무시, 하위 호환)}` → 201 `{"id","final_star"}`
+- `GET /auth/{kakao|google}/start?redirect=<앱 주소>&challenge=<base64url(SHA-256(verifier))>` → 302 공급자 로그인. 완료 후 `<앱 주소>?code=<1회용, 5분>` (실패 시 `?error=`)
+- `POST /auth/token` body `{"code":str,"verifier":str}` → `{"token":str,"expires_at":str,"provider":str}`
+- `GET /auth/me` (Bearer) → `{"provider":str,"created_at":str}` · `POST /auth/logout` (Bearer) → 204 · `DELETE /auth/me` (Bearer) → 204 (탈퇴: 계정·리뷰 삭제)
 - `GET /restaurants/{id}/reviews?limit=20&cursor=` → `{"items":[{"id","stars","text","tags","created_at","ad_disclosed":bool}],"next_cursor":str?}` (정렬: 광고표시 아닌 것 먼저 → 최신순)
 - `POST /reactions` body `{"device_id":str(8~64),"restaurant_id":str,"value":"like|dislike|none","reason":"far|price|not_into|visited"?}` → 204 (기기·가게당 1행 upsert, none=취소. 순위 미반영)
 - `POST /restaurants/{id}/report` body `{"field":str,"message":str}` → 202
@@ -189,6 +192,18 @@ v1(외부 평점 base 기반)은 폐기. 업무추진비 배지 문구·크롤�
 | 메뉴 수집 | 리뷰가 메뉴 DB·가격대의 현실적 경로(TourAPI 보류) | 직접 입력 오타·허위 | 리뷰에 **먹은 메뉴명·금액 선택 입력**. **서로 다른 2계정 이상 일치해야** `menus`(source=user) 확정, 같은 메뉴 가격 이상치 제외. 확정 메뉴로 `price_band` 계산(→ 가격대 필터 실효화, I-4). **메뉴판 사진 업로드는 보류**(저장소 비용·개인정보) |
 | 서버 호스팅 | 유료 관리형: 학생 1인에게 비싼 건 시간, 월 몇천 원으로 운영 위임 | 무료 우선: 비영리라 수입 0 | **Railway + 볼륨**(기존 `backend/Dockerfile`·SQLite 612MB 그대로, 예상 월 약 $5 — 가입 전 요금 확인). 먼저 GitHub Student Developer Pack 혜택 확인. 익숙해지면 Fly.io 이전 가능. Render 무료(디스크 없음)·자체 VM(운영 부담) 제외 |
 | 진행 순서 | | | **소셜 로그인 → 리뷰 개편(1인 1리뷰·현장 작성·메뉴 입력) → I-3 지도 게이미피케이션(토론 후) → 배포**(최종 단계, 2026-11-01 변경 — `ops/deploy_railway.md`) |
+
+### 소셜 로그인 세부 (2026-11-02, 찬성/반대 토론 중재 → 사용자 승인)
+| # | 안건 | 결정 |
+|---|---|---|
+| L-1 | 로그인 처리 | **서버 중계**: 앱이 `/auth/{provider}/start` 를 브라우저로 열고, 서버가 공급자 코드 교환 후 앱 주소로 1회용 코드를 돌려줌 → 앱이 `POST /auth/token` 으로 토큰 교환. 앱이 만든 검증값(PKCE 방식, SHA-256)으로 코드 가로채기 방지. 공급자 비밀키는 서버에만. 돌아갈 앱 주소는 허용 목록(`AUTH_REDIRECTS`)만 |
+| L-2 | 로그인 유지 | 서버 무작위 토큰, DB 에는 해시만(`sessions`), 유효 90일. 앱은 보안 저장소(웹은 로컬 저장소)에 보관. 로그아웃·탈퇴 = 행 삭제 |
+| L-3 | 계정 구조 | `users` + `identities`(공급자·고유번호 해시). 로그인 수단 1개 = 계정 1개, 계정 연결 없음 |
+| L-4 | 고유번호 저장 | 서버 비밀키(`AUTH_SECRET`) HMAC-SHA256 해시만 |
+| L-5 | 로그인 필요 범위 | **리뷰 작성만.** 추천·상세·검색·반응·찜·숨김은 로그인 없이(기기 ID 유지) |
+| L-6 | 익명 데이터 이전 | 안 함(배포 전이라 실사용자 리뷰 0건). 리뷰는 처음부터 로그인 필수 |
+| L-7 | 회원 탈퇴 | 앱 안 + 웹 경로(Google Play 정책, 웹 경로는 배포 단계). 탈퇴 시 계정·로그인 수단·토큰·**그 계정의 리뷰 삭제** |
+| L-8 | 카카오 동의 항목 | 없음(고유번호만). 이메일·닉네임 미수집, 리뷰에 작성자 이름 미표시 |
 
 ## 아이디어 백로그 (2026-10-29, 사용자 제안 — 기획 토론·결정 전, 나중에 진행)
 결정 순서: 찬성/반대 토론 → 사용자 승인 → 이 절에서 위 결정 절로 옮기고 개발. 아래 '검토 메모'는 토론 때 다룰 쟁점.

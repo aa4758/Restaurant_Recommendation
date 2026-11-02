@@ -131,8 +131,21 @@ export interface CreateReviewRequest {
   stars: number; // 0.5 ~ 5, 0.5 단위
   text: string;
   tags: string[];
-  /** 작성 기기 (8~64자 [A-Za-z0-9-_]), 선택 */
+  /** 무시됨(하위 호환). 작성자는 로그인 계정 — Authorization 헤더 */
   device_id?: string;
+}
+
+export type AuthProvider = 'kakao' | 'google';
+
+export interface TokenResponse {
+  token: string;
+  expires_at: string;
+  provider: AuthProvider;
+}
+
+export interface MeResponse {
+  provider: AuthProvider;
+  created_at: string;
 }
 
 export interface CreateReviewResponse {
@@ -220,6 +233,8 @@ async function request<T>(
   return (await response.json()) as T;
 }
 
+const bearer = (token: string) => ({ Authorization: `Bearer ${token}` });
+
 export const api = {
   health: () => request<HealthResponse>('/health'),
 
@@ -237,11 +252,27 @@ export const api = {
   getRestaurant: (id: string) =>
     request<RestaurantDetail>(`/restaurants/${encodeURIComponent(id)}`),
 
-  createReview: (id: string, body: CreateReviewRequest) =>
+  /** 로그인 필수(docs/01 L-5). 토큰 없음·만료 → ApiError status 401 */
+  createReview: (id: string, body: CreateReviewRequest, token: string) =>
     request<CreateReviewResponse>(`/restaurants/${encodeURIComponent(id)}/reviews`, {
       method: 'POST',
       body: JSON.stringify(body),
+      headers: bearer(token),
     }),
+
+  /** 로그인 시작 주소(브라우저로 엶). 서버가 공급자 로그인 후 redirect?code= 로 돌려보냄 */
+  authStartUrl: (provider: AuthProvider, redirect: string, challenge: string) =>
+    `${API_BASE_URL}/auth/${provider}/start?redirect=${encodeURIComponent(redirect)}&challenge=${challenge}`,
+
+  exchangeToken: (code: string, verifier: string) =>
+    request<TokenResponse>('/auth/token', { method: 'POST', body: JSON.stringify({ code, verifier }) }),
+
+  me: (token: string) => request<MeResponse>('/auth/me', { headers: bearer(token) }),
+
+  logout: (token: string) => request<void>('/auth/logout', { method: 'POST', headers: bearer(token) }),
+
+  /** 회원 탈퇴: 계정과 그 계정의 리뷰 삭제 */
+  deleteAccount: (token: string) => request<void>('/auth/me', { method: 'DELETE', headers: bearer(token) }),
 
   listReviews: (id: string, cursor?: string | null, limit = 20) =>
     request<ReviewListResponse>(

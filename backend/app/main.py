@@ -5,12 +5,13 @@ import base64
 import binascii
 import json
 from datetime import date, datetime, timezone
-from typing import Iterator
 
 from fastapi import Depends, FastAPI, HTTPException, Query as Q, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from app import db
+from app.auth import current_user, router as auth_router
+from app.db import get_conn
 from app.constants import ALCOHOL, GENRES, MOODS, PRICE_BANDS
 from app.nlparse import parse
 from app.schemas import (
@@ -35,15 +36,9 @@ from app.subtype import SUBTYPES
 
 app = FastAPI(title="JJINMAT API", version="0.1.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+app.include_router(auth_router)
 
 
-def get_conn() -> Iterator:
-    conn = db.connect()
-    db.init_schema(conn)
-    try:
-        yield conn
-    finally:
-        conn.close()
 
 
 def today() -> date:
@@ -160,7 +155,7 @@ _REVIEW_ORDER = " ORDER BY ad_disclosed ASC, created_at DESC, id DESC LIMIT ?"
 def get_reviews(
     rid: str, limit: int = Q(default=20, ge=1, le=50), cursor: str | None = None, conn=Depends(get_conn)
 ) -> dict:
-    """읽기 전용 리뷰 시트. 별점 있는 리뷰만, 기기 ID(user_id) 등은 노출하지 않음.
+    """읽기 전용 리뷰 시트. 별점 있는 리뷰만, 계정 ID(user_id) 등은 노출하지 않음.
 
     정렬: 광고 표시 아님 먼저 → created_at 내림차순 → id 내림차순. 저장된 ad_disclosed 로 SQL 키셋 페이지네이션
     (인덱스 idx_reviews_sheet). 커서 = base64([ad, created_at, id]) — 기존 형식 그대로.
@@ -207,14 +202,15 @@ def post_reaction(body: ReactionIn, request: Request, conn=Depends(get_conn)) ->
 
 
 @app.post("/restaurants/{rid}/reviews", response_model=ReviewOut, status_code=201)
-def post_review(rid: str, body: ReviewIn, request: Request, conn=Depends(get_conn)) -> dict:
-    _rate_limit("review", request, body.device_id)  # device_id 있으면 기기 키 + IP, 없으면 IP 만
+def post_review(rid: str, body: ReviewIn, request: Request, uid: int = Depends(current_user),
+                conn=Depends(get_conn)) -> dict:
+    _rate_limit("review", request, f"u{uid}")  # 계정 키 + IP (docs/01 L-5: 리뷰는 로그인 필수)
     if get_scored(conn, rid) is None:  # 없는 가게·폐업 가게
         raise HTTPException(status_code=404, detail="restaurant not found")
     cur = conn.execute(
         "INSERT INTO user_reviews(restaurant_id,stars,text,tags,user_id,ad_disclosed,created_at)"
         " VALUES(?,?,?,?,?,?,?)",
-        (rid, body.stars, body.text, json.dumps(body.tags, ensure_ascii=False), body.device_id,
+        (rid, body.stars, body.text, json.dumps(body.tags, ensure_ascii=False), str(uid),
          int(is_ad_text(body.text)), datetime.now(timezone.utc).isoformat()),
     )
     conn.commit()

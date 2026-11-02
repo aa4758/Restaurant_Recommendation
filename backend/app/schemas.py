@@ -97,7 +97,7 @@ class ReviewIn(BaseModel):
     stars: float = Field(ge=0.5, le=5)
     text: str = Field(default="", max_length=1000)
     tags: list[Annotated[str, Field(max_length=20)]] = Field(default=[], max_length=10)
-    device_id: Optional[DeviceId] = None  # 레이트리밋·D6용, user_reviews.user_id 에 저장(응답 비노출)
+    device_id: Optional[DeviceId] = None  # 무시(하위 호환). 작성자는 로그인 계정(app/auth.py)
 
     @field_validator("stars")
     @classmethod
