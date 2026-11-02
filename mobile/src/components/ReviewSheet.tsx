@@ -154,7 +154,7 @@ export function ReviewSheet({
               onEndReachedThreshold={0.5}
               onEndReached={() => cursor && load(cursor, false)}
               ListFooterComponent={
-                loading ? <ActivityIndicator style={{ margin: t.spacing.md }} /> : error ? <RetryButton onPress={() => load(cursor, false)} /> : null
+                loading ? <ActivityIndicator style={{ margin: t.spacing.md }} /> : error ? <RetryButton onPress={() => load(cursor, false)} /> : undefined
               }
             />
           )}
