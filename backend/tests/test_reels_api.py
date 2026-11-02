@@ -86,7 +86,7 @@ def test_reviews_order_ad_flag_and_privacy(client, dbp):
     assert by_id[101]["text"] == "체험단으로 제공받아 작성" and by_id[101]["tags"] == ["맛"]
     assert by_id[104]["text"] == "" and by_id[104]["tags"] == []
     for it in body["items"]:
-        assert set(it) == {"id", "stars", "text", "tags", "created_at", "ad_disclosed"}
+        assert set(it) == {"id", "stars", "text", "tags", "created_at", "ad_disclosed", "onsite", "edited"}
     assert "secret-dev" not in r.text
 
 
@@ -227,7 +227,7 @@ def test_review_write_without_device_uses_ip_bucket_only():
 
 def test_review_account_stored_not_exposed(client, dbp):
     r = client.post("/restaurants/R007/reviews", json={"stars": 4, "text": "협찬 받았어요", "device_id": DEV})
-    assert r.status_code == 201 and set(r.json()) == {"id", "final_star"} and DEV not in r.text
+    assert r.status_code == 201 and set(r.json()) == {"id", "final_star", "updated", "onsite"} and DEV not in r.text
     c = sqlite3.connect(dbp)
     uid, ad = c.execute("SELECT user_id, ad_disclosed FROM user_reviews WHERE id=?", (r.json()["id"],)).fetchone()
     assert ad == 1 and uid != DEV and c.execute("SELECT 1 FROM users WHERE id=?", (int(uid),)).fetchone()

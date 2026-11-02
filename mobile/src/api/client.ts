@@ -127,12 +127,44 @@ export interface RestaurantDetail extends RestaurantItem {
   score_breakdown: ScoreBreakdown;
 }
 
+export type PriceBand = '~1만' | '1~2만' | '2~4만' | '4만+';
+
+export interface MenuEntry {
+  name: string; // 30자 이하
+  price?: number | null; // 원, 1,000~300,000
+}
+
+/** 현장 작성 판정용 위치(서버 저장 안 함) — docs/01 R-2 */
+export interface ReviewPosition {
+  lat: number;
+  lng: number;
+  accuracy?: number | null;
+}
+
 export interface CreateReviewRequest {
   stars: number; // 0.5 ~ 5, 0.5 단위
   text: string;
   tags: string[];
   /** 무시됨(하위 호환). 작성자는 로그인 계정 — Authorization 헤더 */
   device_id?: string;
+  spend?: PriceBand | null; // 1인 지출(R-5)
+  moods?: string[]; // 분위기(R-6)
+  menus?: MenuEntry[]; // 최대 3개(R-4)
+  positions?: ReviewPosition[]; // 최대 2개: 화면 열 때·등록할 때
+}
+
+export interface MyReview {
+  restaurant_id: string;
+  name: string;
+  stars: number;
+  text: string;
+  tags: string[];
+  spend: PriceBand | null;
+  moods: string[];
+  menus: MenuEntry[];
+  onsite: boolean;
+  created_at: string;
+  updated_at: string | null;
 }
 
 export type AuthProvider = 'kakao' | 'google';
@@ -151,6 +183,8 @@ export interface MeResponse {
 export interface CreateReviewResponse {
   id: number;
   final_star: number;
+  updated: boolean; // 기존 리뷰를 덮어씀
+  onsite: boolean;
 }
 
 export interface ReviewListItem {
@@ -160,6 +194,8 @@ export interface ReviewListItem {
   tags: string[];
   created_at: string;
   ad_disclosed: boolean;
+  onsite: boolean; // 현장 작성
+  edited: boolean; // 수정됨
 }
 
 export interface ReviewListResponse {
@@ -259,6 +295,15 @@ export const api = {
       body: JSON.stringify(body),
       headers: bearer(token),
     }),
+
+  deleteMyReview: (id: string, token: string) =>
+    request<void>(`/restaurants/${encodeURIComponent(id)}/reviews/me`, { method: 'DELETE', headers: bearer(token) }),
+
+  /** 리뷰 메뉴 자동완성(R-4) */
+  getMenus: (id: string) => request<{ items: MenuEntry[] }>(`/restaurants/${encodeURIComponent(id)}/menus`),
+
+  /** 내가 다녀온 가게 = 내 리뷰 목록(R-7) */
+  myReviews: (token: string) => request<{ items: MyReview[] }>('/me/reviews', { headers: bearer(token) }),
 
   /** 로그인 시작 주소(브라우저로 엶). 서버가 공급자 로그인 후 redirect?code= 로 돌려보냄 */
   authStartUrl: (provider: AuthProvider, redirect: string, challenge: string) =>
