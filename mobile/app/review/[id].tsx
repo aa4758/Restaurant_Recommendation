@@ -158,7 +158,7 @@ export default function WriteReviewScreen() {
           <FilterChip key={s} label={s.toFixed(1)} selected={stars === s} onPress={() => setStars(s)} />
         ))}
       </View>
-      {stars != null ? <Text style={caption}>{ratingHint(stars)}</Text> : null}
+      {stars != null ? <Text style={[caption, { color: t.colors[t.getStarBand(stars).colorKey] }]}>{ratingHint(stars)}</Text> : null}
 
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.spacing.xs }}>
         {TAGS.map((tag) => (

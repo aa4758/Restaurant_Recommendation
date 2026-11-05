@@ -6,6 +6,7 @@ const K_DEVICE = 'jjinmat.device_id';
 const K_LIKES = 'jjinmat.likes';
 const K_HIDDEN = 'jjinmat.hidden';
 const K_HINT = 'jjinmat.swipe_hint_seen';
+const K_REACT_HINT = 'jjinmat.reaction_hint_seen';
 export const HIDE_MS = 30 * 24 * 60 * 60 * 1000;
 export const MAX_EXCLUDE = 200;
 
@@ -119,5 +120,12 @@ export async function getExcludeIds(): Promise<string[]> {
 export async function consumeSwipeHint(): Promise<boolean> {
   if (await get(K_HINT)) return false;
   await set(K_HINT, '1');
+  return true;
+}
+
+/** 좋아요/싫어요 첫 사용 1회 안내(개인화 전용 — 점수 무관) */
+export async function consumeReactionHint(): Promise<boolean> {
+  if (await get(K_REACT_HINT)) return false;
+  await set(K_REACT_HINT, '1');
   return true;
 }

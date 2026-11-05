@@ -8,7 +8,7 @@ import { api, DislikeReason, Evidence, RecommendRequest, RestaurantItem } from '
 import { Button } from '../src/components/Button';
 import { RetryButton } from '../src/components/RetryButton';
 import { ReviewSheet } from '../src/components/ReviewSheet';
-import { GovBudgetBadge, Notice, PercentileBadge, ReasonList, StarRatingBadge } from '../src/components/ui';
+import { GovBudgetBadge, Notice, PercentileBadge, ReasonList, StarRatingBadge, ValueTag } from '../src/components/ui';
 import * as store from '../src/state/deviceStore';
 import { useTheme } from '../src/theme';
 import { MapLinkButtons, mapLinks } from '../src/components/MapLinks';
@@ -111,9 +111,13 @@ function ReelCard({ item, height, bottomInset, onPress }: { item: RestaurantItem
         <Text style={[t.typography.body, { color: t.colors.textSecondary }]}>{meta}</Text>
         <ReasonList reasons={item.reasons.slice(0, 3)} />
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.spacing.xs }}>
-          <EvidenceBadge item={item} />
-          <GovBudgetBadge visits={item.gov_visits} source={item.gov_source} />
-          <RelaxedBadge relaxed={item.relaxed} />
+          {/* 카드 배지 최대 3개: 근거 > 업무추진비 > 완화 > 가성비 (design_system.md 3-2) */}
+          {[
+            <EvidenceBadge key="ev" item={item} />,
+            item.gov_visits > 0 ? <GovBudgetBadge key="gov" visits={item.gov_visits} source={item.gov_source} /> : null,
+            item.relaxed?.length ? <RelaxedBadge key="rx" relaxed={item.relaxed} /> : null,
+            item.moods.includes('가성비') ? <ValueTag key="val" /> : null,
+          ].filter(Boolean).slice(0, 3)}
         </View>
       </ScrollView>
     </Pressable>
@@ -170,10 +174,12 @@ function ActionRail({
 
 function DislikeReasonSheet({ item, onPick, onClose }: { item: RestaurantItem | null; onPick: (reason?: DislikeReason) => void; onClose: () => void }) {
   const t = useTheme();
+  const insets = useSafeAreaInsets();
   return (
     <Modal visible={!!item} transparent animationType="slide" onRequestClose={onClose}>
       <Pressable accessibilityRole="button" accessibilityLabel="닫기" onPress={onClose} style={{ flex: 1, backgroundColor: t.colors.overlay }} />
-      <View style={{ backgroundColor: t.colors.background, borderTopLeftRadius: t.radius.lg, borderTopRightRadius: t.radius.lg, padding: t.spacing.lg, gap: t.spacing.md }}>
+      <View style={{ backgroundColor: t.colors.background, borderTopLeftRadius: t.radius.lg, borderTopRightRadius: t.radius.lg, padding: t.spacing.lg, paddingBottom: t.spacing.lg + insets.bottom, gap: t.spacing.md }}>
+        <View style={{ alignSelf: 'center', width: 36, height: 4, borderRadius: t.radius.pill, backgroundColor: t.colors.border }} />
         <Text accessibilityRole="header" style={[t.typography.heading, { color: t.colors.textPrimary }]}>어떤 점이 아쉬웠나요?</Text>
         <Text style={[t.typography.caption, { color: t.colors.textSecondary }]}>이 가게는 30일간 추천에서 숨겨요.</Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.spacing.sm }}>
@@ -337,7 +343,11 @@ export default function RecommendationDeck() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [announceId]);
 
+  const reactionHint = () =>
+    store.consumeReactionHint().then((first) => first && showToast('좋아요·싫어요는 내 추천에만 쓰여요. 별점에는 반영되지 않아요.'), () => undefined);
+
   const toggleLike = async (item: RestaurantItem) => {
+    reactionHint();
     const prev = likesRef.current.includes(item.id);
     const next = !prev;
     const seq = (likeSeq.current.get(item.id) ?? 0) + 1;
@@ -360,6 +370,7 @@ export default function RecommendationDeck() {
     const target = dislikeTarget;
     setDislikeTarget(null);
     if (!target || !items) return;
+    reactionHint(); // 시트가 닫힌 뒤에 보이도록 여기서
     const index = items.findIndex((x) => x.id === target.id);
     const prev: 'like' | 'none' = likesRef.current.includes(target.id) ? 'like' : 'none';
     LayoutAnimation.configureNext(LayoutAnimation.create(t.motion.fast, LayoutAnimation.Types.easeInEaseOut, LayoutAnimation.Properties.opacity));
