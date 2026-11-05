@@ -7,6 +7,7 @@
 - `docs/00_brief.md` 공통 브리프 · `docs/01_planning_decision.md` 기획 결정·점수 모델(v2.1)·**API 계약**
 - `docs/02_roadmap.md` 단계 로드맵 · `docs/04_data_plan.md` 실데이터 출처·적재 순서(D0~D6)
 - `docs/design/screens.md` 화면 스펙 · `docs/qa/*.md` QA 리포트 · `ops/runbook.md` 운영
+- `docs/design/design_system.md` 디자인 시스템(미니멀, 승인 대기) · `docs/design/knowledge_base.md` 근거 원칙집 · 디자인 작업은 `designer` 에이전트(`.claude/agents/designer.md`)가 담당
 - `expense_collector/` 업무추진비 수집기(별도 하위 프로젝트, 자체 `CLAUDE.md`·`docs/prompts.md`) — 그 폴더 작업 시 해당 문서 우선
 
 ## 일하는 방식 (사용자 지정)
