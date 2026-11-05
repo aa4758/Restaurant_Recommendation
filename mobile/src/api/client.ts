@@ -129,6 +129,7 @@ export interface ScoreBreakdown {
 
 export interface RestaurantDetail extends RestaurantItem {
   score_breakdown: ScoreBreakdown;
+  designations?: string[]; // 지정목록 표시명(2026-11-05), 구버전 서버는 없음
 }
 
 export type PriceBand = '~1만' | '1~2만' | '2~4만' | '4만+';

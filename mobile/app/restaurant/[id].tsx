@@ -94,7 +94,12 @@ export default function RestaurantDetailScreen() {
     <ScrollView contentContainerStyle={{ padding: t.spacing.lg, gap: t.spacing.md }}>
       <Text style={[t.typography.title, { color: t.colors.textPrimary }]}>{d.name}</Text>
       {text(`${d.genre} · ${d.price_band} · ${d.alcohol ? '음주 가능' : '비주류'} · ${d.distance_m != null ? `${d.distance_m}m` : '거리 정보 없음'}`)}
-      {d.moods.includes('가성비') ? <ValueTag /> : null}
+      {d.moods.includes('가성비') || d.designations?.length ? (
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.spacing.xs }}>
+          {d.moods.includes('가성비') ? <ValueTag /> : null}
+          {(d.designations ?? []).map((x) => <ValueTag key={x} label={x} />)}
+        </View>
+      ) : null}
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.spacing.xs }}>
         <StarRatingBadge star={d.star} />
         <PercentileBadge percentile={d.percentile} />

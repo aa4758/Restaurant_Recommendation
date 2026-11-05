@@ -30,6 +30,7 @@ from app.schemas import (
 )
 from app.ratelimit import IP_LIMIT_PER_MIN, WRITE_LIMIT_PER_MIN, write_limiter
 from app import reviews
+from app.scoring.prior import CENTURY_LABEL
 from app.scoring.recommend import DISTANCE_RELAX_FACTOR, Query, Scored as RecScored, make_reasons, recommend
 from app.service import candidates_near, get_scored, rebuild_scores, region_of
 from app.subtype import SUBTYPES
@@ -114,6 +115,7 @@ def get_restaurant(rid: str, conn=Depends(get_conn)) -> dict:
     rs.reasons = make_reasons(rs, Query(lat=cand.lat, lng=cand.lng))
     d = _item_dict(rs)
     d["score_breakdown"] = breakdown
+    d["designations"] = cand.designations + ([CENTURY_LABEL] if cand.century_store else [])
     return d
 
 

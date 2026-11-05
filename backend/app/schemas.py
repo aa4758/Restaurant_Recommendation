@@ -90,6 +90,7 @@ class ScoreBreakdown(BaseModel):
 
 class RestaurantDetail(Item):
     score_breakdown: ScoreBreakdown
+    designations: list[str] = []  # 지정목록 표시명(모범음식점·안심식당·원산지표시 우수·백년가게), 표시용
 
 
 DeviceId = Annotated[str, Field(min_length=8, max_length=64, pattern=r"^[A-Za-z0-9_-]+$")]

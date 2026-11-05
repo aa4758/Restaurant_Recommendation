@@ -216,3 +216,15 @@ def test_unmatched_dir_gitignored():
     from pathlib import Path
     gi = (Path(__file__).resolve().parents[2] / ".gitignore").read_text(encoding="utf-8")
     assert "backend/data/out/" in gi.splitlines()
+
+
+def test_detail_designations_display_only(seeded):
+    """상세 응답 designations(2026-11-05): 지정업소 표시명 + 백년가게, 고정 순서. 추천 item 에는 없음."""
+    from app.main import app
+    c = TestClient(app)
+    assert c.get("/restaurants/R023").json()["designations"] == ["모범음식점", "안심식당"]
+    assert c.get("/restaurants/R007").json()["designations"] == ["백년가게"]
+    d = c.get("/restaurants/R001").json()
+    assert isinstance(d["designations"], list)
+    r = c.post("/recommend", json={"lat": d["lat"], "lng": d["lng"], "radius_m": 300, "limit": 1}).json()
+    assert all("designations" not in it for it in r["items"])
