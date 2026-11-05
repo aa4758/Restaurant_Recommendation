@@ -15,6 +15,7 @@ export interface ColorPalette {
   textPrimary: string;
   textSecondary: string;
   textDisabled: string;
+  textPlaceholder: string;
   primary: string;
   primaryText: string;
   accent: string;
@@ -41,18 +42,19 @@ export const colors: Record<ColorScheme, ColorPalette> = {
     textPrimary: '#17181A',
     textSecondary: '#5B5D63',
     textDisabled: '#A0A2A8',
-    primary: '#E4572E',
+    textPlaceholder: '#71757D',
+    primary: '#C8431C',
     primaryText: '#FFFFFF',
     accent: '#2E6FE4',
-    success: '#1E8E5A',
-    warning: '#C77E12',
+    success: '#17794C',
+    warning: '#8F5A00',
     danger: '#D0392B',
     govBadgeBg: '#EEF2FF',
     govBadgeText: '#3A4CA8',
     adPenaltyBg: '#FBEAEA',
     adPenaltyText: '#A83A3A',
     chipBg: '#F0F0F2',
-    chipBgSelected: '#E4572E',
+    chipBgSelected: '#C8431C',
     chipText: '#3A3B3E',
     chipTextSelected: '#FFFFFF',
     overlay: 'rgba(0,0,0,0.45)',
@@ -65,6 +67,7 @@ export const colors: Record<ColorScheme, ColorPalette> = {
     textPrimary: '#F2F2F3',
     textSecondary: '#B4B6BC',
     textDisabled: '#6B6D73',
+    textPlaceholder: '#8A8D94',
     primary: '#FF7A50',
     primaryText: '#101113',
     accent: '#6C9BFF',

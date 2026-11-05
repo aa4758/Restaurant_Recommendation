@@ -91,7 +91,7 @@ function ReelCard({ item, height, onPress }: { item: RestaurantItem; height: num
         <OpenStatusTag />
         <Text style={{ fontSize: 56, lineHeight: 64, fontWeight: '700', color: t.colors[band.colorKey] }}>{item.star.toFixed(1)}</Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.spacing.xs }}>
-          <StarRatingBadge star={item.star} />
+          <StarRatingBadge star={item.star} compact />
           <PercentileBadge percentile={item.percentile} />
         </View>
         <Text numberOfLines={2} style={[t.typography.display, { color: t.colors.textPrimary }]}>{item.name}</Text>
