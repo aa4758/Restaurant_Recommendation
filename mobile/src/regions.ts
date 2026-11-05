@@ -39,9 +39,16 @@ export function visitedUnits(reviews: MyReview[]): Map<string, MyReview[]> {
   return out;
 }
 
-/** 시도별 (다녀온 단위 수, 전체 단위 수) */
+/** 시도 표시 순서 = 주민등록 인구 많은 순(대략값, 전남광주는 전남+광주 합산). 목록에 없는 이름은 맨 뒤 */
+const SIDO_ORDER = [
+  '경기도', '서울특별시', '부산광역시', '경상남도', '전남광주통합특별시', '인천광역시', '경상북도', '대구광역시',
+  '충청남도', '전북특별자치도', '충청북도', '강원특별자치도', '대전광역시', '울산광역시', '제주특별자치도', '세종특별자치시',
+];
+const rank = (name: string) => (SIDO_ORDER.indexOf(name) + 1 || SIDO_ORDER.length + 1);
+
+/** 시도별 (다녀온 단위 수, 전체 단위 수), 인구 많은 순 */
 export function sidoProgress(visited: Map<string, MyReview[]>) {
-  return REGIONS.sido.map((s) => {
+  return [...REGIONS.sido].sort((a, b) => rank(a.name) - rank(b.name)).map((s) => {
     const units = REGIONS.units.filter((u) => u.sido === s.name);
     return { name: s.name, done: units.filter((u) => visited.has(`${u.sido}|${u.name}`)).length, total: units.length };
   });

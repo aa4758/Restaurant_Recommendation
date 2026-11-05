@@ -27,7 +27,7 @@ export function MapLinkButtons({ name, compact }: { name: string; compact?: bool
   const t = useTheme();
   const links = mapLinks(name);
   return (
-    <View style={{ flexDirection: 'row', gap: t.spacing.sm, flexWrap: 'wrap' }}>
+    <View style={{ flexDirection: 'row', gap: t.spacing.sm, flexWrap: 'wrap', justifyContent: compact ? 'flex-start' : 'center' }}>
       <Button
         label={compact ? '네이버지도' : '네이버지도에서 보기'}
         variant="text"
