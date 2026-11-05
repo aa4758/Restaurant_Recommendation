@@ -4,7 +4,7 @@ import { ActivityIndicator, Alert, ScrollView, Text, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { api, RestaurantDetail, ScoreComponents } from '../../src/api/client';
 import { Button } from '../../src/components/Button';
-import { GovBudgetBadge, InlineErrorBanner, PercentileBadge, ReasonList, StarRatingBadge } from '../../src/components/ui';
+import { GovBudgetBadge, InlineErrorBanner, PercentileBadge, ReasonList, StarRatingBadge, ValueTag } from '../../src/components/ui';
 import { ReviewSheetEntryButton } from '../../src/components/ReviewSheet';
 import { MapLinkButtons } from '../../src/components/MapLinks';
 import { useTheme } from '../../src/theme';
@@ -37,9 +37,13 @@ function ComponentRow({ label, value }: { label: string; value: number }) {
   const t = useTheme();
   const color = value < 0 ? t.colors.danger : value > 0 ? t.colors.textPrimary : t.colors.textDisabled;
   const sign = value > 0 ? '+' : value < 0 ? '−' : '';
+  // 감점은 색만으로 구분하지 않고 "감점" 라벨 병기
   return (
     <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: t.spacing.sm }}>
-      <Text style={[t.typography.caption, { color: t.colors.textSecondary, flexShrink: 1 }]}>{label}</Text>
+      <Text style={[t.typography.caption, { color: t.colors.textSecondary, flexShrink: 1 }]}>
+        {value < 0 ? <Text style={[t.typography.captionStrong, { color: t.colors.danger }]}>감점 · </Text> : null}
+        {label}
+      </Text>
       <Text style={[t.typography.caption, { color }]}>{`${sign}${Math.abs(value).toFixed(2)}`}</Text>
     </View>
   );
@@ -90,6 +94,7 @@ export default function RestaurantDetailScreen() {
     <ScrollView contentContainerStyle={{ padding: t.spacing.lg, gap: t.spacing.md }}>
       <Text style={[t.typography.title, { color: t.colors.textPrimary }]}>{d.name}</Text>
       {text(`${d.genre} · ${d.price_band} · ${d.alcohol ? '음주 가능' : '비주류'} · ${d.distance_m != null ? `${d.distance_m}m` : '거리 정보 없음'}`)}
+      {d.moods.includes('가성비') ? <ValueTag /> : null}
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.spacing.xs }}>
         <StarRatingBadge star={d.star} />
         <PercentileBadge percentile={d.percentile} />
