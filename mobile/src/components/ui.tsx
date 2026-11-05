@@ -98,12 +98,12 @@ export function StarRatingBadge({ star, compact }: { star: number; compact?: boo
   return <Pill text={compact ? band.label : `★ ${star.toFixed(1)} · ${band.label}`} bg={t.colors.surfaceAlt} fg={t.colors[band.colorKey]} />;
 }
 
-/** 착한가격업소 '가성비' 태그 — 점수 무관이라 별점 옆이 아닌 메타 줄 아래, 중립색 윤곽 */
-export function ValueTag() {
+/** 윤곽 태그(중립색) — 기본은 착한가격업소 '가성비'(점수 무관이라 별점 옆이 아닌 메타 줄 아래). 지정목록 태그도 같은 모양 */
+export function ValueTag({ label = '가성비' }: { label?: string }) {
   const t = useTheme();
   return (
     <View style={{ alignSelf: 'flex-start', borderWidth: 1, borderColor: t.colors.border, borderRadius: t.radius.pill, paddingVertical: 1, paddingHorizontal: t.spacing.sm }}>
-      <Text style={[t.typography.captionStrong, { color: t.colors.textSecondary }]}>가성비</Text>
+      <Text style={[t.typography.captionStrong, { color: t.colors.textSecondary }]}>{label}</Text>
     </View>
   );
 }
