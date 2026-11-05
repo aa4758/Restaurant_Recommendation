@@ -85,10 +85,11 @@ function Pill({ text, bg, fg }: { text: string; bg: string; fg: string }) {
   );
 }
 
-export function StarRatingBadge({ star }: { star: number }) {
+/** compact: 큰 별점 숫자 바로 아래(릴스 카드)에서는 구간 라벨만 — 숫자 중복 방지 */
+export function StarRatingBadge({ star, compact }: { star: number; compact?: boolean }) {
   const t = useTheme();
   const band = t.getStarBand(star);
-  return <Pill text={`★ ${star.toFixed(1)} · ${band.label}`} bg={t.colors.surfaceAlt} fg={t.colors[band.colorKey]} />;
+  return <Pill text={compact ? band.label : `★ ${star.toFixed(1)} · ${band.label}`} bg={t.colors.surfaceAlt} fg={t.colors[band.colorKey]} />;
 }
 
 export function PercentileBadge({ percentile }: { percentile: number }) {

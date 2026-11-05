@@ -49,7 +49,7 @@ export default function SearchScreen() {
         onChangeText={setText}
         onSubmitEditing={() => search()}
         placeholder="예) 근처 만원 이하 국밥, 혼밥하기 좋고 술은 안 마셔요"
-        placeholderTextColor={t.colors.textDisabled}
+        placeholderTextColor={t.colors.textPlaceholder}
         maxLength={200}
         returnKeyType="search"
         accessibilityLabel="원하는 조건을 문장으로 입력"

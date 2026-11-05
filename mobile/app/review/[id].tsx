@@ -169,7 +169,7 @@ export default function WriteReviewScreen() {
         value={text}
         onChangeText={setText}
         placeholder="어땠는지 짧게 남겨주세요"
-        placeholderTextColor={t.colors.textDisabled}
+        placeholderTextColor={t.colors.textPlaceholder}
         multiline
         maxLength={1000}
         style={[...inputStyle, { minHeight: 100, padding: t.spacing.md, textAlignVertical: 'top' }]}
@@ -210,9 +210,9 @@ export default function WriteReviewScreen() {
           {menus.map((m, i) => (
             <View key={i} style={{ flexDirection: 'row', gap: t.spacing.xs, alignItems: 'center' }}>
               <TextInput value={m.name} onChangeText={(v) => setMenu(i, { name: v })} placeholder="메뉴명" maxLength={30}
-                placeholderTextColor={t.colors.textDisabled} style={[...inputStyle, { flex: 2, minWidth: 0 }]} accessibilityLabel={`메뉴 ${i + 1} 이름`} />
+                placeholderTextColor={t.colors.textPlaceholder} style={[...inputStyle, { flex: 2, minWidth: 0 }]} accessibilityLabel={`메뉴 ${i + 1} 이름`} />
               <TextInput value={m.price} onChangeText={(v) => setMenu(i, { price: v.replace(/\D/g, '').slice(0, 6) })} placeholder="가격(원)"
-                keyboardType="number-pad" placeholderTextColor={t.colors.textDisabled} style={[...inputStyle, { flex: 1, minWidth: 0 }]} accessibilityLabel={`메뉴 ${i + 1} 가격`} />
+                keyboardType="number-pad" placeholderTextColor={t.colors.textPlaceholder} style={[...inputStyle, { flex: 1, minWidth: 0 }]} accessibilityLabel={`메뉴 ${i + 1} 가격`} />
               <Pressable onPress={() => setMenus(menus.filter((_, k) => k !== i))} accessibilityRole="button" accessibilityLabel={`메뉴 ${i + 1} 삭제`}
                 hitSlop={8} style={{ width: 32, height: 44, alignItems: 'center', justifyContent: 'center' }}>
                 <Text style={[t.typography.body, { color: t.colors.textSecondary }]}>✕</Text>
