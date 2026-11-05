@@ -77,7 +77,7 @@ RecommendationScreen
 ### 2-1. ReelCard 레이아웃 (위→아래, 좌측 정렬, 좌우 spacing 20, 우측 72px는 ActionRail 영역 확보)
 ```
 ReelCard  (배경 colors.background, 상하 safe area 준수)
-├─ OpenStatusTag          영업 상태 칩: "영업 중" / "곧 마감" / "영업 종료" / "영업 정보 없음"
+├─ OpenStatusTag          영업 상태 칩: "영업 중" / "곧 마감" / "영업 종료" / "영업 정보 없음"(2026-11-05: 영업시간 데이터 전까지 숨김 — design_system.md 6절 #6)
 ├─ StarHero               별점 대형(typography 최대 크기, starScale 색상) "4.6"
 │  └─ PercentileBadge     "이 지역 상위 8%"
 ├─ RestaurantName         굵게 2줄 말줄임

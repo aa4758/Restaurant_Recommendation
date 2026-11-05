@@ -31,6 +31,7 @@ export interface ColorPalette {
   chipText: string;
   chipTextSelected: string;
   overlay: string;
+  overlayText: string;
 }
 
 export const colors: Record<ColorScheme, ColorPalette> = {
@@ -58,6 +59,7 @@ export const colors: Record<ColorScheme, ColorPalette> = {
     chipText: '#3A3B3E',
     chipTextSelected: '#FFFFFF',
     overlay: 'rgba(0,0,0,0.45)',
+    overlayText: '#FFFFFF',
   },
   dark: {
     background: '#101113',
@@ -83,8 +85,17 @@ export const colors: Record<ColorScheme, ColorPalette> = {
     chipText: '#D6D7DB',
     chipTextSelected: '#101113',
     overlay: 'rgba(0,0,0,0.6)',
+    overlayText: '#FFFFFF',
   },
 };
+
+/** 모션 (design_system.md 2-3). 과시용 효과 금지 — 상태 변화 설명용만 */
+export const motion = {
+  instant: 100,
+  fast: 150,
+  base: 250,
+  slow: 400,
+} as const;
 
 export const spacing = {
   none: 0,
