@@ -7,6 +7,7 @@ import {
   starScale,
   getStarBand,
   elevation,
+  motion,
   ColorScheme,
   ColorPalette,
   StarBand,
@@ -22,6 +23,7 @@ export interface Theme {
   starScale: StarBand[];
   getStarBand: typeof getStarBand;
   elevation: typeof elevation;
+  motion: typeof motion;
 }
 
 /**
@@ -39,6 +41,7 @@ export function useTheme(): Theme {
     starScale,
     getStarBand,
     elevation,
+    motion,
   };
 }
 
@@ -50,5 +53,6 @@ export {
   starScale,
   getStarBand,
   elevation,
+  motion,
 };
 export type { ColorScheme, ColorPalette, StarBand, TypographyScale };

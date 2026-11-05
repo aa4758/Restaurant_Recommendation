@@ -1,6 +1,7 @@
 /** screens.md 공통 컴포넌트 (이름은 스펙 그대로). */
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../theme';
 import { RetryButton } from './RetryButton';
 
@@ -25,11 +26,16 @@ export function FilterChip({
       style={{
         backgroundColor: selected ? t.colors.chipBgSelected : t.colors.chipBg,
         borderRadius: t.radius.pill,
-        paddingVertical: t.spacing.sm,
+        minHeight: 44,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: t.spacing.xs,
         paddingHorizontal: t.spacing.md,
         opacity: disabled ? 0.4 : 1,
       }}
     >
+      {/* 선택을 색만으로 구분하지 않음 */}
+      {selected ? <Ionicons name="checkmark" size={16} color={t.colors.chipTextSelected} /> : null}
       <Text style={[t.typography.caption, { color: selected ? t.colors.chipTextSelected : t.colors.chipText }]}>
         {label}
       </Text>

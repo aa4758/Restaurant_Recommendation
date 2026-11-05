@@ -59,6 +59,7 @@ export function Button({
         {
           backgroundColor,
           borderRadius: theme.radius.md,
+          minHeight: 48,
           paddingVertical: theme.spacing.md,
           paddingHorizontal: theme.spacing.lg,
           opacity: isDisabled ? 0.5 : 1,
@@ -66,18 +67,16 @@ export function Button({
         style,
       ]}
     >
-      {loading ? (
-        <ActivityIndicator color={textColor} />
-      ) : (
-        <Text
-          style={[
-            theme.typography.bodyStrong,
-            { color: textColor },
-          ]}
-        >
-          {label}
-        </Text>
-      )}
+      {/* loading 중에도 라벨 자리를 유지해 버튼 폭이 흔들리지 않게 */}
+      <Text
+        style={[
+          theme.typography.bodyStrong,
+          { color: textColor, opacity: loading ? 0 : 1 },
+        ]}
+      >
+        {label}
+      </Text>
+      {loading ? <ActivityIndicator color={textColor} style={StyleSheet.absoluteFill} /> : null}
     </TouchableOpacity>
   );
 }

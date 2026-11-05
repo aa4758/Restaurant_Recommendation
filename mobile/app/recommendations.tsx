@@ -2,6 +2,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, ActivityIndicator, FlatList, LayoutAnimation, Modal, Pressable, ScrollView, Share, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api, DislikeReason, Evidence, RecommendRequest, RestaurantItem } from '../src/api/client';
 import { Button } from '../src/components/Button';
 import { RetryButton } from '../src/components/RetryButton';
@@ -34,22 +36,33 @@ function sendReaction(deviceId: string, id: string, value: 'like' | 'dislike' | 
   return run;
 }
 
-function OpenStatusTag() {
-  const t = useTheme();
-  return (
-    <View accessible accessibilityLabel="영업 정보 없음" style={{ alignSelf: 'flex-start', backgroundColor: t.colors.surfaceAlt, borderRadius: t.radius.pill, paddingVertical: 2, paddingHorizontal: t.spacing.sm }}>
-      <Text style={[t.typography.captionStrong, { color: t.colors.textSecondary }]}>영업 정보 없음</Text>
-    </View>
-  );
-}
+// 영업 상태 태그는 영업시간 데이터(D5)가 생기면 추가 — 그전엔 "영업 정보 없음" 반복 노출 대신 숨김
 
 function RelaxedBadge({ relaxed }: { relaxed?: string[] }) {
   const t = useTheme();
   if (!relaxed || !relaxed.length) return null;
   return (
-    <Text style={[t.typography.captionStrong, { color: t.colors.textSecondary }]}>
-      {relaxed.map((r) => RELAX_LABEL[r] ?? r).join('/')} 조건 완화됨
-    </Text>
+    <View style={{ borderWidth: 1, borderColor: t.colors.border, borderRadius: t.radius.pill, paddingVertical: 1, paddingHorizontal: t.spacing.sm }}>
+      <Text style={[t.typography.captionStrong, { color: t.colors.textSecondary }]}>
+        {relaxed.map((r) => RELAX_LABEL[r] ?? r).join('/')} 조건 완화됨
+      </Text>
+    </View>
+  );
+}
+
+/** 첫 로딩 자리표시 — 카드 배치(별점·배지·이름·메타·이유)를 회색 블록으로 */
+function ReelCardSkeleton() {
+  const t = useTheme();
+  const block = (w: number | `${number}%`, h: number) => <View style={{ width: w, height: h, borderRadius: t.radius.md, backgroundColor: t.colors.surfaceAlt }} />;
+  return (
+    <View accessible accessibilityLabel="추천을 불러오는 중" style={{ flex: 1, paddingLeft: 20, paddingRight: RAIL_W + 8, paddingTop: 56, gap: t.spacing.md }}>
+      {block(96, 64)}
+      {block(140, 22)}
+      {block('80%', 36)}
+      {block('50%', 22)}
+      {block('90%', 18)}
+      {block('70%', 18)}
+    </View>
   );
 }
 
@@ -74,13 +87,14 @@ function EvidenceBadge({ item }: { item: RestaurantItem }) {
   );
 }
 
-function ReelCard({ item, height, onPress }: { item: RestaurantItem; height: number; onPress: () => void }) {
+function ReelCard({ item, height, bottomInset, onPress }: { item: RestaurantItem; height: number; bottomInset: number; onPress: () => void }) {
   const t = useTheme();
   const band = t.getStarBand(item.star);
   const meta = [item.genre, item.price_band, item.distance_m != null ? `${item.distance_m}m` : null].filter(Boolean).join(' · ');
   // 지도 버튼은 카드(버튼) 밖에 둔다 — 버튼 안 버튼은 접근성·웹에서 오류
+  // 상단 노치는 Stack 헤더가 흡수, 56 은 안내(Notice)·페이지 표시 자리. 하단은 홈 인디케이터만큼 더 띄움
   return (
-    <View style={{ height, paddingLeft: 20, paddingRight: RAIL_W + 8, paddingTop: 56, paddingBottom: 24 }}>
+    <View style={{ height, paddingLeft: 20, paddingRight: RAIL_W + 8, paddingTop: 56, paddingBottom: 24 + bottomInset }}>
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
@@ -88,7 +102,6 @@ function ReelCard({ item, height, onPress }: { item: RestaurantItem; height: num
       style={{ flexShrink: 1 }}
     >
       <ScrollView contentContainerStyle={{ gap: t.spacing.md }}>
-        <OpenStatusTag />
         <Text style={{ fontSize: 56, lineHeight: 64, fontWeight: '700', color: t.colors[band.colorKey] }}>{item.star.toFixed(1)}</Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.spacing.xs }}>
           <StarRatingBadge star={item.star} compact />
@@ -109,7 +122,9 @@ function ReelCard({ item, height, onPress }: { item: RestaurantItem; height: num
   );
 }
 
-function RailButton({ icon, label, a11y, active, onPress }: { icon: string; label: string; a11y: string; active?: boolean; onPress: () => void }) {
+type IconName = React.ComponentProps<typeof Ionicons>['name'];
+
+function RailButton({ icon, label, a11y, active, onPress }: { icon: IconName; label: string; a11y: string; active?: boolean; onPress: () => void }) {
   const t = useTheme();
   return (
     <Pressable
@@ -119,7 +134,7 @@ function RailButton({ icon, label, a11y, active, onPress }: { icon: string; labe
       accessibilityState={active === undefined ? undefined : { selected: active }}
       style={{ minWidth: 48, minHeight: 48, alignItems: 'center', justifyContent: 'center' }}
     >
-      <Text style={{ fontSize: 28, color: active ? t.colors.primary : t.colors.textPrimary }}>{icon}</Text>
+      <Ionicons name={icon} size={28} color={active ? t.colors.primary : t.colors.textPrimary} />
       <Text style={[t.typography.micro, { color: active ? t.colors.primary : t.colors.textSecondary }]}>{label}</Text>
     </Pressable>
   );
@@ -128,6 +143,7 @@ function RailButton({ icon, label, a11y, active, onPress }: { icon: string; labe
 function ActionRail({
   item,
   liked,
+  bottomInset,
   onLike,
   onDislike,
   onReview,
@@ -135,18 +151,19 @@ function ActionRail({
 }: {
   item: RestaurantItem;
   liked: boolean;
+  bottomInset: number;
   onLike: () => void;
   onDislike: () => void;
   onReview: () => void;
   onShare: () => void;
 }) {
   return (
-    <View style={{ position: 'absolute', right: 8, bottom: 32, width: RAIL_W - 16, alignItems: 'center', gap: 12 }}>
-      <RailButton icon={liked ? '♥' : '♡'} label={liked ? '좋아요 완료' : '좋아요'} active={liked} onPress={onLike}
+    <View style={{ position: 'absolute', right: 8, bottom: 32 + bottomInset, width: RAIL_W - 16, alignItems: 'center', gap: 12 }}>
+      <RailButton icon={liked ? 'heart' : 'heart-outline'} label={liked ? '좋아요 완료' : '좋아요'} active={liked} onPress={onLike}
         a11y={`${item.name} 좋아요, 현재 ${liked ? '선택됨' : '선택 안 됨'}`} />
-      <RailButton icon="✕" label="싫어요" onPress={onDislike} a11y={`${item.name} 싫어요, 30일간 숨김`} />
-      <RailButton icon="✎" label={item.review_count > 0 ? `리뷰 ${item.review_count}` : '리뷰'} onPress={onReview} a11y={`${item.name} 리뷰 보기`} />
-      <RailButton icon="↗" label="공유" onPress={onShare} a11y={`${item.name} 공유하기`} />
+      <RailButton icon="close" label="싫어요" onPress={onDislike} a11y={`${item.name} 싫어요, 30일간 숨김`} />
+      <RailButton icon="chatbubble-outline" label={item.review_count > 0 ? `리뷰 ${item.review_count}` : '리뷰'} onPress={onReview} a11y={`${item.name} 리뷰 보기`} />
+      <RailButton icon="share-outline" label="공유" onPress={onShare} a11y={`${item.name} 공유하기`} />
     </View>
   );
 }
@@ -210,6 +227,7 @@ const PREFETCH = 3; // 끝에서 몇 장 앞에서 다음 묶음을 받을지
 
 export default function RecommendationDeck() {
   const t = useTheme();
+  const insets = useSafeAreaInsets();
   const router = useRouter();
   const { q, fallback } = useLocalSearchParams<{ q: string; fallback?: string }>();
   const [items, setItems] = useState<RestaurantItem[] | null>(null);
@@ -344,7 +362,7 @@ export default function RecommendationDeck() {
     if (!target || !items) return;
     const index = items.findIndex((x) => x.id === target.id);
     const prev: 'like' | 'none' = likesRef.current.includes(target.id) ? 'like' : 'none';
-    LayoutAnimation.configureNext(LayoutAnimation.create(150, LayoutAnimation.Types.easeInEaseOut, LayoutAnimation.Properties.opacity));
+    LayoutAnimation.configureNext(LayoutAnimation.create(t.motion.fast, LayoutAnimation.Types.easeInEaseOut, LayoutAnimation.Properties.opacity));
     setItems(items.filter((x) => x.id !== target.id));
     setPage((p) => Math.min(p, Math.max(items.length - 1, 0)));
     store.hideRestaurant(target.id).catch(() => undefined);
@@ -388,7 +406,7 @@ export default function RecommendationDeck() {
       </View>
     );
   }
-  if (!items) return <ActivityIndicator accessibilityLabel="추천을 불러오는 중" style={{ marginTop: t.spacing.xxl }} />;
+  if (!items) return <ReelCardSkeleton />;
 
   const data: (RestaurantItem | typeof END)[] = [...items, END];
   const hasMore = fetched.current < total;
@@ -435,7 +453,7 @@ export default function RecommendationDeck() {
               </View>
             ) : (
               <View>
-                <ReelCard item={d} height={deckH} onPress={() => router.push(`/restaurant/${d.id}`)} />
+                <ReelCard item={d} height={deckH} bottomInset={insets.bottom} onPress={() => router.push(`/restaurant/${d.id}`)} />
               </View>
             )
           }
@@ -472,6 +490,7 @@ export default function RecommendationDeck() {
         <ActionRail
           item={current}
           liked={likes.includes(current.id)}
+          bottomInset={insets.bottom}
           onLike={() => toggleLike(current)}
           onDislike={() => setDislikeTarget(current)}
           onReview={() => setReviewTarget(current)}
@@ -481,8 +500,8 @@ export default function RecommendationDeck() {
 
       {hint && !onEnd ? (
         <Pressable onPress={() => setHint(false)} accessibilityRole="button" accessibilityLabel="스와이프 안내 닫기"
-          style={{ position: 'absolute', bottom: 8, alignSelf: 'center', backgroundColor: t.colors.overlay, borderRadius: t.radius.pill, paddingVertical: t.spacing.xs, paddingHorizontal: t.spacing.md }}>
-          <Text style={[t.typography.caption, { color: '#FFFFFF' }]}>↑ 위로 밀어 다음 곳 보기</Text>
+          style={{ position: 'absolute', bottom: 8 + insets.bottom, alignSelf: 'center', backgroundColor: t.colors.overlay, borderRadius: t.radius.pill, paddingVertical: t.spacing.xs, paddingHorizontal: t.spacing.md }}>
+          <Text style={[t.typography.caption, { color: t.colors.overlayText }]}>↑ 위로 밀어 다음 곳 보기</Text>
         </Pressable>
       ) : null}
 
