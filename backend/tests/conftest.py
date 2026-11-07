@@ -10,6 +10,12 @@ def _reset_rate_limit():
     write_limiter.reset()
 
 
+@pytest.fixture(autouse=True)
+def _no_real_kakao_key(monkeypatch):
+    """PC 사용자 환경변수의 실제 키가 테스트로 새면 시드 적재가 카카오 API 를 실제 호출함 → 기본 제거(필요한 테스트는 setenv)."""
+    monkeypatch.delenv("KAKAO_REST_KEY", raising=False)
+
+
 @pytest.fixture()
 def login(monkeypatch):
     """계정 + 세션을 DB(JJINMAT_DB)에 바로 만들고 Authorization 헤더를 돌려줌. 리뷰 작성은 로그인 필수(docs/01 L-5)."""

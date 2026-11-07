@@ -1,7 +1,7 @@
-# 인수인계 — 클라우드 세션 → 로컬 Claude Code (2026-10-26 기준)
+# 인수인계 — 로컬 Claude Code (2026-11-07 기준)
 
 로컬 경로 `C:\Restaurant_Recommendation` · 원격 `aa4758/Restaurant_Recommendation`
-작업 브랜치 `claude/blissful-brahmagupta-w7t81a` · 열린 PR **#6** (별점 근거 데이터 입력기, CI 결과 확인 필요)
+작업 브랜치 `master`(PR #29 까지 병합, 열린 PR 없음) · 백엔드 테스트 358개 통과
 
 ---
 
@@ -10,18 +10,16 @@
 ### 1-1. 코드 받기 (PowerShell)
 ```powershell
 cd C:\Restaurant_Recommendation
-git fetch
-git checkout claude/blissful-brahmagupta-w7t81a
-git pull
+git checkout master; git pull
 ```
-PR #6 이 병합된 뒤라면 `git checkout master; git pull` 로 충분합니다.
+로그인 키(`KAKAO_REST_KEY`·`KAKAO_CLIENT_SECRET`·`GOOGLE_CLIENT_ID`·`GOOGLE_CLIENT_SECRET`·`AUTH_SECRET`)는 `.env` 가 아니라 **Windows 사용자 환경변수**에 있음. 테스트는 `conftest.py` 가 `KAKAO_REST_KEY` 를 지워 실제 API 호출을 막음.
 
 ### 1-2. 환경 (최초 1회)
 ```powershell
 cd C:\Restaurant_Recommendation\backend
 python -m venv .venv; .venv\Scripts\activate
 pip install -r requirements-dev.txt          # pytest 포함 (pyproj 등은 requirements.txt)
-python -m pytest -q                          # 299개 통과가 정상
+python -m pytest -q                          # 358개 통과가 정상
 
 cd ..\mobile
 npm install                                  # expo install 이 403 이면 npm install 로
@@ -45,7 +43,8 @@ claude
 |---|---|---|
 | 0 브리프 · 1 기획 결정 | ✅ | `docs/00_brief.md`, `docs/01_planning_decision.md` |
 | 2 백엔드·점수 엔진 / 디자인 | ✅ | `backend/`, `docs/design/screens.md` |
-| 3 모바일(5화면) · 3-B 릴스형 추천 | ✅ (**실기기 미확인**) | `mobile/`, `docs/qa/report_reels.md` |
+| 3 모바일(5화면) · 3-B 릴스형 추천 | ✅ (**실기기 미확인**) | `mobile/`, `docs/qa/report_reels.md`, 디자인 시스템 `docs/design/` (#25~27) |
+| 8 로그인·리뷰 신뢰 | ✅ 코드 (실기기 로그인은 배포 후) | 소셜 로그인 #19, 리뷰 개편 #20, 리뷰 지도 #21·#28 |
 | 4 QA · 5 운영 준비 | ✅ | `docs/qa/`, `ops/runbook.md`, `.github/workflows/`, `mobile/eas.json` |
 | 6 배포 | 👤 미착수 | 계정·호스팅 필요(`docs/02_roadmap.md` 하단) |
 | 7 실데이터 | 🔄 | 아래 2-3 |
@@ -59,6 +58,18 @@ claude
 | #4 | D2 인허가 적재 + 릴스형 추천 화면 |
 | #5 | 인허가 실데이터 적재 수정(헤더 별칭, 지역 키, 전남광주, 휴게음식점 처리, v1 DB 업그레이드) |
 | #6 | 별점 근거 입력기: 공공 지정목록·위생등급·행정처분, 인허가번호 우선 매칭 |
+| #7 | 별점 근거 실데이터 적재(모범·원산지·백년가게·착한가격·경기 으뜸맛집) |
+| #8~#10 | `expense_collector/` 업무추진비 수집기(Phase 0~5) + 점수 v2.2 · 가게별 집계표 |
+| #11 | 지정목록 대표 메뉴 + 상가정보 업종 연결(`link_sbiz`) |
+| #13·#14 | 세부 업종 필터·자연어 필터·AI-Hub 메뉴 모델·주간 사전 보강 / 완화 순서(분위기→가격→세부→거리→장르) |
+| #15·#16·#18 | 문서: AI-Hub 확정·TourAPI 보류 / 로그인·리뷰 신뢰·호스팅 결정(I-1·I-2) / Railway+EAS 배포 가이드(배포는 최종 단계) |
+| #17·#28 | 네이버·카카오 지도 버튼 / 리뷰 지도 다듬기 |
+| #19·#20·#21 | 소셜 로그인(카카오·구글, 서버 중계+PKCE) / 리뷰 개편(1인 1리뷰·현장 배지·메뉴·금액) / 방문 시군구 지도(I-3) |
+| #22 | 웹(LAN IP, http)에서 기기 ID 생성 수정 |
+| #23 | 피드백 묶음: 하단 탭·별점순 목록·엄격 별점 v2.3·분류 17/115·구내식당·법인명 제외 |
+| #24 | Expo SDK 57 → 58 |
+| #25~#27 | 디자인 시스템 문서 + P0~P2 수정(대비 등) |
+| #29 | 상세 응답에 지정 태그 |
 
 ### 2-3. 로컬 DB 상태 (`backend\data\jjinmat.db`, git 제외)
 - 기존 v1 DB 는 `data\jjinmat_v1_backup.db` 로 백업(가상 샘플 48곳 포함 — 실서비스에 쓰지 말 것).
@@ -92,9 +103,12 @@ claude
 4. **업무추진비(가중치 0.25, 가장 큼)** — 범위 확정(서울시 본청 + 25개 구, 최근 2년). 본청 ✅ 2026-10-26 적재(2024-10~2026-09, 45,825건 / 4,355곳, 백업 `data\jjinmat_before_gov.db`, 검수 `docs/qa/report_signals_load.md`). 매월 `load_gov_expense --fetch-seoul` 로 갱신(runbook). 25개 구는 게시판 수집 예외(01) 시범: 조건 통과 관악·구로 2곳만(`collect_gov_boards`). 관악 수집 완료(37,947건 → dry-run 매칭 18,653건 / 1,386곳, 미적재). 구로는 수집만 마치고 **보류**(2026-10-26 사용자 지시: 업무추진비 수집은 별도 프로그램으로 할 예정 → 이 저장소에서 구 게시판 적재·확장 진행 안 함). 나머지 23곳은 robots·봇 차단·공공누리 4유형으로 제외 → 정보공개청구 대안. HWP 파서 없음.
    - 수집 자동화는 `expense_collector/` 하위 프로젝트에서 진행(`expense_collector/docs/handoff.md`). 산출 CSV(`gov_expense_for_jjinmat.csv`)를 `load_designations` 가 아닌 기존 `GovExpenseCSVAdapter` 경로(PII 화이트리스트)로 적재.
 5. **앱 실기기 확인** — 서버 + Expo Go 로 실데이터 추천·릴스 덱·리뷰 시트 동작 확인(4-4).
+   소셜 로그인 키(카카오·구글·`AUTH_SECRET`)는 Windows 사용자 환경변수에 설정 완료. 실기기 로그인용 `PUBLIC_BASE_URL`·리디렉트 URI 등록은
+   배포 후로 미룸(2026-11-07 결정, 구글은 사설 IP 리디렉트 불가) → 8번 배포의 `ops/deploy_railway.md` 2절·4-1절에서 처리. 로컬 로그인 확인은 PC 브라우저(localhost)로.
 6. **미매칭 2.1만 곳** — 주소→좌표 지오코딩(예: 브이월드 API, 키 필요).
-7. **D5** 지도 링크·메뉴·영업시간 표시 / **D6** 영수증 인증·리뷰 조작 방지(출시 전 필수) + 최종 별점 v2 승인.
+7. **D5** 영업시간 표시(지도 링크 ✅ #17, 메뉴 일부 ✅ #11·#20) / **D6** 영수증 인증·리뷰 조작 방지(출시 전 필수) + 최종 별점 v2 승인.
 8. **배포(6단계)** — Expo 계정, 서버 호스팅, 스토어 계정, `mobile/eas.json` API URL 교체.
+   배포 직후: Railway 변수에 로그인 키·`PUBLIC_BASE_URL`(Railway 주소)·`AUTH_REDIRECTS` 입력 → 카카오·구글 콘솔에 `https://<주소>/auth/{kakao,google}/callback` 등록 → 실기기 로그인 확인.
 
 ---
 
