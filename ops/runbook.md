@@ -86,6 +86,14 @@ python -m app.ingest.build_regions            # 최신 연도 자동(2026-11 기
    결과: 모범 3,941(서울 2,860 + 경기 1,081) / 원산지 193 / 백년 489 / 착한가격 6,939 (+메뉴 13,878) / 경기 으뜸맛집 78. 재적재는 멱등(UNIQUE + INSERT OR IGNORE).
 5. 미매칭 가게는 `data\out\unmatched_<출처>.csv` (PII 없음) — 분기마다 수기 검토.
 6. 목록 갱신 주기: 모범음식점·착한가격 반기, 백년가게는 새 목록 공개 시 교체.
+7. 안심식당(전국, 농식품 공공데이터포털 오픈API — 지도 페이지 엑셀은 5,000건 제한이라 API 사용):
+   인증키는 data.mafra.go.kr 오픈API 신청(신청서버 IP = 이 PC 공인 IP, 바뀌면 신청 정보 수정) → 사용자 환경변수 `MAFRA_API_KEY`.
+   ```powershell
+   python -m app.ingest.load_designations --fetch-mafra        # → data\raw\designations\안심식당_api_<날짜>.csv (대표자명·전화 버림, 지정 취소 제외)
+   python -m app.ingest.load_designations data\raw\designations\안심식당_api_<날짜>.csv --dry-run
+   python -m app.ingest.load_designations data\raw\designations\안심식당_api_<날짜>.csv
+   ```
+   분기 1회. 지정 취소된 가게의 기존 신호는 자동으로 지워지지 않음(append) → 취소분 정리는 수동.
 
 ## 업무추진비 적재 (서울시 본청 Open API)
 1. 인증키: 열린데이터광장(data.seoul.go.kr) 로그인 → 인증키 신청 → `$env:SEOUL_API_KEY = "<키>"`.
