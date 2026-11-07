@@ -28,17 +28,24 @@
 from __future__ import annotations
 
 import argparse
+import csv
+import json
+import os
 import re
 import sqlite3
+import time
+import urllib.request
 from collections import Counter
 from datetime import date
 from pathlib import Path
 
-from app.db import connect, db_path, init_schema
+from app.db import BACKEND_DIR, connect, db_path, init_schema
 from app.scoring import prior
 
 from . import signal_common as sc
 from .signal_common import OUT_DIR
+
+RAW_DESIGNATIONS = BACKEND_DIR / "data" / "raw" / "designations"
 
 # 목록형으로 들어오는 kind (위생등급·행정처분은 load_food_safety)
 LIST_KINDS = (*prior.DESIGNATION_KINDS, prior.CENTURY_KIND, prior.GOOD_PRICE_KIND, *prior.GUIDE_SCORES)
@@ -290,9 +297,45 @@ def check_files(paths, kind: str | None = None) -> list[dict]:
     return out
 
 
+MAFRA_API = "http://211.237.50.150:7080/openapi/{key}/json/Grid_20200713000000000605_1/{start}/{end}"
+MAFRA_SOURCE = "농림축산식품부 안심식당"
+MAFRA_PAGE = 1000
+
+
+def fetch_mafra(key: str, out_dir: Path | str = RAW_DESIGNATIONS, opener=urllib.request.urlopen) -> tuple[Path, int]:
+    """안심식당 오픈API(data.go.kr 15061948 → 농식품 공공데이터포털) 전국 → 고정 컬럼 CSV. 반환 (경로, 행 수).
+    화이트리스트(상호·주소·지정일)만 저장 — 대표자명·전화는 버림. 지정 취소(RELAX_USE_YN='N')는 제외."""
+    rows, start, total = [], 1, None
+    while total is None or start <= total:
+        with opener(MAFRA_API.format(key=key, start=start, end=start + MAFRA_PAGE - 1), timeout=60) as resp:
+            body = json.loads(resp.read().decode("utf-8"))
+        data = body.get("Grid_20200713000000000605_1") or body
+        code = (data.get("result") or {}).get("code")
+        if code != "INFO-000":
+            raise RuntimeError(f"안심식당 API 오류 {code}: {(data.get('result') or {}).get('message')}")
+        total = int(data["totalCnt"])
+        for r in data.get("row", []):
+            if (r.get("RELAX_USE_YN") or "").upper() == "N":
+                continue
+            addr = " ".join(x for x in (r.get("RELAX_ADD1"), r.get("RELAX_ADD2")) if x)
+            rows.append({"name": r.get("RELAX_RSTRNT_NM") or "", "address": addr, "kind": "safe_restaurant",
+                         "base_date": r.get("RELAX_RSTRNT_REG_DT") or "", "source": MAFRA_SOURCE})
+        start += MAFRA_PAGE
+        time.sleep(1)  # 공식 API 지만 요청 간격 유지
+    path = Path(out_dir) / f"안심식당_api_{date.today():%Y%m%d}.csv"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", encoding="utf-8-sig", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=["name", "address", "kind", "base_date", "source"])
+        w.writeheader()
+        w.writerows(rows)
+    return path, len(rows)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="공공 선정·지정 목록 적재(가게 매칭)")
-    ap.add_argument("csv", nargs="+")
+    ap.add_argument("csv", nargs="*")
+    ap.add_argument("--fetch-mafra", action="store_true", help="안심식당 오픈API 전국 → data/raw/designations CSV 저장")
+    ap.add_argument("--key", default=None, help="농식품 공공데이터포털 인증키(기본: MAFRA_API_KEY)")
     ap.add_argument("--kind", choices=LIST_KINDS, default=None, help="파일 전체 kind(파일에 kind 열이 없을 때)")
     ap.add_argument("--source", default=None, help='출처명(파일에 source 열이 없을 때), 예: "행정안전부 착한가격업소"')
     ap.add_argument("--base-date", default=None, help="날짜 열이 비었을 때 쓸 기준일 YYYY-MM-DD")
@@ -303,6 +346,15 @@ def main() -> None:
     ap.add_argument("--allow-michelin", action="store_true", help="법무 확인 완료 시에만")
     ap.add_argument("--sido", default=None, help="주소 없는 목록의 시도(파일에 시도 열이 없을 때), 예: 경기")
     args = ap.parse_args()
+    if args.fetch_mafra:
+        key = (args.key or os.environ.get("MAFRA_API_KEY", "")).strip()
+        if not key:
+            ap.error("인증키 필요: --key 또는 환경변수 MAFRA_API_KEY")
+        path, n = fetch_mafra(key)
+        print(f"[ok]   안심식당 {n:,}곳(지정 취소 제외) → {path}")
+        return
+    if not args.csv:
+        ap.error("csv 경로 필요(또는 --fetch-mafra)")
     if args.base_date:
         try:
             _validate_date(args.base_date)
