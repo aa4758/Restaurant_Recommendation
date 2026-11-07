@@ -101,7 +101,10 @@ claude
    - 행정처분(식품접객업) 오픈API 서비스 키 → API 수집 스크립트 작성(키는 `.env`, git 제외)
    - 식품안전나라 위생등급 API(필요 시)
 4. **업무추진비(가중치 0.25, 가장 큼)** — 범위 확정(서울시 본청 + 25개 구, 최근 2년). 본청 ✅ 2026-10-26 적재(2024-10~2026-09, 45,825건 / 4,355곳, 백업 `data\jjinmat_before_gov.db`, 검수 `docs/qa/report_signals_load.md`). 매월 `load_gov_expense --fetch-seoul` 로 갱신(runbook). 25개 구는 게시판 수집 예외(01) 시범: 조건 통과 관악·구로 2곳만(`collect_gov_boards`). 관악 수집 완료(37,947건 → dry-run 매칭 18,653건 / 1,386곳, 미적재). 구로는 수집만 마치고 **보류**(2026-10-26 사용자 지시: 업무추진비 수집은 별도 프로그램으로 할 예정 → 이 저장소에서 구 게시판 적재·확장 진행 안 함). 나머지 23곳은 robots·봇 차단·공공누리 4유형으로 제외 → 정보공개청구 대안. HWP 파서 없음.
-   - 수집 자동화는 `expense_collector/` 하위 프로젝트에서 진행(`expense_collector/docs/handoff.md`). 산출 CSV(`gov_expense_for_jjinmat.csv`)를 `load_designations` 가 아닌 기존 `GovExpenseCSVAdapter` 경로(PII 화이트리스트)로 적재.
+   - 수집 자동화는 `expense_collector/` 하위 프로젝트에서 진행(`expense_collector/docs/handoff.md`).
+   - ✅ 2026-11-07 전국 산출 적재: `python -m app.ingest.load_gov_expense ..\expense_collector\data\output\gov_expense_for_jjinmat.csv`
+     (수집기 열 그대로 읽음, 목적 원문 버림). 65,362건 / 12,004곳 매칭(동명 상한 30·기관 소재 시군구), DB 전체 111,187건 / 16,232곳.
+     미매칭 61,895건 → 다음 후보: 수집기에서 주소 열 추출, 상가정보 상호로 보조 매칭. 검수 `docs/qa/report_signals_load.md`.
 5. **앱 실기기 확인** — 서버 + Expo Go 로 실데이터 추천·릴스 덱·리뷰 시트 동작 확인(4-4).
    소셜 로그인 키(카카오·구글·`AUTH_SECRET`)는 Windows 사용자 환경변수에 설정 완료. 실기기 로그인용 `PUBLIC_BASE_URL`·리디렉트 URI 등록은
    배포 후로 미룸(2026-11-07 결정, 구글은 사설 IP 리디렉트 불가) → 8번 배포의 `ops/deploy_railway.md` 2절·4-1절에서 처리. 로컬 로그인 확인은 PC 브라우저(localhost)로.
