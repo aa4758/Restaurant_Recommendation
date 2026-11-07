@@ -9,7 +9,9 @@
 입력 CSV(정규화 열): exec_dt, agency, dept, place, amount, category, source.
 - place 는 '상호(서울 중구 세종대로 136)' 형식 → 상호 + 도로명 주소로 기존 매칭기(상호+주소/50m) 사용.
   괄호 안이 주소가 아니면 주소 없음 → 미매칭(data/out/unmatched_<source>.csv).
-  단 agency 가 '서울특별시 구로구'처럼 시군구까지 있으면 상호+시군구 유일 매칭(match_city)으로 대신함.
+  단 agency 가 '서울특별시 구로구'처럼 시군구까지 있으면 상호+시군구 유일 매칭(match_city, 전국 동명 30곳 미만)으로 대신함.
+  시군구 없는 기관(중앙부처·교육청)은 청사 시군구(AGENCY_HOME·교육지원청 이름)로 같은 매칭.
+- expense_collector 산출(gov_expense_for_jjinmat.csv: restaurant_name·address·exec_date…)도 그대로 읽음.
 - 금액 0 이하(취소)·--since 이전(기본: 2년 전 같은 달 1일)은 제외. 같은 (일시, 장소, 금액, 부서) 중복은 1건.
 - purpose 에는 집행목적 원문 대신 비목(category: 시책·기관운영 등)만 저장(목적 문구에 성명이 섞일 수 있음).
 - 재적재 멱등: 같은 source 의 기존 행을 지우고 다시 넣음(source = 기관 단위 전체 교체).
@@ -29,6 +31,7 @@ from pathlib import Path
 from app.db import BACKEND_DIR, connect, db_path, init_schema
 
 from . import signal_common as sc
+from .matcher import _sido
 from .signal_common import OUT_DIR
 
 RAW_DIR = BACKEND_DIR / "data" / "raw" / "gov_expense"
@@ -43,6 +46,32 @@ _ADDR_TOK = (r"(?=(?:[가-힣]{2,4}(?:특별시|광역시|특별자치시|특별
 _ADDR_START = (re.compile(r"\s*\(\s*" + _ADDR_TOK), re.compile(r"[\s,]+" + _ADDR_TOK))
 _ADDR_HINT = re.compile(r"(로|길)\s*\d")
 _GLUED_BLDG = re.compile(r"(로|길)(\d+(?:-\d+)?)(?=[\s,)]|$)")  # '서소문로115' → '서소문로 115' ('을지로3길'은 그대로)
+
+GOV_MAX_CANDS = 30  # 상호+시군 매칭의 전국 동명 상한(지정목록 8보다 완화, 2026-11-07 결정)
+# 시군구가 없는 기관 → 청사 소재 (시도, 시군구). 그 시군구 안 상호 유일 매칭. 세종은 시군구 ''.
+# ponytail: 수기 표 — 새 기관은 여기에 추가. 전국 단위로 쓰는 기관(해양경찰청 등)은 청사 기준이라 오매칭 위험 있음
+AGENCY_HOME = {
+    "전북특별자치도": ("전북", "전주시"), "전북특별자치도교육청": ("전북", "전주시"), "해양경찰청": ("인천", "연수구"),
+    "부산광역시교육청": ("부산", "부산진구"), "부산광역시서부교육지원청": ("부산", "서구"), "공정거래위원회": ("세종", ""),
+    "지식재산처": ("대전", "서구"), "해양수산부": ("세종", ""), "산업통상부": ("세종", ""), "개인정보보호위원회": ("서울", "종로구"),
+}
+_EDU_OFFICE = re.compile(r"^(\S+?(?:특별시|광역시|특별자치시|특별자치도|도))(\S+)교육지원청$")  # '경기도군포의왕교육지원청'
+
+
+def agency_homes(agency: str, cities: dict[str, set[str]]) -> list[tuple[str, str]]:
+    """기관명 → 청사 후보 (시도, 시군구) 목록. 교육지원청은 이름 속 시군 이름들(cities: 시도 → 시군구 첫 토큰)."""
+    if agency in AGENCY_HOME:
+        return [AGENCY_HOME[agency]]
+    m = _EDU_OFFICE.match(agency)
+    if not m:
+        return []
+    sd, rest, out = _sido(m.group(1)), m.group(2), []
+    for c in sorted(cities.get(_sido(m.group(1)) or "", ()), key=len, reverse=True):  # 긴 이름 먼저: '남양주' 다음 '양주'
+        stem = c[:-1]
+        if len(stem) >= 2 and stem in rest:
+            out.append((sd, c))
+            rest = rest.replace(stem, "", 1)
+    return out
 
 
 def parse_place(place: str | None) -> tuple[str, str | None]:
@@ -99,6 +128,10 @@ def read_rows(paths, since: str) -> tuple[list[dict], dict]:
     for p in paths:
         with open(p, encoding="utf-8-sig", newline="") as f:
             for r in csv.DictReader(f):
+                if "exec_dt" not in r:  # expense_collector export 형식 → 정규화 열. purpose(목적 원문)는 PII 우려로 버림
+                    name, addr = (r.get("restaurant_name") or "").strip(), (r.get("address") or "").strip()
+                    r = {"exec_dt": r.get("exec_date"), "agency": r.get("agency"), "place": f"{name}({addr})" if addr else name,
+                         "amount": r.get("amount"), "source": r.get("source")}
                 r = {k: (r.get(k) or "").strip() for k in COLUMNS}
                 if r["exec_dt"][:10] < since:
                     skipped["기간 밖"] += 1
@@ -125,6 +158,10 @@ def load_gov_expense(conn: sqlite3.Connection, csv_paths, since: str | None = No
     stats.update(excluded=sum(skipped.values()), excluded_reasons=skipped)
     rows, regions, sources = [], set(), set()
     unmatched: dict[str, list[dict]] = {}
+    cities: dict[str, set[str]] = {}
+    for sd, sg in conn.execute("SELECT DISTINCT sido, sigungu FROM restaurants WHERE sigungu IS NOT NULL"):
+        cities.setdefault(_sido(sd or ""), set()).add(sg.split()[0])
+    homes_cache: dict[str, list] = {}
     for r in recs:
         stats["total"] += 1
         name, addr = parse_place(r["place"])
@@ -133,7 +170,15 @@ def load_gov_expense(conn: sqlite3.Connection, csv_paths, since: str | None = No
         sources.add(r["source"])
         rid, method, reason = matcher.match(name, addr, None, None) if addr else (None, None, "장소에 주소 없음")
         if not addr and " " in r["agency"]:  # 구청 게시판 상호만 → 상호+시군구 유일 매칭(주소 불일치엔 안 씀: 오매칭)
-            rid, method, reason = matcher.match_city(name, *r["agency"].split(" ", 1))
+            rid, method, reason = matcher.match_city(name, *r["agency"].split(" ", 1), max_cands=GOV_MAX_CANDS)
+        elif not addr:  # 시군구 없는 기관 → 청사 시군구(들) 안 유일 매칭. 여러 시군에 1곳씩이면 모호 → 안 붙임
+            homes = homes_cache.setdefault(r["agency"], agency_homes(r["agency"], cities))
+            hits = [matcher.match_city(name, sd, city, max_cands=GOV_MAX_CANDS) for sd, city in homes]
+            ids = {h[0] for h in hits if h[0]}
+            if len(ids) == 1:
+                rid, method, reason = ids.pop(), "name+agency_home", "기관 소재 시군구 유일"
+            elif hits:
+                rid, method, reason = None, None, "기관 소재: " + ("여러 시군 후보" if ids else hits[0][2])
         if rid is None:
             stats["unmatched"] += 1
             stats["unmatched_reasons"][reason] += 1

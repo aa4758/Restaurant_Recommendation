@@ -226,7 +226,7 @@ CITY_MAX_CANDS = 8  # 상호+시군 매칭: 전국 동명 후보가 이 수 이�
 
 def _in_city(addr: str | None, sido: str, city: str) -> bool:
     toks = (addr or "").split()
-    return bool(toks) and _sido(toks[0]) == sido and city in toks[1:3]
+    return bool(toks) and _sido(toks[0]) == sido and (not city or city in toks[1:3])  # city '' = 시군구 없는 시도(세종)
 
 
 class SignalMatcher:
@@ -255,16 +255,17 @@ class SignalMatcher:
             return None, None, reason
         return rest.id, "name+address", reason
 
-    def match_city(self, name: str, sido: str | None, city: str | None) -> tuple[str | None, str | None, str]:
+    def match_city(self, name: str, sido: str | None, city: str | None,
+                   max_cands: int = CITY_MAX_CANDS) -> tuple[str | None, str | None, str]:
         """주소·좌표 없는 목록(경기 모범음식점) 전용: 같은 시도·시군의 영업 중 후보가 정확히 1곳이고
-        전국 후보가 CITY_MAX_CANDS 미만(프랜차이즈 제외)일 때만 매칭."""
+        전국 후보가 max_cands 미만(프랜차이즈 제외)일 때만 매칭. 세종은 city '' 허용."""
         sd, city = _sido(sido or ""), (city or "").strip()
-        if not name or not sd or not city:
+        if not name or not sd or (not city and sd != "세종"):
             return None, None, REASON_MISSING
         cands = self.index.name_candidates(name)
         if not cands:
             return None, None, "상호 불일치"
-        if len(cands) >= CITY_MAX_CANDS:
+        if len(cands) >= max_cands:
             return None, None, "상호+시군: 동명 후보 많음(프랜차이즈)"
         hits = [r for r in cands if r.status == "open" and _in_city(r.address, sd, city)]
         if len(hits) != 1:
@@ -441,7 +442,8 @@ def print_stats(res: dict, label: str) -> None:
     m = res["by_method"]
     print(f"{tag} {label} 전체 {res['total']:,}건: 매칭 {res['matched']:,}건"
           f" (인허가번호 {m.get('license_id', 0):,} / 상호+주소 {m.get('name+address', 0):,}"
-          + (f" / 상호+시군 {m['name+city']:,}" if m.get("name+city") else "") + "),"
+          + (f" / 상호+시군 {m['name+city']:,}" if m.get("name+city") else "")
+          + (f" / 기관 소재 {m['name+agency_home']:,}" if m.get("name+agency_home") else "") + "),"
           f" 신호 추가 {res['inserted']:,}건, 중복 무시 {res['duplicate']:,}건,"
           f" 미매칭 {res['unmatched'] - res['michelin_held']:,}건, 보류(미슐랭) {res['michelin_held']:,}건"
           + (f", 제외 {res['excluded']:,}건" if res.get("excluded") else "")

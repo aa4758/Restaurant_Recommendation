@@ -124,3 +124,43 @@ def test_gu_board_address_mismatch_not_matched_by_city(conn, tmp_path):
     p = write(tmp_path / "g.csv", [{"exec_dt": "2026-09-02 12:16", "agency": "서울특별시 중구", "place": "영덕막회(퇴계로 999)",
                                     "amount": "1"}])
     assert lg.load_gov_expense(conn, p, out_dir=tmp_path / "out", today=TODAY)["matched"] == 0  # 주소가 다르면 다른 가게
+
+
+def test_expense_collector_export_format(conn, tmp_path):
+    """expense_collector 의 gov_expense_for_jjinmat.csv 열 그대로 적재. 목적 원문(purpose)은 저장 안 함(PII)."""
+    p = tmp_path / "c.csv"
+    with open(p, "w", encoding="utf-8-sig", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=["restaurant_name", "address", "exec_date", "agency", "amount", "purpose", "source", "base_year"])
+        w.writeheader()
+        w.writerow({"restaurant_name": "영덕막회", "address": "", "exec_date": "2026-09-02", "agency": "서울특별시 중구",
+                    "amount": "74000", "purpose": "홍길동 주무관 격려", "source": "중구 게시판", "base_year": "2026"})
+        w.writerow({"restaurant_name": "오드하우스", "address": "서울 중구 정동길 33", "exec_date": "2026-09-03", "agency": "공정거래위원회",
+                    "amount": "1", "purpose": "", "source": "공정위 게시판", "base_year": "2026"})
+    res = lg.load_gov_expense(conn, p, out_dir=tmp_path / "out", today=TODAY)
+    assert res["matched"] == 2 and res["by_method"]["name+city"] == 1 and res["by_method"]["name+address"] == 1
+    assert "홍길동" not in json.dumps([tuple(r) for r in conn.execute("SELECT * FROM gov_expense")], ensure_ascii=False)
+
+
+def test_agency_homes_edu_office_and_table():
+    cities = {"경기": {"남양주시", "양주시", "구리시", "동두천시", "군포시", "의왕시"}}
+    assert set(lg.agency_homes("경기도구리남양주교육지원청", cities)) == {("경기", "구리시"), ("경기", "남양주시")}  # '양주' 오인 없음
+    assert set(lg.agency_homes("경기도동두천양주교육지원청", cities)) == {("경기", "동두천시"), ("경기", "양주시")}
+    assert lg.agency_homes("공정거래위원회", cities) == [("세종", "")]
+    assert lg.agency_homes("해양경찰청 본청", cities) == [] and lg.agency_homes("모르는기관", cities) == []
+
+
+def test_agency_home_matches_unique_in_city(conn, tmp_path):
+    conn.executemany("INSERT INTO restaurants(id,name,address,lat,lng,sido,sigungu,sigungu_code,genre,status)"
+                     " VALUES(?,?,?,?,?,?,?,?,'한식','open')",
+                     [("J1", "세종낙지", "세종특별자치시 한누리대로 1", 36.48, 127.25, "세종특별자치시", None, "36110"),
+                      ("J2", "의왕국밥", "경기도 의왕시 오봉로 1", 37.34, 126.96, "경기도", "의왕시", "41430"),
+                      ("J3", "의왕국밥", "경기도 군포시 군포로 1", 37.36, 126.93, "경기도", "군포시", "41410")])
+    conn.commit()
+    p = write(tmp_path / "g.csv", [
+        {"exec_dt": "2026-09-02 12:00", "agency": "공정거래위원회", "place": "세종낙지", "amount": "1"},
+        {"exec_dt": "2026-09-02 12:00", "agency": "경기도군포의왕교육지원청", "place": "의왕국밥", "amount": "1"},  # 두 시군에 1곳씩
+        {"exec_dt": "2026-09-02 12:00", "agency": "경기도군포의왕교육지원청", "place": "영덕막회", "amount": "1"},  # 중구 가게
+    ])
+    res = lg.load_gov_expense(conn, p, out_dir=tmp_path / "out", today=TODAY)
+    assert res["matched"] == 1 and res["by_method"]["name+agency_home"] == 1
+    assert res["unmatched_reasons"]["기관 소재: 여러 시군 후보"] == 1
