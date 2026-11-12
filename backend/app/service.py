@@ -207,7 +207,7 @@ def _candidate(r: sqlite3.Row, sig: Signals | None = None, today: date | None = 
         subtype=r["subtype"],
         price_band=r["price_band"] or PRICE_UNKNOWN,
         moods=display_moods(r["moods"], sig),
-        alcohol=bool(r["alcohol"]),
+        alcohol=None if r["alcohol"] is None else bool(r["alcohol"]),  # NULL = 미확인
         lat=r["lat"],
         lng=r["lng"],
         star=r["star"],

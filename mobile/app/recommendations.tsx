@@ -11,6 +11,7 @@ import { ReviewSheet } from '../src/components/ReviewSheet';
 import { GovBudgetBadge, Notice, PercentileBadge, ReasonList, StarRatingBadge, ValueTag } from '../src/components/ui';
 import * as store from '../src/state/deviceStore';
 import { useTheme } from '../src/theme';
+import { genreColor, starHeroColor } from '../src/theme/tokens';
 import { MapLinkButtons, mapLinks } from '../src/components/MapLinks';
 
 const RELAX_LABEL: Record<string, string> = { subtype: '세부 메뉴', distance: '거리', mood: '분위기', price: '가격', genre: '장르' };
@@ -89,24 +90,34 @@ function EvidenceBadge({ item }: { item: RestaurantItem }) {
 
 function ReelCard({ item, height, bottomInset, onPress }: { item: RestaurantItem; height: number; bottomInset: number; onPress: () => void }) {
   const t = useTheme();
-  const band = t.getStarBand(item.star);
+  const food = item.subtype ?? item.genre;
   const meta = [item.genre, item.price_band, item.distance_m != null ? `${item.distance_m}m` : null].filter(Boolean).join(' · ');
   // 지도 버튼은 카드(버튼) 밖에 둔다 — 버튼 안 버튼은 접근성·웹에서 오류
+  // 장 전체(빈 공간 포함) 탭 → 상세(2026-11-12). 바깥은 accessible=false 라 버튼으로 노출되지 않음 — 스크린리더는 안쪽 버튼 사용
   // 상단 노치는 Stack 헤더가 흡수, 56 은 안내(Notice)·페이지 표시 자리. 하단은 홈 인디케이터만큼 더 띄움
   return (
-    <View style={{ height, paddingLeft: 20, paddingRight: RAIL_W + 8, paddingTop: 56, paddingBottom: 24 + bottomInset }}>
+    <Pressable
+      onPress={onPress}
+      accessible={false}
+      style={{ height, paddingLeft: 20, paddingRight: RAIL_W + 8, paddingTop: 56, paddingBottom: 24 + bottomInset }}
+    >
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={`${item.name}, 별점 ${item.star.toFixed(1)}, 이 지역 상위 ${item.percentile}퍼센트. 상세 보기`}
-      style={{ flexShrink: 1 }}
+      style={{ flex: 1 }}
     >
-      <ScrollView contentContainerStyle={{ gap: t.spacing.md }}>
-        <Text style={{ fontSize: 56, lineHeight: 64, fontWeight: '700', color: t.colors[band.colorKey] }}>{item.star.toFixed(1)}</Text>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.spacing.xs }}>
-          <StarRatingBadge star={item.star} compact />
-          <PercentileBadge percentile={item.percentile} />
+      {/* 사진 대신 큰 글씨 히어로(2026-11-12): 위 = 별점(구간 색)·음식(장르 색), 아래 = 이름·이유·배지 */}
+      <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between', gap: t.spacing.xl }}>
+        <View style={{ gap: t.spacing.sm }}>
+          <Text style={{ fontSize: 96, lineHeight: 104, fontWeight: '700', color: starHeroColor(item.star, t.scheme) }}>{item.star.toFixed(1)}</Text>
+          <Text numberOfLines={1} adjustsFontSizeToFit style={{ fontSize: 40, lineHeight: 48, fontWeight: '700', color: genreColor(item.genre, t.scheme) }}>{food}</Text>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.spacing.xs }}>
+            <StarRatingBadge star={item.star} compact />
+            <PercentileBadge percentile={item.percentile} />
+          </View>
         </View>
+        <View style={{ gap: t.spacing.md }}>
         <Text numberOfLines={2} style={[t.typography.display, { color: t.colors.textPrimary }]}>{item.name}</Text>
         <Text style={[t.typography.body, { color: t.colors.textSecondary }]}>{meta}</Text>
         <ReasonList reasons={item.reasons.slice(0, 3)} />
@@ -119,10 +130,11 @@ function ReelCard({ item, height, bottomInset, onPress }: { item: RestaurantItem
             item.moods.includes('가성비') ? <ValueTag key="val" /> : null,
           ].filter(Boolean).slice(0, 3)}
         </View>
+        </View>
       </ScrollView>
     </Pressable>
     <MapLinkButtons name={item.name} compact />
-    </View>
+    </Pressable>
   );
 }
 

@@ -41,7 +41,7 @@ def test_two_level_food_filter_and_relax():
 
 def test_parse_rules():
     r = parse("회사 근처 만원 이하 국밥집, 혼밥하기 좋고 술은 안 마셔", use_model=False)["filters"]
-    assert r == {"price": ["~1만"], "subtype": ["국밥"], "mood": ["혼밥"], "alcohol": "no", "radius_m": 500}
+    assert r == {"price": ["~1만"], "subtype": ["국밥"], "mood": ["혼밥"], "alcohol": "any", "radius_m": 500}  # "no" 숨김(2026-11-12)
     r = parse("도보 10분 2만원대 고기집 회식", use_model=False)["filters"]
     assert r["radius_m"] == 800 and r["price"] == ["2~4만"] and r["genre"] == ["고기/구이"] and r["mood"] == ["회식"]
     assert parse("꾹밥 먹고 싶어", use_model=False)["filters"]["subtype"] == ["국밥"]  # 자모 오타 1

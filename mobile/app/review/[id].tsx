@@ -8,12 +8,20 @@ import { clearToken, getToken } from '../../src/state/authStore';
 import { Button } from '../../src/components/Button';
 import { LoginButtons } from '../../src/components/LoginButtons';
 import { FilterChip, InlineErrorBanner, Notice } from '../../src/components/ui';
+import { StarRatingInput } from '../../src/components/StarRatingInput';
 import { useTheme } from '../../src/theme';
+import { starHeroColor } from '../../src/theme/tokens';
 
-const STEPS = Array.from({ length: 10 }, (_, i) => (i + 1) / 2); // 0.5 ~ 5
-const TAGS = ['맛있어요', '가성비', '친절', '양 많아요', '재방문 의사']; // '조용해요' → 분위기 칩(R-6)
-const SPENDS: PriceBand[] = ['~1만', '1~2만', '2~4만', '4만+'];
+// 키워드(2026-11-12): 태그 + 분위기를 한 곳에. 분위기 묶음 값은 moods(필터용), 나머지는 tags 로 보냄. '가성비' 는 둘 다.
 const MOODS = ['조용한', '회식', '데이트', '혼밥', '가성비', '노포']; // /meta/filters mood 와 동일
+const KEYWORDS: { title: string; items: string[] }[] = [
+  { title: '맛', items: ['맛있어요', '재료가 신선해요', '간이 딱 좋아요', '재방문 의사'] },
+  { title: '가격·양', items: ['가성비', '양 많아요'] },
+  { title: '서비스·청결', items: ['친절', '음식이 빨리 나와요', '깔끔해요'] },
+  { title: '분위기', items: ['조용한', '회식', '데이트', '혼밥', '노포'] },
+];
+const MOOD_ONLY = MOODS.filter((m) => m !== '가성비');
+const SPENDS: PriceBand[] = ['~1만', '1~2만', '2~4만', '4만+'];
 const MAX_MENUS = 3;
 const ANCHORS: [number, string][] = [
   [2.5, '평범'],
@@ -48,10 +56,9 @@ export default function WriteReviewScreen() {
   const router = useRouter();
   const { id, name } = useLocalSearchParams<{ id: string; name?: string }>();
   const [stars, setStars] = useState<number | null>(null);
-  const [tags, setTags] = useState<string[]>([]);
+  const [picked, setPicked] = useState<string[]>([]); // tags ∪ moods
   const [text, setText] = useState('');
   const [spend, setSpend] = useState<PriceBand | null>(null);
-  const [moods, setMoods] = useState<string[]>([]);
   const [menus, setMenus] = useState<{ name: string; price: string }[]>([]);
   const [known, setKnown] = useState<MenuEntry[]>([]);
   const [more, setMore] = useState(false);
@@ -71,11 +78,10 @@ export default function WriteReviewScreen() {
       setExisting(true);
       setStars(mine.stars);
       setText(mine.text);
-      setTags(mine.tags);
+      setPicked([...new Set([...mine.tags, ...mine.moods])]);
       setSpend(mine.spend);
-      setMoods(mine.moods);
       setMenus(mine.menus.map((m) => ({ name: m.name, price: m.price ? String(m.price) : '' })));
-      if (mine.spend || mine.moods.length || mine.menus.length) setMore(true);
+      if (mine.spend || mine.menus.length) setMore(true);
     } catch (e) {
       if (e instanceof ApiError && e.status === 401) {
         await clearToken();
@@ -117,6 +123,8 @@ export default function WriteReviewScreen() {
       const menuBody = menus
         .filter((m) => m.name.trim())
         .map((m) => ({ name: m.name.trim(), price: Number(m.price) >= 1000 ? Number(m.price) : null }));
+      const tags = picked.filter((k) => !MOOD_ONLY.includes(k));
+      const moods = picked.filter((k) => MOODS.includes(k));
       await api.createReview(id, { stars, text, tags, spend, moods, menus: menuBody, positions }, token);
       done();
     } catch (e) {
@@ -146,6 +154,7 @@ export default function WriteReviewScreen() {
   const inputStyle = [t.typography.body, { color: t.colors.textPrimary, borderColor: t.colors.border, borderWidth: 1, borderRadius: t.radius.md, padding: t.spacing.sm }];
   const caption = [t.typography.caption, { color: t.colors.textSecondary }];
   const label = [t.typography.bodyStrong, { color: t.colors.textPrimary }];
+  const box = { backgroundColor: t.colors.surface, borderColor: t.colors.border, borderWidth: 1, borderRadius: t.radius.xl, padding: t.spacing.lg, gap: t.spacing.md };
 
   return (
     <ScrollView contentContainerStyle={{ padding: t.spacing.lg, gap: t.spacing.md }}>
@@ -153,18 +162,32 @@ export default function WriteReviewScreen() {
       {existing ? <Text style={caption}>이미 쓴 리뷰가 있어요. 등록하면 수정돼요.</Text> : null}
       <Notice text={'이 앱의 별점은 엄격합니다\n2.5 = 평범한 곳이에요\n3.5 = 또 올 의향이 있어요\n4.5 = 일부러 찾아올 곳이에요'} />
 
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.spacing.xs }}>
-        {STEPS.map((s) => (
-          <FilterChip key={s} label={s.toFixed(1)} selected={stars === s} onPress={() => setStars(s)} />
-        ))}
+      <View style={box}>
+        <Text style={label}>별점</Text>
+        <StarRatingInput value={stars} onChange={setStars} />
+        <Text style={[t.typography.heading, { textAlign: 'center', color: stars != null ? starHeroColor(stars, t.scheme) : t.colors.textSecondary }]}>
+          {stars != null ? stars.toFixed(1) : '별을 눌러 골라주세요'}
+        </Text>
+        <Text style={[caption, { textAlign: 'center' }]}>{stars != null ? ratingHint(stars) : '별 왼쪽 절반을 누르면 0.5점이에요'}</Text>
       </View>
-      {stars != null ? <Text style={[caption, { color: t.colors[t.getStarBand(stars).colorKey] }]}>{ratingHint(stars)}</Text> : null}
 
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.spacing.xs }}>
-        {TAGS.map((tag) => (
-          <FilterChip key={tag} label={tag} selected={tags.includes(tag)} onPress={() => setTags(toggle(tags, tag))} />
+      <View style={box}>
+        <Text style={label}>키워드 (여러 개 선택)</Text>
+        {KEYWORDS.map((g) => (
+          <View key={g.title} style={{ gap: t.spacing.xs }}>
+            <Text style={caption}>{g.title}</Text>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.spacing.xs }}>
+              {g.items.map((k) => (
+                <FilterChip key={k} label={k} selected={picked.includes(k)} onPress={() => setPicked(toggle(picked, k))} />
+              ))}
+            </View>
+          </View>
         ))}
+        <Text style={caption}>분위기·가성비는 다른 사람의 분위기 필터에도 쓰여요.</Text>
       </View>
+
+      <View style={box}>
+      <Text style={label}>리뷰</Text>
       <TextInput
         value={text}
         onChangeText={setText}
@@ -178,17 +201,11 @@ export default function WriteReviewScreen() {
       <Button label={more ? '더 알려주기 접기' : '더 알려주기 (선택)'} variant="text" onPress={() => setMore(!more)} />
       {more ? (
         <View style={{ gap: t.spacing.md }}>
-          <Text style={caption}>다른 사람의 가격대·분위기 필터에 쓰여요.</Text>
+          <Text style={caption}>1인 지출은 다른 사람의 가격대 필터에 쓰여요.</Text>
           <Text style={label}>1인 지출</Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.spacing.xs }}>
             {SPENDS.map((s) => (
               <FilterChip key={s} label={s} selected={spend === s} onPress={() => setSpend(spend === s ? null : s)} />
-            ))}
-          </View>
-          <Text style={label}>분위기</Text>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.spacing.xs }}>
-            {MOODS.map((m) => (
-              <FilterChip key={m} label={m} selected={moods.includes(m)} onPress={() => setMoods(toggle(moods, m))} />
             ))}
           </View>
           <Text style={label}>먹은 메뉴 (최대 {MAX_MENUS}개)</Text>
@@ -224,6 +241,7 @@ export default function WriteReviewScreen() {
           ) : null}
         </View>
       ) : null}
+      </View>
 
       <Text style={caption}>가게 근처(200m)에서 쓰면 '현장 작성' 표시가 붙어요. 위치는 저장하지 않아요.</Text>
       {error ? <InlineErrorBanner message={error} /> : null}

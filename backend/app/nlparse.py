@@ -12,7 +12,7 @@ import unicodedata
 from datetime import date
 from functools import cache
 
-from app.constants import MOODS, PRICE_BANDS
+from app.constants import ALCOHOL, MOODS, PRICE_BANDS
 from app.subtype import PARENT, PATTERNS, RULES, DRINK, Model
 
 MAX_RADIUS_M = 20000
@@ -145,7 +145,8 @@ def parse(text: str, conn: sqlite3.Connection | None = None, use_model: bool = T
 
     def add(field: str, value: str):
         if field == "alcohol":
-            f["alcohol"] = value
+            if value in ALCOHOL:  # 숨긴 값(no)은 무시(constants.ALCOHOL)
+                f["alcohol"] = value
         elif field in f and value not in f[field]:
             f[field].append(value)
 
@@ -159,7 +160,7 @@ def parse(text: str, conn: sqlite3.Connection | None = None, use_model: bool = T
         if field != "none" and term in t:
             add(field, value)
             t = t.replace(term, " ")
-    take(ALCOHOL_NO, lambda m: add("alcohol", "no"))
+    take(ALCOHOL_NO, lambda m: add("alcohol", "no"))  # 무시되지만 '술' 이 YES 로 잡히지 않게 문구는 소비
     if f["alcohol"] == "any":
         take(ALCOHOL_YES, lambda m: add("alcohol", "yes"))
     def price(m):

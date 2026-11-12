@@ -109,10 +109,11 @@ def test_gov_pii_stripped(client, tmp_path):
 
 
 def test_filters_parse_and_subtype_recommend(client):
+    assert client.get("/meta/filters").json()["alcohol"] == ["any", "yes"]  # "no" 숨김(2026-11-12)
     r = client.post("/filters/parse", json={"text": "만원 이하 국밥 혼밥, 술은 안 마셔"})
     assert r.status_code == 200
     f = r.json()["filters"]
-    assert f["subtype"] == ["국밥"] and f["alcohol"] == "no" and f["price"] == ["~1만"]
+    assert f["subtype"] == ["국밥"] and f["alcohol"] == "any" and f["price"] == ["~1만"]
     assert client.post("/filters/parse", json={"text": ""}).status_code == 422
     body = client.post("/recommend", json={**CITY_HALL, "subtype": ["국밥"]}).json()
     assert len(body["items"]) == 3 and all("subtype" in i for i in body["items"])
