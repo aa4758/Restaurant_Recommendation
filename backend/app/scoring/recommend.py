@@ -271,9 +271,11 @@ def recommend(
         relaxed.append(steps.pop(0))
 
     scored = [Scored(c, d, rank_score(c, d, q)) for c, d in hits]
-    ranked = order(scored, day)
+    for s in scored:
+        s.relaxed = unmet(s.cand, s.distance_m, q)
+    # 2026-11-12: 원래 조건을 다 맞춘 가게(별점순) → 완화로 들어온 가게(별점순)
+    ranked = order([s for s in scored if not s.relaxed], day) + order([s for s in scored if s.relaxed], day)
     page = ranked[q.offset : q.offset + limit]
     for s in page:
         s.reasons = make_reasons(s, q)
-        s.relaxed = unmet(s.cand, s.distance_m, q)
     return (page, relaxed, len(ranked)) if with_total else (page, relaxed)

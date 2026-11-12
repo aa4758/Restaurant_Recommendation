@@ -114,11 +114,16 @@ export function PercentileBadge({ percentile }: { percentile: number }) {
 }
 
 /** 문구 규칙: "공직자 맛집" 등 표현 금지. gov_source 는 백엔드에서 "출처·기준연도" 형태로 옴. */
-export function GovBudgetBadge({ visits, source }: { visits: number; source?: string | null }) {
+/** compact = 릴스 카드 줄임말(2026-11-12). 전체 문구·출처는 상세에서. "인증" 표현 금지(기관 보증 아님) */
+export function GovBudgetBadge({ visits, source, compact }: { visits: number; source?: string | null; compact?: boolean }) {
   const t = useTheme();
   if (visits <= 0) return null;
-  const src = source ? ` (${source} 기준)` : '';
-  return <Pill text={`공공기관 업무추진비 기록 ${visits}회${src}`} bg={t.colors.govBadgeBg} fg={t.colors.govBadgeText} />;
+  const full = `공공기관 업무추진비 기록 ${visits}회${source ? ` (${source} 기준)` : ''}`;
+  return (
+    <View accessible accessibilityLabel={full}>
+      <Pill text={compact ? `업무추진비 ${visits}회` : full} bg={t.colors.govBadgeBg} fg={t.colors.govBadgeText} />
+    </View>
+  );
 }
 
 export function ReasonList({ reasons }: { reasons: string[] }) {

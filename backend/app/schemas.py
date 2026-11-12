@@ -40,6 +40,8 @@ class Item(BaseModel):
     evidence: Optional[Literal["low", "mid", "high"]] = None  # scores.evidence (재계산 전 null)
     relaxed: list[Literal["mood", "price", "subtype", "distance", "genre"]] = []  # 이 가게가 원래 조건 중 충족 못한 항목
     subtype: Optional[str] = None  # 세부 분류(미분류 null)
+    food: Optional[str] = None  # 같은 지역 비교 기준 음식(세부 분류, 없으면 장르) (2026-11-12)
+    food_percentile: Optional[int] = None  # 이 지역 {food} 중 상위 N%
 
 
 class ParseIn(BaseModel):
@@ -118,7 +120,7 @@ class Position(BaseModel):
 class ReviewIn(BaseModel):
     stars: float = Field(ge=0.5, le=5)
     text: str = Field(default="", max_length=1000)
-    tags: list[Annotated[str, Field(max_length=20)]] = Field(default=[], max_length=10)
+    tags: list[Annotated[str, Field(max_length=20)]] = Field(default=[], max_length=30)  # 2026-11-12 키워드 확대
     device_id: Optional[DeviceId] = None  # 무시(하위 호환). 작성자는 로그인 계정(app/auth.py)
     spend: Optional[Literal["~1만", "1~2만", "2~4만", "4만+"]] = None  # constants.PRICE_BANDS (R-5)
     moods: list[Literal["조용한", "회식", "데이트", "혼밥", "가성비", "노포"]] = Field(default=[], max_length=6)  # MOODS (R-6)

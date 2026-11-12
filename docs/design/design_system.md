@@ -128,7 +128,7 @@
 | 우선 | 배지 | 조건 | 스타일 | 카드 | 상세 |
 |---|---|---|---|---|---|
 | 1 | EvidenceBadge | 항상 | surfaceAlt 바탕 + textSecondary. low 이면 warning 아이콘(⚠ 대신 Ionicons `alert-circle-outline` 12) 추가 | O | O (low 는 LowEvidenceBadge 로 설명 포함) |
-| 2 | GovBudgetBadge | gov_visits>0 | govBadge 색. 문구 고정: "공공기관 업무추진비 기록 N회 (출처 기준)" | O | O |
+| 2 | GovBudgetBadge | gov_visits>0 | govBadge 색. 문구 고정: "공공기관 업무추진비 기록 N회 (출처 기준)" · 릴스 카드는 `compact` "업무추진비 N회"(2026-11-12) | O | O |
 | 3 | RelaxedBadge | 해당 조건 완화 시 | 현재 배지 아닌 회색 글자 → **pill 윤곽(border)** 로 통일 제안 | O | X |
 | 4 | 가성비 태그 | 착한가격업소 | 윤곽 pill + 텍스트 "가성비". **점수 무관 → 별점 근처에 두지 않고 MetaLine 옆/하단**. 색은 중립(success 금지: 점수 좋음과 혼동) | O(자리 있을 때) | O |
 | 5 | 지정목록 태그 | 모범·안심·원산지 우수 | 윤곽 pill, 상세 "점수 구성" 안에서만(카드 제외) | X | O |

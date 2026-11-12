@@ -14,11 +14,20 @@ import { starHeroColor } from '../../src/theme/tokens';
 
 // 키워드(2026-11-12): 태그 + 분위기를 한 곳에. 분위기 묶음 값은 moods(필터용), 나머지는 tags 로 보냄. '가성비' 는 둘 다.
 const MOODS = ['조용한', '회식', '데이트', '혼밥', '가성비', '노포']; // /meta/filters mood 와 동일
+// 묶음 색 [글자 light, 바탕 light, 글자 dark, 바탕 dark] — 저채도, 글자 대비 4.5:1 이상
+const GROUP_TONE: Record<string, [string, string, string, string]> = {
+  맛: ['#9A4E3A', '#FBF1EE', '#E0A08C', '#2A1F1C'],
+  '가격·양': ['#80642A', '#FAF5EA', '#D8BC80', '#28241A'],
+  서비스: ['#2F6F7A', '#EDF6F7', '#8FC6CF', '#1A2628'],
+  '공간·청결': ['#4E7A4A', '#F0F6EF', '#A3CC9E', '#1C251B'],
+  분위기: ['#6B5A8A', '#F4F1F9', '#BBAED8', '#231F2B'],
+};
 const KEYWORDS: { title: string; items: string[] }[] = [
-  { title: '맛', items: ['맛있어요', '재료가 신선해요', '간이 딱 좋아요', '재방문 의사'] },
-  { title: '가격·양', items: ['가성비', '양 많아요'] },
-  { title: '서비스·청결', items: ['친절', '음식이 빨리 나와요', '깔끔해요'] },
-  { title: '분위기', items: ['조용한', '회식', '데이트', '혼밥', '노포'] },
+  { title: '맛', items: ['맛있어요', '재료가 신선해요', '간이 딱 좋아요', '국물이 진해요', '고기가 부드러워요', '매콤해요', '담백해요', '반찬이 맛있어요', '메뉴가 다양해요', '재방문 의사'] },
+  { title: '가격·양', items: ['가성비', '양 많아요', '리필 돼요', '가격이 착해요', '조금 비싸요'] },
+  { title: '서비스', items: ['친절', '음식이 빨리 나와요', '설명을 잘 해줘요', '예약이 편해요', '웨이팅 있어요'] },
+  { title: '공간·청결', items: ['깔끔해요', '화장실이 깨끗해요', '좌석이 편해요', '단체석 있어요', '주차 편해요', '아이와 가기 좋아요'] },
+  { title: '분위기', items: ['조용한', '회식', '데이트', '혼밥', '노포', '뷰가 좋아요', '활기차요', '특별한 날'] },
 ];
 const MOOD_ONLY = MOODS.filter((m) => m !== '가성비');
 const SPENDS: PriceBand[] = ['~1만', '1~2만', '2~4만', '4만+'];
@@ -173,16 +182,21 @@ export default function WriteReviewScreen() {
 
       <View style={box}>
         <Text style={label}>키워드 (여러 개 선택)</Text>
-        {KEYWORDS.map((g) => (
-          <View key={g.title} style={{ gap: t.spacing.xs }}>
-            <Text style={caption}>{g.title}</Text>
+        {KEYWORDS.map((g) => {
+          const [fgL, bgL, fgD, bgD] = GROUP_TONE[g.title];
+          const fg = t.scheme === 'dark' ? fgD : fgL;
+          return (
+          <View key={g.title} style={{ gap: t.spacing.sm, padding: t.spacing.md, borderRadius: t.radius.lg, borderLeftWidth: 4,
+            borderLeftColor: fg, backgroundColor: t.scheme === 'dark' ? bgD : bgL }}>
+            <Text accessibilityRole="header" style={[t.typography.bodyStrong, { color: fg }]}>{g.title}</Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.spacing.xs }}>
               {g.items.map((k) => (
                 <FilterChip key={k} label={k} selected={picked.includes(k)} onPress={() => setPicked(toggle(picked, k))} />
               ))}
             </View>
           </View>
-        ))}
+          );
+        })}
         <Text style={caption}>분위기·가성비는 다른 사람의 분위기 필터에도 쓰여요.</Text>
       </View>
 
@@ -195,7 +209,7 @@ export default function WriteReviewScreen() {
         placeholderTextColor={t.colors.textPlaceholder}
         multiline
         maxLength={1000}
-        style={[...inputStyle, { minHeight: 100, padding: t.spacing.md, textAlignVertical: 'top' }]}
+        style={[...inputStyle, { minHeight: 100, padding: t.spacing.md, textAlignVertical: 'top', backgroundColor: t.scheme === 'dark' ? t.colors.background : '#FFFFFF' }]}
       />
 
       <Button label={more ? '더 알려주기 접기' : '더 알려주기 (선택)'} variant="text" onPress={() => setMore(!more)} />

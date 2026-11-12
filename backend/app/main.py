@@ -32,7 +32,7 @@ from app.ratelimit import IP_LIMIT_PER_MIN, WRITE_LIMIT_PER_MIN, write_limiter
 from app import reviews
 from app.scoring.prior import CENTURY_LABEL
 from app.scoring.recommend import DISTANCE_RELAX_FACTOR, Query, Scored as RecScored, make_reasons, recommend
-from app.service import candidates_near, get_scored, rebuild_scores, region_of
+from app.service import candidates_near, get_scored, peer_percent, peers, rebuild_scores, region_of
 from app.subtype import SUBTYPES
 
 app = FastAPI(title="JJINMAT API", version="0.1.0")
@@ -97,7 +97,14 @@ def post_recommend(req: RecommendRequest, conn=Depends(get_conn), day: date = De
         excl = set(req.exclude_ids)
         cands = [c for c in cands if c.id not in excl]
     items, relaxed, total = recommend(cands, q, day=day, with_total=True)
-    return {"items": [_item_dict(s) for s in items], "relaxed": relaxed, "total": total}
+    return {"items": [_with_peer(conn, _item_dict(s)) for s in items], "relaxed": relaxed, "total": total}
+
+
+def _with_peer(conn, d: dict) -> dict:
+    p = peer_percent(conn, d["id"])
+    if p:
+        d["food"], d["food_percentile"] = p
+    return d
 
 
 def _require(conn, rid: str) -> None:
@@ -113,7 +120,7 @@ def get_restaurant(rid: str, conn=Depends(get_conn)) -> dict:
     cand, breakdown = found
     rs = RecScored(cand, None, cand.star)  # 위치 미지정 상세 조회 → distance_m=null
     rs.reasons = make_reasons(rs, Query(lat=cand.lat, lng=cand.lng))
-    d = _item_dict(rs)
+    d = _with_peer(conn, _item_dict(rs))
     d["score_breakdown"] = breakdown
     d["designations"] = cand.designations + ([CENTURY_LABEL] if cand.century_store else [])
     return d
@@ -230,6 +237,16 @@ def get_menus(rid: str, conn=Depends(get_conn)) -> dict:
     rows = conn.execute("SELECT name, MAX(price) AS price FROM menus WHERE restaurant_id=? GROUP BY name"
                         " ORDER BY is_signature DESC, name LIMIT 30", (rid,)).fetchall()
     return {"items": [{"name": r["name"], "price": r["price"]} for r in rows]}
+
+
+@app.get("/restaurants/{rid}/peers")
+def get_peers(rid: str, limit: int = Q(default=20, ge=1, le=50), offset: int = Q(default=0, ge=0, le=5000),
+              conn=Depends(get_conn)) -> dict:
+    """같은 시군구·같은 음식(세부 분류, 없으면 장르) 가게, 별점 내림차순(2026-11-12). 자기 자신 포함."""
+    out = peers(conn, rid, limit, offset)
+    if out is None:
+        raise HTTPException(status_code=404, detail="restaurant not found")
+    return out
 
 
 @app.get("/me/reviews")

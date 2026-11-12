@@ -67,6 +67,23 @@ export interface RecommendRequest {
   exclude_ids?: string[];
 }
 
+/** GET /restaurants/{id}/peers — 같은 시군구·같은 음식, 별점 내림차순 */
+export interface PeerItem {
+  id: string;
+  name: string;
+  genre: string;
+  subtype?: string | null;
+  address?: string | null;
+  star: number;
+  percentile: number;
+}
+export interface PeerPage {
+  food: string;
+  region?: string | null;
+  total: number;
+  items: PeerItem[];
+}
+
 export interface RestaurantItem {
   id: string;
   name: string;
@@ -82,6 +99,10 @@ export interface RestaurantItem {
   distance_m: number | null;
   star: number;
   percentile: number;
+  /** 같은 지역 비교 기준 음식(세부 분류, 없으면 장르) */
+  food?: string | null;
+  /** 이 지역 {food} 중 상위 N% */
+  food_percentile?: number | null;
   review_count: number;
   gov_visits: number;
   gov_source?: string | null;
@@ -308,6 +329,8 @@ export const api = {
     request<void>(`/restaurants/${encodeURIComponent(id)}/reviews/me`, { method: 'DELETE', headers: bearer(token) }),
 
   /** 리뷰 메뉴 자동완성(R-4) */
+  getPeers: (id: string, offset = 0, limit = 20) =>
+    request<PeerPage>(`/restaurants/${encodeURIComponent(id)}/peers?limit=${limit}&offset=${offset}`),
   getMenus: (id: string) => request<{ items: MenuEntry[] }>(`/restaurants/${encodeURIComponent(id)}/menus`),
 
   /** 내가 다녀온 가게 = 내 리뷰 목록(R-7) */

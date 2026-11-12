@@ -268,6 +268,9 @@ POST_MIGRATION_INDEXES = (
     # 백필 대상(미계산) 행만 담는 부분 인덱스 → 요청마다 확인해도 저렴
     "CREATE INDEX IF NOT EXISTS idx_reviews_ad_pending ON user_reviews(id) WHERE ad_disclosed IS NULL",
     "CREATE INDEX IF NOT EXISTS idx_reviews_user ON user_reviews(user_id, restaurant_id)",
+    # 같은 지역·같은 음식 순위(service.peer_*, 2026-11-12)
+    "CREATE INDEX IF NOT EXISTS idx_restaurants_peer_sub ON restaurants(sigungu_code, subtype)",
+    "CREATE INDEX IF NOT EXISTS idx_restaurants_peer_genre ON restaurants(sigungu_code, genre)",
 )
 
 
@@ -310,7 +313,7 @@ def _dedupe_signals(conn: sqlite3.Connection) -> None:
 
 
 # PRAGMA user_version: 마이그레이션 완료 기록. 1 = v2.1(partner→reputation 키 재계산 완료)
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 3  # 2: 분식 세부 분류 통합 · 3: 세부 분류 이름에서 '기타·일반' 삭제 (2026-11-12)
 
 
 def _table_info(conn: sqlite3.Connection, table: str) -> dict[str, tuple]:
@@ -391,5 +394,10 @@ def init_schema(conn: sqlite3.Connection) -> None:
 
         rebuild_scores(conn)
     if not done:
+        # v2: '분식 일반'·'순대/튀김/어묵' → '분식' (app.subtype RULES). 1회만
+        from app.subtype import RENAMED  # v2·v3: 세부 분류 이름 변경(서로 겹치지 않아 한 번에)
+
+        conn.executemany("UPDATE restaurants SET subtype=? WHERE subtype=?", [(b, a) for a, b in RENAMED.items()])
+        conn.executemany("UPDATE synonyms SET value=? WHERE field='subtype' AND value=?", [(b, a) for a, b in RENAMED.items()])
         conn.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
         conn.commit()

@@ -96,7 +96,7 @@ def test_detail_review_report(client):
     assert client.post("/restaurants/R001/reviews", json={"stars": 3.3}).status_code == 422
     assert client.post("/restaurants/R001/report", json={"field": "price", "message": "x"}).status_code == 202
     assert client.post("/restaurants/R001/reviews", json={"stars": 4, "text": "a" * 1001}).status_code == 422
-    assert client.post("/restaurants/R001/reviews", json={"stars": 4, "tags": ["t"] * 11}).status_code == 422
+    assert client.post("/restaurants/R001/reviews", json={"stars": 4, "tags": ["t"] * 31}).status_code == 422
     assert client.post("/restaurants/R001/report", json={"field": "price", "message": "a" * 1001}).status_code == 422
     assert client.get("/restaurants/NOPE").status_code == 404
     assert client.post("/restaurants/NOPE/reviews", json={"stars": 3}).status_code == 404
@@ -117,3 +117,17 @@ def test_filters_parse_and_subtype_recommend(client):
     assert client.post("/filters/parse", json={"text": ""}).status_code == 422
     body = client.post("/recommend", json={**CITY_HALL, "subtype": ["국밥"]}).json()
     assert len(body["items"]) == 3 and all("subtype" in i for i in body["items"])
+
+
+def test_peers_and_food_percentile(client):
+    """같은 시군구·같은 음식 순위(2026-11-12): 카드 food_percentile 과 peers 목록 순위가 일치, 별점 내림차순."""
+    item = client.post("/recommend", json={**CITY_HALL, "limit": 20}).json()["items"][0]
+    assert item["food"] and 1 <= item["food_percentile"] <= 100
+    p = client.get(f"/restaurants/{item['id']}/peers").json()
+    assert p["food"] == item["food"] and p["total"] >= 1
+    stars = [x["star"] for x in p["items"]]
+    assert stars == sorted(stars, reverse=True)
+    me = next(x for x in p["items"] if x["id"] == item["id"])
+    assert me["percentile"] == item["food_percentile"]
+    assert all((x["subtype"] or x["genre"]) == item["food"] for x in p["items"])
+    assert client.get("/restaurants/nope/peers").status_code == 404
