@@ -1,9 +1,10 @@
 /** 탭 1. 검색 (Search) — docs/design/screens.md 1. 구글형(2026-11-12): 가운데 앱 이름 + 검색 박스 + 매번 바뀌는 추천 검색어. */
 import React, { useMemo, useState } from 'react';
-import { KeyboardAvoidingView, Linking, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Linking, Modal, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { api } from '../../src/api/client';
+import { api, ParseResponse, Place } from '../../src/api/client';
 import { goRecommend } from '../../src/goRecommend';
 import { useLocation } from '../../src/state/useLocation';
 import { Button } from '../../src/components/Button';
@@ -30,6 +31,8 @@ export default function SearchScreen() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
   const [seed, setSeed] = useState(0);
+  const [choose, setChoose] = useState<{ f: ParseResponse['filters']; options: Place[] } | null>(null); // 같은 이름 지역 고르기
+  const insets = useSafeAreaInsets();
   // 화면에 돌아올 때마다 다른 추천 검색어
   useFocusEffect(React.useCallback(() => setSeed((s) => s + 1), []));
   const suggestions = useMemo(() => pick(SUGGESTIONS, SHOW), [seed]);
@@ -41,8 +44,9 @@ export default function SearchScreen() {
     setBusy(true);
     setError(false);
     try {
-      const { filters: f } = await api.parseFilters(s);
-      goRecommend(router, loc, f);
+      const { filters: f, place_options } = await api.parseFilters(s);
+      if (place_options && place_options.length > 1) setChoose({ f, options: place_options });
+      else goRecommend(router, loc, f);
     } catch {
       setError(true);
     } finally {
@@ -94,6 +98,30 @@ export default function SearchScreen() {
           </View>
         ) : null}
       </ScrollView>
+
+      {/* 같은 이름 지역이 여럿 → 어느 곳인지 먼저 고르기(2026-11-12) */}
+      <Modal visible={!!choose} transparent animationType="slide" onRequestClose={() => setChoose(null)}>
+        <Pressable accessibilityRole="button" accessibilityLabel="닫기" onPress={() => setChoose(null)} style={{ flex: 1, backgroundColor: t.colors.overlay }} />
+        <View style={{ backgroundColor: t.colors.background, borderTopLeftRadius: t.radius.lg, borderTopRightRadius: t.radius.lg,
+          padding: t.spacing.lg, paddingBottom: t.spacing.lg + insets.bottom, gap: t.spacing.sm }}>
+          <View style={{ alignSelf: 'center', width: 36, height: 4, borderRadius: t.radius.pill, backgroundColor: t.colors.border }} />
+          <Text accessibilityRole="header" style={[t.typography.heading, { color: t.colors.textPrimary }]}>
+            어느 {choose?.options[0].kind === 'landmark' ? '곳' : '지역'}인가요?
+          </Text>
+          <Text style={[t.typography.caption, { color: t.colors.textSecondary }]}>같은 이름이 여러 곳에 있어요.</Text>
+          {choose?.options.map((o) => (
+            <Pressable
+              key={o.label}
+              accessibilityRole="button"
+              accessibilityLabel={`${o.label} 주변 추천받기`}
+              onPress={() => { const p = choose!; setChoose(null); goRecommend(router, loc, { ...p.f, place: o }); }}
+              style={{ minHeight: 48, justifyContent: 'center', paddingHorizontal: t.spacing.md, backgroundColor: t.colors.surface, borderRadius: t.radius.lg }}
+            >
+              <Text style={[t.typography.body, { color: t.colors.textPrimary }]}>{o.label}</Text>
+            </Pressable>
+          ))}
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 }

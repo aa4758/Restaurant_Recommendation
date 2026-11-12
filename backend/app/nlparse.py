@@ -16,6 +16,9 @@ from app.constants import ALCOHOL, MOODS, PRICE_BANDS
 from app.subtype import PARENT, PATTERNS, RULES, DRINK, Model
 
 MAX_RADIUS_M = 20000
+PLACE_RADIUS_M = {"dong": 1000, "sigungu": 3000, "landmark": 1000}  # 지역 검색 기본 반경(2026-11-12)
+PLACE_MIN_COUNT = 20  # 가게가 이보다 적은 동은 지명으로 안 봄(오인식 방지)
+PLACE_RE = re.compile(r"[가-힣0-9]+?(?:동|가|읍|면|구|군|시)(?=[가-힣]{0,3}(?:\s|$|,))")
 NEAR_RADIUS_M = 500
 WALK_M_PER_MIN = 80
 MODEL_MIN_P = 0.99
@@ -54,7 +57,99 @@ STOP = {"근처", "주변", "맛집", "추천", "식당", "가게", "음식점",
         "먹고", "먹을", "먹기", "먹는", "싶어", "싶은", "싶다", "좋은", "좋아", "괜찮은", "해줘", "찾아줘", "알려줘", "어디",
         "있는", "곳", "거", "것", "데", "좀", "그리고", "회사", "우리", "같이", "갈", "가고", "원", "정도", "이하", "미만",
         "이내", "아래", "안쪽", "분", "도보", "걸어서", "가까운", "가까이", "곳으로", "메뉴로", "먹을만한", "괜찮", "거리",
-        "하기", "마셔", "마실", "땡겨", "땡기는", "당기는", "먹지", "뭐", "할", "수", "있는", "없을까", "어때", "갈만한"}
+        "하기", "마셔", "마실", "맛있는", "맛있게", "유명한", "핫한", "인기", "인기있는", "새로운", "분위기",
+        # 시도 이름 — 지역 좁히기에만 쓰고 음식 오타로 보지 않음(부산 → 수산 X)
+        "서울", "부산", "대구", "인천", "광주", "대전", "울산", "세종", "경기", "강원", "충북", "충남", "전북", "전남", "경북",
+        "경남", "제주", "땡겨", "땡기는", "당기는", "먹지", "뭐", "할", "수", "있는", "없을까", "어때", "갈만한"}
+
+
+@cache
+def _places(db_file: str) -> dict[str, list[dict]]:
+    """지명 → 후보 목록(가게 많은 순). 지번 주소의 동·가·읍·면과 시군구 이름, 가게 좌표 평균(2026-11-12).
+    같은 이름이 여러 지역에 있으면 후보가 여럿 → 앱이 고르게 함(place_options).
+    ponytail: 프로세스당 1회 전체 스캔(수 초, 서버 시작 시 미리) — 느려지면 적재 시 places 테이블로."""
+    import sqlite3 as _sq
+
+    if not db_file:
+        return {}
+    acc: dict[tuple[str, str, str], list[float]] = {}
+    conn = _sq.connect(db_file)
+    for jibun, sido, sg, lat, lng in conn.execute(
+        "SELECT address_jibun, sido, sigungu, lat, lng FROM restaurants"
+        " WHERE status='open' AND lat IS NOT NULL AND address_jibun IS NOT NULL AND sido IS NOT NULL"):
+        toks = jibun.split()
+        dong = next((x for x in toks[2:4] if re.fullmatch(r"[가-힣0-9]{2,}(동|가|읍|면)", x)), None)
+        names = []
+        if dong:
+            names.append(("dong", f"{sido} {sg} {dong}", dong))
+            if m := re.fullmatch(r"(.+동)\d+가", dong):  # 성수동1가 → 성수동 도 같이
+                names.append(("dong", f"{sido} {sg} {m.group(1)}", m.group(1)))
+        names += [("sigungu", f"{sido} {p}", p) for p in (sg or "").split()]  # '수원시 팔달구' → 수원시·팔달구
+        for kind, label, name in names:
+            a = acc.setdefault((kind, label, name), [0, 0.0, 0.0])
+            a[0] += 1; a[1] += lat; a[2] += lng
+    conn.close()
+    out: dict[str, list[dict]] = {}
+    for (kind, label, name), (n, slat, slng) in sorted(acc.items(), key=lambda kv: -kv[1][0]):
+        if n >= PLACE_MIN_COUNT:
+            out.setdefault(name, []).append(
+                {"name": name, "kind": kind, "label": label, "lat": round(slat / n, 6), "lng": round(slng / n, 6)})
+    return out
+
+
+KAKAO_KEYWORD = "https://dapi.kakao.com/v2/local/search/keyword.json"
+# 역·관광명소·학교·문화시설·공공기관만 지명으로 인정(음식점·카페 등 가게 이름은 제외)
+KAKAO_PLACE_CATS = {"SW8", "AT4", "SC4", "CT1", "PO3"}
+
+
+@cache
+def _kakao_places(token: str) -> tuple[dict, ...]:
+    """역·랜드마크(홍대·강남역 등) → 후보(도시별 1개). 카카오 로컬 키워드 검색(공식 API). 검색어만 보내고 위치는 안 보냄.
+    키 없음·실패 → 빈 결과(지명 없이 진행). ponytail: 프로세스 메모리 캐시 — 서버 여러 대면 공용 캐시로."""
+    import json
+    import os
+    import urllib.parse
+    import urllib.request
+
+    key = os.environ.get("KAKAO_REST_KEY", "").strip()
+    if not key:
+        return ()
+    req = urllib.request.Request(f"{KAKAO_KEYWORD}?{urllib.parse.urlencode({'query': token, 'size': 15})}",
+                                 headers={"Authorization": f"KakaoAK {key}"})
+    try:
+        with urllib.request.urlopen(req, timeout=3) as resp:  # noqa: S310 (공식 API)
+            docs = json.load(resp).get("documents", [])
+    except Exception:  # 403(콘솔에서 지도/로컬 미사용)·타임아웃 등
+        return ()
+    seen: dict[str, dict] = {}
+    for d in docs:
+        # 분류(그룹 코드 또는 "여행 > 관광"·"교통" 분류, 숙박 제외) + 이름이나 주소에 검색어 포함
+        # (홍대 → 홍대입구역 O·홍익대 세종캠퍼스 X, 잠실 → 잠실동 명소 O, '데이트' → CGV X)
+        cat = d.get("category_name") or ""
+        place_ok = (d.get("category_group_code") in KAKAO_PLACE_CATS or cat.startswith(("여행 > 관광", "교통"))) and "휴게소" not in cat
+        named = token in (d.get("place_name") or "").replace(" ", "") or token in (d.get("address_name") or "")
+        if not (place_ok and named):
+            continue
+        city = " ".join((d.get("address_name") or "").split()[:2])
+        if city and city not in seen:
+            seen[city] = {"name": d["place_name"], "kind": "landmark", "label": f"{d['place_name']} ({city})",
+                          "lat": round(float(d["y"]), 6), "lng": round(float(d["x"]), 6)}
+    return tuple(seen.values())[:8]
+
+
+def _narrow(cands: list[dict], text: str) -> list[dict]:
+    """문장에 시도 이름(서울·부산…)이 있으면 그 시도 후보만."""
+    def sido(c: dict) -> str:  # "서울특별시 중구" → 서울 · "시청역 1호선 (부산 연제구)" → 부산
+        return (c["label"].rsplit("(", 1)[-1] if c["kind"] == "landmark" else c["label"]).split()[0][:2]
+
+    hit = [c for c in cands if sido(c) in text]
+    return hit or cands
+
+
+def _db_file(conn: sqlite3.Connection | None) -> str:
+    if conn is None:
+        return ""
+    return next((r[2] for r in conn.execute("PRAGMA database_list") if r[1] == "main"), "") or ""
 
 
 def _norm(s: str) -> str:
@@ -156,6 +251,16 @@ def parse(text: str, conn: sqlite3.Connection | None = None, use_model: bool = T
             fn(m)
         t = re.sub(pattern, " ", t)
 
+    raw = t
+    places: list[dict] = []  # 지역 + 음식 검색(2026-11-12): 지명을 먼저 떼어 다른 규칙에 안 걸리게
+    if conn is not None:
+        idx = _places(_db_file(conn))
+        for m in PLACE_RE.finditer(t):
+            if m.group(0) in idx:
+                places = _narrow(idx[m.group(0)], raw)
+                t = t[: m.start()] + " " + t[m.end():]
+                break
+
     for term, field, value in _approved(conn):
         if field != "none" and term in t:
             add(field, value)
@@ -182,6 +287,7 @@ def parse(text: str, conn: sqlite3.Connection | None = None, use_model: bool = T
         take(p, lambda m, mood=mood: add("mood", mood))
     for genre, p in GENRE_SYN.items():
         take(p, lambda m, genre=genre: add("genre", genre))
+    take(r"(?<![가-힣])회(?![가-힣])", lambda m: add("subtype", "회/횟집"))  # 한 글자 '회'(해운대 회)
     for sub, p in PATTERNS:  # 장르와 같은 이름의 세부 분류(뷔페)는 장르로
         take(p, lambda m, sub=sub: add("genre" if sub in GENRE_SYN else "subtype", sub))
 
@@ -204,15 +310,28 @@ def parse(text: str, conn: sqlite3.Connection | None = None, use_model: bool = T
                 add("subtype", sub)
                 continue
         unknown.append(tok)
+    if not places:  # 주소에 없는 역·랜드마크 → 카카오(남은 낱말 앞 2개만)
+        for tok in unknown[:2]:
+            if found := _kakao_places(tok):
+                places = _narrow(list(found), raw)
+                unknown.remove(tok)
+                break
     if conn is not None and unknown:
         _record_unknown(conn, unknown)
     out = {k: v for k, v in f.items() if v and v != "any"}
     out["alcohol"] = f["alcohol"]
+    if places and not radius:
+        radius = PLACE_RADIUS_M[places[0]["kind"]]
     if radius:
         out["radius_m"] = int(min(radius, MAX_RADIUS_M))
+    if len(places) == 1:
+        out["place"] = places[0]
     out["price"] = [b for b in PRICE_BANDS if b in out.get("price", [])] or out.pop("price", None) or []
     out["mood"] = [m for m in MOODS if m in out.get("mood", [])]
-    return {"filters": {k: v for k, v in out.items() if v or k == "alcohol"}, "unknown": list(dict.fromkeys(unknown))}
+    res = {"filters": {k: v for k, v in out.items() if v or k == "alcohol"}, "unknown": list(dict.fromkeys(unknown))}
+    if len(places) > 1:  # 같은 이름이 여러 곳 → 앱이 먼저 고르게(2026-11-12)
+        res["place_options"] = places[:8]
+    return res
 
 
 def _record_unknown(conn: sqlite3.Connection, terms: list[str]) -> None:

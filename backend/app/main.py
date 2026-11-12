@@ -40,6 +40,24 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 app.include_router(auth_router)
 
 
+@app.on_event("startup")
+def _warm_places() -> None:
+    """지명 색인(nlparse._places, 전체 스캔 수 초)을 첫 검색 전에 백그라운드로 만들어 둠."""
+    import threading
+
+    from app.db import connect
+    from app.nlparse import _db_file, _places
+
+    def run():
+        c = connect()
+        try:
+            _places(_db_file(c))
+        finally:
+            c.close()
+
+    threading.Thread(target=run, daemon=True).start()
+
+
 
 
 def today() -> date:
