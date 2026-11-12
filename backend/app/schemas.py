@@ -48,6 +48,14 @@ class ParseIn(BaseModel):
     text: str = Field(min_length=1, max_length=200)
 
 
+class Place(BaseModel):
+    name: str
+    kind: Literal["dong", "sigungu", "landmark"]
+    label: str  # 고를 때 보여줄 이름: "서울특별시 중구 신당동" / "강남역 2호선 (서울 강남구)"
+    lat: float
+    lng: float
+
+
 class ParsedFilters(BaseModel):
     price: list[str] = []
     genre: list[str] = []
@@ -55,11 +63,13 @@ class ParsedFilters(BaseModel):
     mood: list[str] = []
     alcohol: Literal["any", "yes", "no"] = "any"
     radius_m: Optional[int] = None
+    place: Optional[Place] = None  # 문장 속 지명(2026-11-12) — 있으면 앱이 이 좌표로 추천
 
 
 class ParseOut(BaseModel):
     filters: ParsedFilters
     unknown: list[str]
+    place_options: list[Place] = []  # 같은 이름 지역이 여럿이면 후보(filters.place 는 비움)
 
 
 class RecommendResponse(BaseModel):

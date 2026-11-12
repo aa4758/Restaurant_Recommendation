@@ -251,7 +251,7 @@ export default function RecommendationDeck() {
   const t = useTheme();
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { q, fallback } = useLocalSearchParams<{ q: string; fallback?: string }>();
+  const { q, fallback, place } = useLocalSearchParams<{ q: string; fallback?: string; place?: string }>();
   const [items, setItems] = useState<RestaurantItem[] | null>(null);
   const [total, setTotal] = useState(0);
   const fetched = useRef(0); // 서버에서 받은 개수(싫어요로 화면에서 뺀 것 포함) = 다음 offset
@@ -490,6 +490,7 @@ export default function RecommendationDeck() {
 
       <View pointerEvents="box-none" style={{ position: 'absolute', top: 8, left: 16, right: 16, gap: t.spacing.xs }}>
         {fallback ? <Notice text="위치 정보 없이 추천 중이에요." /> : null}
+        {place ? <Notice text={`${place} 주변 음식점이에요. 거리는 ${place} 중심 기준이에요.`} /> : null}
         {relaxed.length && showRelaxed ? (
           <Pressable accessibilityRole="button" accessibilityLabel="조건 완화 안내 닫기" onPress={() => setShowRelaxed(false)}>
             <Notice text={`조건에 맞는 곳이 적어 ${relaxed.map((r) => RELAX_LABEL[r] ?? r).join('/')} 조건을 완화했어요. (탭하여 닫기)`} />

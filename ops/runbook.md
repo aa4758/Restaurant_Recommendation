@@ -16,7 +16,7 @@ curl http://localhost:8000/health   # {"status":"ok"}
 | 이름 | 값 |
 |---|---|
 | `AUTH_SECRET` | **필수.** 고유번호 HMAC 키(16자 이상). 생성: `setx AUTH_SECRET (python -c "import secrets; print(secrets.token_urlsafe(32))")`. **바꾸면 기존 계정과 연결이 끊김**(같은 사람이 새 계정이 됨) → 한 번 정하면 유지, 백업 |
-| `KAKAO_REST_KEY` / `KAKAO_CLIENT_SECRET` | 카카오 REST 키 / Client Secret(콘솔에서 켰을 때만) |
+| `KAKAO_REST_KEY` / `KAKAO_CLIENT_SECRET` | 카카오 REST 키 / Client Secret(콘솔에서 켰을 때만). 검색의 역·랜드마크 인식은 콘솔 [앱 > 제품 설정 > 카카오맵] 사용 설정 필요(꺼져 있으면 403, 지명 없이 동작) |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | 구글 OAuth 웹 클라이언트 |
 | `PUBLIC_BASE_URL` | 서버 외부 주소(기본 `http://localhost:8000`). 공급자 콘솔 Redirect URI = `<PUBLIC_BASE_URL>/auth/kakao/callback`, `/auth/google/callback` |
 | `AUTH_REDIRECTS` | 로그인 후 돌아갈 앱 주소 접두어(기본 `jjinmat://,exp://,http://localhost:8081/` — 개발용). 배포 시 `jjinmat://` 만 |

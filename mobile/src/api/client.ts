@@ -38,6 +38,15 @@ export interface FiltersResponse {
 }
 
 /** POST /filters/parse — 자연어 조건 → 필터(규칙 기반) */
+export interface Place {
+  name: string;
+  kind: 'dong' | 'sigungu' | 'landmark';
+  /** 고를 때 보여줄 이름 — "서울특별시 중구 신당동" / "강남역 2호선 (서울 강남구)" */
+  label: string;
+  lat: number;
+  lng: number;
+}
+
 export interface ParseResponse {
   filters: {
     price?: string[];
@@ -46,9 +55,13 @@ export interface ParseResponse {
     mood?: string[];
     alcohol: AlcoholFilter;
     radius_m?: number | null;
+    /** 문장 속 지명 — 있으면 내 위치 대신 이 좌표로 추천(2026-11-12) */
+    place?: Place | null;
   };
   /** 못 알아들은 낱말(적용 안 됨) */
   unknown: string[];
+  /** 같은 이름 지역이 여럿 → 먼저 고르게(이때 filters.place 없음) */
+  place_options?: Place[];
 }
 
 export interface RecommendRequest {
