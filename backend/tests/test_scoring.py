@@ -213,3 +213,13 @@ def test_reasons_public_facts_and_low_evidence():
     s = Scored(_cand(5, gov_visits=3, gov_source="샘플", tenure_years=30, evidence="mid"), 0, 2.5)
     line3 = make_reasons(s, q)[2]
     assert "업무추진비 기록 3회" in line3 and "업력 30년" in line3 and "공직자" not in line3
+
+
+def test_exact_matches_before_relaxed():
+    """2026-11-12: 조건을 다 맞춘 가게가 별점이 낮아도 완화로 들어온 가게보다 먼저, 각 묶음 안은 별점순."""
+    cands = [_cand(1, moods=[], star=4.8), _cand(2, star=2.0), _cand(3, star=3.0), _cand(4, moods=[], star=4.0)]
+    q = Query(lat=37.5663, lng=126.9779, radius_m=1000, mood=["조용한"], limit=4)
+    items, relaxed = recommend(cands, q, day=date(2026, 1, 1))
+    assert relaxed == ["mood"]
+    assert [s.cand.id for s in items] == ["C3", "C2", "C1", "C4"]
+    assert [bool(s.relaxed) for s in items] == [False, False, True, True]

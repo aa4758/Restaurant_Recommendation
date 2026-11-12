@@ -241,6 +241,64 @@ def candidates_near(
     return [_candidate(r, sigs.get(r["id"]), today) for r in rows]
 
 
+# 같은 시군구·같은 음식(세부 분류, 없으면 장르) 가게 — 릴스 "이 지역 {음식} 상위 N%" 와 "주변 다른 {음식} 보기"(2026-11-12)
+_PEER_ME = (
+    "SELECT r.sigungu_code AS sg, r.sigungu, r.subtype, r.genre, sc.star"
+    " FROM restaurants r JOIN scores sc ON sc.restaurant_id = r.id WHERE r.id = ?"
+)
+
+
+def _peer_where(me: sqlite3.Row) -> tuple[str, tuple]:
+    if me["subtype"]:
+        return "r.sigungu_code IS ? AND r.subtype = ?", (me["sg"], me["subtype"])
+    return "r.sigungu_code IS ? AND r.genre = ? AND r.subtype IS NULL", (me["sg"], me["genre"])
+
+
+def _pct(rank: int, n: int) -> int:
+    """strict.top_percents 와 같은 정의: 자기 이상인 가게 수(동점 포함) 기준 상위 N%."""
+    return max(1, min(100, -(-rank * 100 // max(n, 1))))
+
+
+def peer_percent(conn: sqlite3.Connection, rid: str) -> tuple[str, int] | None:
+    """(음식 이름, 상위 N%). scores 에 없으면 None. ponytail: 요청마다 가게당 COUNT 1회 — 느려지면 rebuild_scores 에서 저장."""
+    me = conn.execute(_PEER_ME, (rid,)).fetchone()
+    if me is None:
+        return None
+    where, params = _peer_where(me)
+    n, rank = conn.execute(
+        "SELECT COUNT(*), SUM(sc.star >= ?) FROM restaurants r JOIN scores sc ON sc.restaurant_id = r.id WHERE " + where,
+        (me["star"], *params),
+    ).fetchone()
+    return me["subtype"] or me["genre"], _pct(rank or 1, n)
+
+
+def peers(conn: sqlite3.Connection, rid: str, limit: int, offset: int) -> dict | None:
+    """같은 지역·같은 음식 가게를 별점 내림차순으로(자기 자신 포함)."""
+    me = conn.execute(_PEER_ME, (rid,)).fetchone()
+    if me is None:
+        return None
+    where, params = _peer_where(me)
+    base = " FROM restaurants r JOIN scores sc ON sc.restaurant_id = r.id WHERE " + where
+    total = conn.execute("SELECT COUNT(*)" + base, params).fetchone()[0]
+    rows = conn.execute(
+        "SELECT r.id, r.name, r.genre, r.subtype, COALESCE(r.address, r.address_jibun) AS address, sc.star,"
+        " (SELECT COUNT(*)" + base + " AND sc.star >= o.star) AS rank FROM (SELECT r.id, sc.star" + base
+        + " ORDER BY sc.star DESC, r.id LIMIT ? OFFSET ?) o JOIN restaurants r ON r.id = o.id JOIN scores sc ON sc.restaurant_id = r.id"
+        " ORDER BY sc.star DESC, r.id",
+        (*params, *params, limit, offset),
+    ).fetchall()
+    return {
+        "food": me["subtype"] or me["genre"],
+        "region": me["sigungu"],
+        "total": total,
+        "items": [
+            {"id": r["id"], "name": r["name"], "genre": r["genre"], "subtype": r["subtype"], "address": r["address"],
+             "star": r["star"], "percentile": _pct(r["rank"], total)}
+            for r in rows
+        ],
+    }
+
+
 def get_scored(conn: sqlite3.Connection, rid: str, today: date | None = None) -> tuple[Candidate, dict] | None:
     r = conn.execute(_SELECT + " WHERE r.id = ?", (rid,)).fetchone()
     if r is None:

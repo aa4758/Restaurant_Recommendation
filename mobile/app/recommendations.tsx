@@ -8,7 +8,7 @@ import { api, DislikeReason, Evidence, RecommendRequest, RestaurantItem } from '
 import { Button } from '../src/components/Button';
 import { RetryButton } from '../src/components/RetryButton';
 import { ReviewSheet } from '../src/components/ReviewSheet';
-import { GovBudgetBadge, Notice, PercentileBadge, ReasonList, StarRatingBadge, ValueTag } from '../src/components/ui';
+import { GovBudgetBadge, Notice, ReasonList, ValueTag } from '../src/components/ui';
 import * as store from '../src/state/deviceStore';
 import { useTheme } from '../src/theme';
 import { genreColor, starHeroColor } from '../src/theme/tokens';
@@ -88,52 +88,55 @@ function EvidenceBadge({ item }: { item: RestaurantItem }) {
   );
 }
 
-function ReelCard({ item, height, bottomInset, onPress }: { item: RestaurantItem; height: number; bottomInset: number; onPress: () => void }) {
+/** 이름 줄·좋아요 하트를 같은 높이에 두는 기준선(덱 높이 대비, 2026-11-12). 위 = 히어로, 아래 = 가게 정보 */
+const anchorOf = (h: number) => Math.round(h * 0.5);
+
+function ReelCard({ item, height, bottomInset, onPress, onPeers }: { item: RestaurantItem; height: number; bottomInset: number; onPress: () => void; onPeers: () => void }) {
   const t = useTheme();
-  const food = item.subtype ?? item.genre;
+  const food = item.food ?? item.subtype ?? item.genre;
+  const pct = item.food_percentile ?? item.percentile;
   const meta = [item.genre, item.price_band, item.distance_m != null ? `${item.distance_m}m` : null].filter(Boolean).join(' · ');
-  // 지도 버튼은 카드(버튼) 밖에 둔다 — 버튼 안 버튼은 접근성·웹에서 오류
   // 장 전체(빈 공간 포함) 탭 → 상세(2026-11-12). 바깥은 accessible=false 라 버튼으로 노출되지 않음 — 스크린리더는 안쪽 버튼 사용
-  // 상단 노치는 Stack 헤더가 흡수, 56 은 안내(Notice)·페이지 표시 자리. 하단은 홈 인디케이터만큼 더 띄움
+  // 버튼 안 버튼 금지(접근성·웹) → '주변 다른 … 보기'·지도 버튼은 안쪽 상세 버튼 밖에 둔다
+  // 상단 56 은 안내(Notice)·페이지 표시 자리. 하단은 홈 인디케이터만큼 더 띄움
   return (
     <Pressable
       onPress={onPress}
       accessible={false}
-      style={{ height, paddingLeft: 20, paddingRight: RAIL_W + 8, paddingTop: 56, paddingBottom: 24 + bottomInset }}
+      style={{ height, paddingLeft: 20, paddingRight: RAIL_W + 8, paddingBottom: 24 + bottomInset }}
     >
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="button"
-      accessibilityLabel={`${item.name}, 별점 ${item.star.toFixed(1)}, 이 지역 상위 ${item.percentile}퍼센트. 상세 보기`}
-      style={{ flex: 1 }}
-    >
-      {/* 사진 대신 큰 글씨 히어로(2026-11-12): 위 = 별점(구간 색)·음식(장르 색), 아래 = 이름·이유·배지 */}
-      <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between', gap: t.spacing.xl }}>
-        <View style={{ gap: t.spacing.sm }}>
-          <Text style={{ fontSize: 96, lineHeight: 104, fontWeight: '700', color: starHeroColor(item.star, t.scheme) }}>{item.star.toFixed(1)}</Text>
-          <Text numberOfLines={1} adjustsFontSizeToFit style={{ fontSize: 40, lineHeight: 48, fontWeight: '700', color: genreColor(item.genre, t.scheme) }}>{food}</Text>
+      {/* 사진 대신 큰 글씨 히어로: 별점(구간 색)·음식(장르 색)·같은 음식 순위 */}
+      <View style={{ height: anchorOf(height), paddingTop: 56, justifyContent: 'flex-start', gap: t.spacing.xs }}>
+        <Text style={{ fontSize: 96, lineHeight: 104, fontWeight: '700', color: starHeroColor(item.star, t.scheme) }}>{item.star.toFixed(1)}</Text>
+        <Text numberOfLines={1} adjustsFontSizeToFit style={{ fontSize: 40, lineHeight: 48, fontWeight: '700', color: genreColor(item.genre, t.scheme) }}>{food}</Text>
+        <Text style={[t.typography.bodyStrong, { color: t.colors.textSecondary }]}>이 지역 {food} 상위 {pct}%</Text>
+        <Pressable onPress={onPeers} accessibilityRole="button" accessibilityLabel={`주변 다른 ${food} 음식점 별점순으로 보기`} hitSlop={8}
+          style={{ alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' }}>
+          <Text style={[t.typography.bodyStrong, { color: t.colors.accent }]}>주변 다른 {food} 음식점 보러가기 ›</Text>
+        </Pressable>
+      </View>
+      <Pressable
+        onPress={onPress}
+        accessibilityRole="button"
+        accessibilityLabel={`${item.name}, 별점 ${item.star.toFixed(1)}, 이 지역 ${food} 상위 ${pct}퍼센트. 상세 보기`}
+        style={{ flexShrink: 1 }}
+      >
+        <ScrollView contentContainerStyle={{ gap: t.spacing.md }}>
+          <Text numberOfLines={2} style={[t.typography.display, { color: t.colors.textPrimary }]}>{item.name}</Text>
+          <Text style={[t.typography.body, { color: t.colors.textSecondary }]}>{meta}</Text>
+          <ReasonList reasons={item.reasons.slice(0, 3)} />
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.spacing.xs }}>
-            <StarRatingBadge star={item.star} compact />
-            <PercentileBadge percentile={item.percentile} />
+            {/* 카드 배지 최대 3개: 근거 > 업무추진비 > 완화 > 가성비 (design_system.md 3-2) */}
+            {[
+              <EvidenceBadge key="ev" item={item} />,
+              item.gov_visits > 0 ? <GovBudgetBadge key="gov" visits={item.gov_visits} source={item.gov_source} compact /> : null,
+              item.relaxed?.length ? <RelaxedBadge key="rx" relaxed={item.relaxed} /> : null,
+              item.moods.includes('가성비') ? <ValueTag key="val" /> : null,
+            ].filter(Boolean).slice(0, 3)}
           </View>
-        </View>
-        <View style={{ gap: t.spacing.md }}>
-        <Text numberOfLines={2} style={[t.typography.display, { color: t.colors.textPrimary }]}>{item.name}</Text>
-        <Text style={[t.typography.body, { color: t.colors.textSecondary }]}>{meta}</Text>
-        <ReasonList reasons={item.reasons.slice(0, 3)} />
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.spacing.xs }}>
-          {/* 카드 배지 최대 3개: 근거 > 업무추진비 > 완화 > 가성비 (design_system.md 3-2) */}
-          {[
-            <EvidenceBadge key="ev" item={item} />,
-            item.gov_visits > 0 ? <GovBudgetBadge key="gov" visits={item.gov_visits} source={item.gov_source} /> : null,
-            item.relaxed?.length ? <RelaxedBadge key="rx" relaxed={item.relaxed} /> : null,
-            item.moods.includes('가성비') ? <ValueTag key="val" /> : null,
-          ].filter(Boolean).slice(0, 3)}
-        </View>
-        </View>
-      </ScrollView>
-    </Pressable>
-    <MapLinkButtons name={item.name} compact />
+        </ScrollView>
+      </Pressable>
+      <MapLinkButtons name={item.name} compact />
     </Pressable>
   );
 }
@@ -159,7 +162,7 @@ function RailButton({ icon, label, a11y, active, onPress }: { icon: IconName; la
 function ActionRail({
   item,
   liked,
-  bottomInset,
+  top,
   onLike,
   onDislike,
   onReview,
@@ -167,14 +170,15 @@ function ActionRail({
 }: {
   item: RestaurantItem;
   liked: boolean;
-  bottomInset: number;
+  /** 하트 윗면 = 카드 이름 줄 윗면(anchorOf) */
+  top: number;
   onLike: () => void;
   onDislike: () => void;
   onReview: () => void;
   onShare: () => void;
 }) {
   return (
-    <View style={{ position: 'absolute', right: 8, bottom: 32 + bottomInset, width: RAIL_W - 16, alignItems: 'center', gap: 12 }}>
+    <View style={{ position: 'absolute', right: 8, top: top, width: RAIL_W - 16, alignItems: 'center', gap: 12 }}>
       <RailButton icon={liked ? 'heart' : 'heart-outline'} label={liked ? '좋아요 완료' : '좋아요'} active={liked} onPress={onLike}
         a11y={`${item.name} 좋아요, 현재 ${liked ? '선택됨' : '선택 안 됨'}`} />
       <RailButton icon="close" label="싫어요" onPress={onDislike} a11y={`${item.name} 싫어요, 30일간 숨김`} />
@@ -476,7 +480,8 @@ export default function RecommendationDeck() {
               </View>
             ) : (
               <View>
-                <ReelCard item={d} height={deckH} bottomInset={insets.bottom} onPress={() => router.push(`/restaurant/${d.id}`)} />
+                <ReelCard item={d} height={deckH} bottomInset={insets.bottom} onPress={() => router.push(`/restaurant/${d.id}`)}
+                  onPeers={() => router.push(`/peers/${d.id}`)} />
               </View>
             )
           }
@@ -513,7 +518,7 @@ export default function RecommendationDeck() {
         <ActionRail
           item={current}
           liked={likes.includes(current.id)}
-          bottomInset={insets.bottom}
+          top={anchorOf(deckH)}
           onLike={() => toggleLike(current)}
           onDislike={() => setDislikeTarget(current)}
           onReview={() => setReviewTarget(current)}
