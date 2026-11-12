@@ -49,7 +49,7 @@ class Candidate:
     genre: str
     price_band: str
     moods: list[str]
-    alcohol: bool
+    alcohol: bool | None  # None = 미확인(일반음식점 대부분)
     lat: float
     lng: float
     star: float
@@ -95,9 +95,9 @@ class Scored:
 
 def _alcohol_ok(c: Candidate, alcohol: str) -> bool:
     if alcohol == "yes":
-        return c.alcohol
-    if alcohol == "no":
-        return not c.alcohol
+        return c.alcohol is True
+    if alcohol == "no":  # 미확인은 제외(2026-11-12 사용자 결정)
+        return c.alcohol is False
     return True
 
 
@@ -214,7 +214,7 @@ def make_reasons(s: Scored, q: Query) -> list[str]:
         fit.append("/".join(matched_moods) + " 분위기")
     if q.alcohol == "yes" and c.alcohol:
         fit.append("음주 가능")
-    elif q.alcohol == "no" and not c.alcohol:
+    elif q.alcohol == "no" and c.alcohol is False:
         fit.append("비주류 매장")
     if s.distance_m is None:  # 위치 미지정(상세 조회)
         line2 = " · ".join([c.genre, c.price_band] + (["/".join(c.moods)] if c.moods else []))

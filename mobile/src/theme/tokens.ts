@@ -162,6 +162,53 @@ export function getStarBand(star: number): StarBand {
   return band;
 }
 
+/**
+ * 릴스 히어로·별점 입력용 별점 구간 색(2026-11-12). 배지 라벨(starScale 3단계)과 별개로 5단계.
+ * 평균 2.5 근처가 대부분이라 중간 구간을 차분한 색으로 나눠 카드마다 구분되게 함.
+ */
+const STAR_HERO: [number, string, string][] = [
+  // [하한, light, dark]
+  [4.5, '#C8431C', '#FF7A50'], // 최상 — primary
+  [4.0, '#A85E1A', '#E3A35E'], // 호박
+  [3.5, '#2F7D5B', '#5CC596'], // 좋음 — 초록
+  [2.5, '#4F6F8F', '#8FAED0'], // 평범 — 청회색
+  [0, '#71757D', '#8A8D94'], //  아쉬움 — 회색
+];
+
+export function starHeroColor(star: number, scheme: ColorScheme): string {
+  const row = STAR_HERO.find(([min]) => star >= min) ?? STAR_HERO[STAR_HERO.length - 1];
+  return scheme === 'dark' ? row[2] : row[1];
+}
+
+/**
+ * 장르별 음식 글씨 색(2026-11-12). 채도를 낮춘 음식 연상색 — 큰 글씨 기준 대비 4.5:1 이상(light 흰 배경 / dark #101113).
+ * 세부 분류는 상위 장르 색을 따름. ponytail: 세부 분류별 색이 필요해지면 subtype 키를 먼저 찾도록 확장.
+ */
+const GENRE_COLOR: Record<string, [string, string]> = {
+  한식: ['#8A5A3C', '#D2A585'], // 간장
+  '국밥/탕/찌개': ['#9A4E3A', '#D9957F'], // 국물
+  '고기/구이': ['#9B4A4A', '#DB9090'], // 고기
+  면요리: ['#80642A', '#D1B276'], // 밀
+  해산물: ['#2F6F7A', '#86C1CB'], // 바다
+  분식: ['#A24E62', '#DE98AA'], // 떡볶이
+  치킨: ['#8F5E1E', '#DDAE6E'], // 튀김
+  중식: ['#A0453A', '#E08F84'], // 홍유
+  일식: ['#4F6A8A', '#9DB4D3'], // 쪽빛
+  양식: ['#6B5A8A', '#B5A6D3'], // 포도주
+  패스트푸드: ['#85621C', '#D8B66A'], // 머스터드
+  아시안: ['#4E7A4A', '#9CC797'], // 허브
+  세계음식: ['#5E6E3A', '#B4C48C'], // 올리브
+  주점: ['#6E4A6E', '#C29AC2'], // 와인
+  '카페/디저트': ['#7A5C4A', '#CDAE9B'], // 커피
+  뷔페: ['#5A6470', '#AAB3BE'],
+  기타: ['#5B5D63', '#B4B6BC'],
+};
+
+export function genreColor(genre: string, scheme: ColorScheme): string {
+  const pair = GENRE_COLOR[genre] ?? GENRE_COLOR['기타'];
+  return scheme === 'dark' ? pair[1] : pair[0];
+}
+
 export interface ElevationStyle {
   shadowColor: string;
   shadowOffset: { width: number; height: number };

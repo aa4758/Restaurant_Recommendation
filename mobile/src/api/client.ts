@@ -75,7 +75,8 @@ export interface RestaurantItem {
   subtype?: string | null;
   price_band: string;
   moods: string[];
-  alcohol: boolean;
+  /** null = 미확인 */
+  alcohol: boolean | null;
   lat: number;
   lng: number;
   distance_m: number | null;

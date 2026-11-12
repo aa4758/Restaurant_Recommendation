@@ -168,6 +168,16 @@ def test_relax_order_and_alcohol_never_relaxed():
     assert all(not s.cand.alcohol for s in items)  # 음주 조건은 유지
 
 
+def test_alcohol_unknown_excluded_from_yes_and_no():
+    """음주 미확인(None)은 '음주 불가'·'음주 가능' 어느 쪽에도 넣지 않음(2026-11-12)."""
+    cands = [_cand(1, alcohol=None), _cand(2, alcohol=False), _cand(3, alcohol=True)]
+    q = dict(lat=37.5663, lng=126.9779, radius_m=1000)
+    ids = lambda a: {s.cand.id for s in recommend(cands, Query(**q, alcohol=a), day=date(2026, 1, 1))[0]}
+    assert ids("no") == {"C2"}
+    assert ids("yes") == {"C3"}
+    assert ids("any") == {"C1", "C2", "C3"}
+
+
 def test_no_relax_when_enough():
     cands = [_cand(i) for i in range(5)]
     items, relaxed = recommend(cands, Query(lat=37.5663, lng=126.9779), day=date(2026, 1, 1))

@@ -25,7 +25,7 @@ class Item(BaseModel):
     genre: str
     price_band: str
     moods: list[str]
-    alcohol: bool
+    alcohol: Optional[bool] = None  # None = 미확인
     lat: float
     lng: float
     distance_m: Optional[int] = None

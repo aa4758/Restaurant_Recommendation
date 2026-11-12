@@ -78,9 +78,10 @@ RecommendationScreen
 ```
 ReelCard  (배경 colors.background, 상하 safe area 준수)
 ├─ OpenStatusTag          영업 상태 칩: "영업 중" / "곧 마감" / "영업 종료" / "영업 정보 없음"(2026-11-05: 영업시간 데이터 전까지 숨김 — design_system.md 6절 #6)
-├─ StarHero               별점 대형(typography 최대 크기, starScale 색상) "4.6"
+├─ (위) StarHero          별점 96pt, 구간 색 starHeroColor(2026-11-12: 4.5+ primary·4.0+ 호박·3.5+ 초록·2.5+ 청회색·그 아래 회색) "4.6"
+│  ├─ FoodHero            세부 분류(없으면 장르) 40pt, 장르 색 genreColor(저채도, 대비 4.5:1 이상). 사진 대신 빈 공간을 채움
 │  └─ PercentileBadge     "이 지역 상위 8%"
-├─ RestaurantName         굵게 2줄 말줄임
+├─ (아래, 화면 하단 정렬) RestaurantName         굵게 2줄 말줄임
 ├─ MetaLine               "{장르} · {가격대} · {거리}"  (예: "한식 · 1~2만 · 320m")
 ├─ ReasonList             ReasonLine x3 (각 1~2줄, 불릿 없이 줄 간격 넉넉히)
 └─ BadgeRow               EvidenceBadge · GovBudgetBadge · RelaxedBadge (줄바꿈 허용)
@@ -89,6 +90,7 @@ ReelCard  (배경 colors.background, 상하 safe area 준수)
 - `GovBudgetBadge`(gov_visits>0): "공공기관 업무추진비 기록 {N}회 ({출처}, {기준연도} 기준)". "공직자 맛집" 표현 금지.
 - `RelaxedBadge`(해당 항목이 relaxed에 속할 때): "{분위기/가격/세부 메뉴/거리/장르} 조건 완화됨". 음주 조건은 완화 대상 아님.
 - 광고 감점 안내는 카드에서 제외(상세 화면 `AdPenaltyRow` 에서만).
+- 탭: 카드 장 전체(빈 공간 포함)를 탭하면 상세로 이동(2026-11-12). ActionRail·지도 버튼은 각자 동작. 스크린리더는 카드 본문 버튼("… 상세 보기")으로 이동.
 - 큰 글자 설정 시 `ReasonList` 는 스크롤 가능한 영역으로 전환, 카드 하단 잘림 금지.
 
 ### 2-2. ActionRail (우측 세로, 하단에서 ReelCard 하단 여백 위, 아이콘 28 + 라벨 12, 터치 영역 48x48 이상)
@@ -208,14 +210,19 @@ RestaurantDetailScreen
 WriteReviewScreen
 ├─ RestaurantSummaryCard            (대상 음식점 요약)
 ├─ StrictRatingGuideCard            (엄격 별점 안내, 접기/펼치기)
-├─ HalfStarRatingInput              (0.5 단위, 0~5)
-├─ RatingHintText                   (선택한 점수에 따라 동적 문구)
-├─ ReviewTagPicker                  (선택 태그 다중선택: 맛있어요·가성비·친절·양 많아요·재방문 의사)
-├─ ReviewTextInput
-├─ MoreInfoToggle                   ("더 알려주기 (선택)", 접힘 기본. 이미 입력값이 있으면 펼침) — 2026-11-02 R-4~R-6
-│  ├─ SpendChips                    (1인 지출: ~1만·1~2만·2~4만·4만+, 단일 선택·다시 누르면 해제)
-│  ├─ MoodChips                     (분위기: 조용한·회식·데이트·혼밥·가성비·노포, 다중)
-│  └─ MenuInputs                    (최대 3줄: 메뉴명 + 가격(원) + ✕. 위에 그 가게 알려진 메뉴 "+ 메뉴명" 칩 → 누르면 줄 추가)
+├─ [박스] 별점 (2026-11-12: 둥근 박스 3개로 구분 — surface 배경·border·radius xl)
+│  ├─ StarRatingInput               (별 5개. 별 왼쪽 절반 탭 = .5, 오른쪽 = 정수. 채움 색 = 별점 구간 색 starHeroColor. 스크린리더 adjustable ±0.5)
+│  └─ RatingHintText                (선택 점수 + 동적 문구, 미선택 시 "별 왼쪽 절반을 누르면 0.5점이에요")
+├─ [박스] 키워드 (다중 선택, 묶음별)
+│  ├─ 맛: 맛있어요·재료가 신선해요·간이 딱 좋아요·재방문 의사
+│  ├─ 가격·양: 가성비·양 많아요
+│  ├─ 서비스·청결: 친절·음식이 빨리 나와요·깔끔해요
+│  └─ 분위기: 조용한·회식·데이트·혼밥·노포  (분위기 값과 '가성비' 는 `moods` 로, 나머지는 `tags` 로 전송 — '가성비' 는 둘 다)
+├─ [박스] 리뷰
+│  ├─ ReviewTextInput
+│  └─ MoreInfoToggle                ("더 알려주기 (선택)", 접힘 기본. 이미 입력값이 있으면 펼침) — 2026-11-02 R-4~R-6
+│     ├─ SpendChips                 (1인 지출: ~1만·1~2만·2~4만·4만+, 단일 선택·다시 누르면 해제)
+│     └─ MenuInputs                    (최대 3줄: 메뉴명 + 가격(원) + ✕. 위에 그 가게 알려진 메뉴 "+ 메뉴명" 칩 → 누르면 줄 추가)
 ├─ OnsiteHint                       ("가게 근처(200m)에서 쓰면 '현장 작성' 표시가 붙어요. 위치는 저장하지 않아요.")
 ├─ SubmitReviewButton               ("리뷰 등록하기") — 로그인 상태일 때만
 ├─ LoginButtons                     (로그인 안 됨·토큰 만료 시 버튼 자리에 표시, 작성 중 내용 유지)
