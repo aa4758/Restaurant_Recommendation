@@ -1,7 +1,7 @@
 # 인수인계 — 로컬 Claude Code (2026-11-15 기준)
 
 로컬 경로 `C:\Restaurant_Recommendation` · 원격 `aa4758/Restaurant_Recommendation`
-작업 브랜치 `master`(PR #36 까지 병합, 열린 PR 없음) · 백엔드 테스트 371개 통과
+작업 브랜치 `master`(PR #39 까지 병합, 열린 PR 없음) · 백엔드 테스트 374개 통과
 
 ---
 
@@ -19,7 +19,7 @@ git checkout master; git pull
 cd C:\Restaurant_Recommendation\backend
 python -m venv .venv; .venv\Scripts\activate
 pip install -r requirements-dev.txt          # pytest 포함 (pyproj 등은 requirements.txt)
-python -m pytest -q                          # 371개 통과가 정상
+python -m pytest -q                          # 374개 통과가 정상
 
 cd ..\mobile
 npm install                                  # expo install 이 403 이면 npm install 로
@@ -43,8 +43,8 @@ claude
 |---|---|---|
 | 0 브리프 · 1 기획 결정 | ✅ | `docs/00_brief.md`, `docs/01_planning_decision.md` |
 | 2 백엔드·점수 엔진 / 디자인 | ✅ | `backend/`, `docs/design/screens.md` |
-| 3 모바일(5화면) · 3-B 릴스형 추천 | ✅ (실기기 일부 확인 2026-11-12 → 피드백 #33~#36 반영, 전체 확인 남음) | `mobile/`, `docs/qa/report_reels.md`, 디자인 시스템 `docs/design/` (#25~27) |
-| 8 로그인·리뷰 신뢰 | ✅ 코드 (실기기 로그인은 배포 후) | 소셜 로그인 #19, 리뷰 개편 #20, 리뷰 지도 #21·#28·#36 |
+| 3 모바일(5화면) · 3-B 릴스형 추천 | ✅ (실기기 일부 확인 2026-11-12 → 피드백 #33~#39 반영, 전체 확인 남음) | `mobile/`, `docs/qa/report_reels.md`, 디자인 시스템 `docs/design/` (#25~27) |
+| 8 로그인·리뷰 신뢰 | ✅ 코드 (실기기 로그인은 배포 후) | 소셜 로그인 #19, 리뷰 개편 #20, ~~리뷰 지도 #21·#28·#36~~ → 좋아요 목록 #38 |
 | 4 QA · 5 운영 준비 | ✅ | `docs/qa/`, `ops/runbook.md`, `.github/workflows/`, `mobile/eas.json` |
 | 6 배포 | 👤 미착수 | 계정·호스팅 필요(`docs/02_roadmap.md` 하단) |
 | 7 실데이터 | 🔄 | 아래 2-3 |
@@ -76,7 +76,10 @@ claude
 | #33 | 음주 미확인(`alcohol: bool \| null`, 확인된 값만 필터) · 릴스 카드 전체 탭 → 상세 · 리뷰 작성 개편 |
 | #34 | 같은 음식 순위·목록(`GET /restaurants/{id}/peers`) · 조건 일치 우선 정렬 · 세부 분류 이름 정리 · 업무추진비 배지 릴스 줄임말 · 리뷰 키워드 5묶음 · 검색 탭 개편 |
 | #35 | 지명 검색: 문장 속 동·시군구(DB 주소 색인)·역·랜드마크(카카오) → `filters.place` 중심 추천, 같은 이름 선택지 |
-| #36 | 리뷰 지도: 시도 윤곽·본토 확대·+/− 확대·이동·섬 inset·저장 가게 수 목록 |
+| #36 | 리뷰 지도: 시도 윤곽·본토 확대·+/− 확대·이동·섬 inset·저장 가게 수 목록 (#38 에서 지도 삭제) |
+| #37 | 인수인계 11-15 |
+| #38 | **좋아요 계정 저장**(`user_likes`, `GET/POST /me/likes`, `DELETE /me/likes/{id}`) + 탭 ③ **좋아요 목록**(시도 → 시군구 → 동별 가게, 하위 하나면 건너뜀). 리뷰 지도·`react-native-svg`·`build_regions` 삭제 (docs/01 L-1~L-5) |
+| #39 | **가게 이름 검색**: 음식·지명보다 먼저 이름 확인(낱말 묶음 긴 것부터), `name_key`·`restaurant_name_words`(공백·기호 무시, 이름 속 낱말), 불명확하면 이름 결과 + 평소 추천 둘 다, 카드 태그 "'{검색어}' 이름으로 찾은 가게". 카카오 1위가 음식점이면 지명 아님. 실제 상호 인식률 88% → 96.8% (docs/01 N-1~N-6) |
 
 ### 2-3. 로컬 DB 상태 (`backend\data\jjinmat.db`, git 제외)
 - 기존 v1 DB 는 `data\jjinmat_v1_backup.db` 로 백업(가상 샘플 48곳 포함 — 실서비스에 쓰지 말 것).
@@ -114,7 +117,9 @@ claude
    - ✅ 2026-11-07 전국 산출 적재: `python -m app.ingest.load_gov_expense ..\expense_collector\data\output\gov_expense_for_jjinmat.csv`
      (수집기 열 그대로 읽음, 목적 원문 버림). 65,362건 / 12,004곳 매칭(동명 상한 30·기관 소재 시군구), DB 전체 111,187건 / 16,232곳.
      미매칭 61,895건 → 다음 후보: 수집기에서 주소 열 추출, 상가정보 상호로 보조 매칭. 검수 `docs/qa/report_signals_load.md`.
-5. **앱 실기기 확인** — 2026-11-12 일부 확인, 피드백은 #33~#36 에 반영. 남은 것: 지명 검색(#35)·리뷰 지도 확대(#36)·같은 음식 목록(#34) 화면 확인(4-4).
+5. **앱 실기기 확인** — 2026-11-12 일부 확인, 피드백은 #33~#39 에 반영. 남은 것: 좋아요 탭(#38, 로그인 후 ♥ → 지역별 목록)·가게 이름 검색 태그(#39)·지명 검색(#35)·같은 음식 목록(#34) 화면 확인(4-4).
+   - 이름 검색 남은 과제(보류): 3단계 부분 일치(FTS5 trigram), 4단계 카카오 간판명 보완(인허가 상호 ≠ 간판명). 법인명으로만 등록된 가게는 추천 제외 대상이라 이름 검색에도 안 나옴.
+   - 내 리뷰 목록 화면 없음(#38 에서 지도와 함께 빠짐) → 필요하면 '내 정보'에 추가.
    소셜 로그인 키(카카오·구글·`AUTH_SECRET`)는 Windows 사용자 환경변수에 설정 완료. 실기기 로그인용 `PUBLIC_BASE_URL`·리디렉트 URI 등록은
    배포 후로 미룸(2026-11-07 결정, 구글은 사설 IP 리디렉트 불가) → 8번 배포의 `ops/deploy_railway.md` 2절·4-1절에서 처리. 로컬 로그인 확인은 PC 브라우저(localhost)로.
 6. **미매칭 2.1만 곳** — 주소→좌표 지오코딩(예: 브이월드 API, 키 필요).
@@ -197,6 +202,8 @@ cd C:\Restaurant_Recommendation\mobile;  npx tsc --noEmit
 - **일반 → 휴게 순서 적재**: 영업 중 인허가가 붙은 가게는 자기 관리번호 행으로만 닫힘(PR #5 수정).
 - **엄격 별점은 시군구 단위 분위수** → 지역 키가 비면 전국 한 묶음이 됨. 적재 후 '지역없음' 확인.
 - **expo install 이 프록시 403** 이면 `node_modules/expo/bundledNativeModules.json` 의 버전으로 `npm install`.
+- **이름 검색 키**(`restaurants.name_key`·`restaurant_name_words`)는 빈 키만 DB 연결 때 자동으로 채움. 전국 새 적재 직후 첫 연결은 약 30초(runbook 에 미리 채우는 명령).
+- **로컬 서버 `--reload` 가 Windows 에서 자주 멈춤**(코드 저장 후 재시작 안 됨) → `--reload` 없이 띄우고 코드 바꾸면 재시작. 휴대폰 Expo Go 는 흔들기 → Reload.
 - 클라우드 세션에선 PC 의 `data\raw\` 파일을 볼 수 없음 → 로컬에서는 Claude Code 가 직접 파일을 읽고 `--check` 를 돌릴 수 있음.
 
 ---
