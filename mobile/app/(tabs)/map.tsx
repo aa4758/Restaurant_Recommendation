@@ -63,7 +63,7 @@ export default function ReviewMapScreen() {
   return (
     <ScrollView contentContainerStyle={{ padding: t.spacing.lg, gap: t.spacing.md }}>
       <Text style={h1}>
-        {cur ? `${cur.name} ${cur.done}/${cur.total}` : `전국 ${REGIONS.units.length}곳 중 ${doneAll}곳`}
+        {cur ? `${cur.name} · 저장한 가게 ${cur.stores}곳` : `전국 ${REGIONS.units.length}곳 중 ${doneAll}곳`}
       </Text>
       {sido ? (
         <Button label="← 전국 보기" variant="text" onPress={() => { setSido(null); setUnit(null); }} />
@@ -75,7 +75,8 @@ export default function ReviewMapScreen() {
         sido={sido}
         selected={unit}
         height={Math.min(height * 0.6, 560)}
-        onPressUnit={(s, n) => (sido ? setUnit(`${s}|${n}`) : setSido(s))}
+        onPressSido={setSido}
+        onPressUnit={(s, n) => setUnit(`${s}|${n}`)}
       />
 
       {sido && unit ? (
@@ -95,13 +96,29 @@ export default function ReviewMapScreen() {
         </View>
       ) : null}
 
+      {/* 시도 화면: 시군 목록 + 저장한 가게 수(2026-11-12). 누르면 지도에서 강조 + 위에 그 지역 가게 */}
+      {sido
+        ? REGIONS.units
+            .filter((u) => u.sido === sido)
+            .map((u) => ({ key: `${u.sido}|${u.name}`, name: u.name, stores: visited.get(`${u.sido}|${u.name}`)?.length ?? 0 }))
+            .sort((a, b) => b.stores - a.stores || a.name.localeCompare(b.name, 'ko'))
+            .map((u) => (
+              <Pressable key={u.key} onPress={() => setUnit(u.key)} accessibilityRole="button" accessibilityState={{ selected: unit === u.key }}
+                accessibilityLabel={`${u.name} 저장한 가게 ${u.stores}곳`}
+                style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: t.spacing.xs, borderBottomWidth: 1, borderBottomColor: t.colors.border,
+                  backgroundColor: unit === u.key ? t.colors.surfaceAlt : undefined }}>
+                <Text style={[unit === u.key ? t.typography.bodyStrong : t.typography.body, { color: t.colors.textPrimary }]}>{u.name}</Text>
+                <Text style={[t.typography.body, { color: u.stores ? t.colors.primary : t.colors.textSecondary }]}>{u.stores}곳</Text>
+              </Pressable>
+            ))
+        : null}
       {!sido
         ? progress.map((p) => (
             <Pressable key={p.name} onPress={() => setSido(p.name)} accessibilityRole="button"
-              accessibilityLabel={`${p.name} ${p.total}곳 중 ${p.done}곳`}
+              accessibilityLabel={`${p.name} 저장한 가게 ${p.stores}곳`}
               style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: t.spacing.xs, borderBottomWidth: 1, borderBottomColor: t.colors.border }}>
               <Text style={[t.typography.body, { color: t.colors.textPrimary }]}>{p.name}</Text>
-              <Text style={[t.typography.body, { color: p.done ? t.colors.primary : t.colors.textSecondary }]}>{p.done}/{p.total}</Text>
+              <Text style={[t.typography.body, { color: p.stores ? t.colors.primary : t.colors.textSecondary }]}>{p.stores}곳</Text>
             </Pressable>
           ))
         : null}
