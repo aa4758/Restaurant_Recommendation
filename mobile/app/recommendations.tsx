@@ -4,11 +4,12 @@ import { AccessibilityInfo, ActivityIndicator, FlatList, LayoutAnimation, Modal,
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { api, DislikeReason, Evidence, RecommendRequest, RestaurantItem } from '../src/api/client';
+import { api, ApiError, DislikeReason, Evidence, RecommendRequest, RestaurantItem } from '../src/api/client';
 import { Button } from '../src/components/Button';
 import { RetryButton } from '../src/components/RetryButton';
 import { ReviewSheet } from '../src/components/ReviewSheet';
 import { GovBudgetBadge, Notice, ReasonList, ValueTag } from '../src/components/ui';
+import { getToken } from '../src/state/authStore';
 import * as store from '../src/state/deviceStore';
 import { useTheme } from '../src/theme';
 import { genreColor, starHeroColor } from '../src/theme/tokens';
@@ -373,6 +374,11 @@ export default function RecommendationDeck() {
     try {
       await store.setLiked(item.id, next);
       await sendReaction(deviceId, item.id, next ? 'like' : 'none');
+      const token = await getToken(); // 로그인했으면 계정에도(docs/01 L-1). 만료 토큰(401)은 기기 저장만
+      if (token)
+        await (next ? api.addLikes(token, [item.id]) : api.removeLike(token, item.id)).catch((e) => {
+          if (!(e instanceof ApiError && e.status === 401)) throw e;
+        });
     } catch {
       // 해당 id 의 최신 요청만 반영
       if (likeSeq.current.get(item.id) !== seq) return;

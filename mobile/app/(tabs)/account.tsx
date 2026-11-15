@@ -83,7 +83,7 @@ export default function AccountScreen() {
           <Button label="로그아웃" variant="secondary" onPress={() => signOut(false)} disabled={busy} />
           {confirm ? (
             <>
-              <Notice text={'탈퇴하면 계정과 내가 쓴 리뷰가 모두 삭제되고 되돌릴 수 없어요.'} />
+              <Notice text={'탈퇴하면 계정과 내가 쓴 리뷰·좋아요가 모두 삭제되고 되돌릴 수 없어요.'} />
               <Button label="탈퇴하기" onPress={() => signOut(true)} loading={busy} />
               <Button label="취소" variant="text" onPress={() => setConfirm(false)} disabled={busy} />
             </>
@@ -94,7 +94,7 @@ export default function AccountScreen() {
         </>
       ) : (
         <>
-          <Notice text={'로그인은 리뷰를 쓸 때만 필요해요.\n이메일·닉네임은 받지 않아요.'} />
+          <Notice text={'로그인은 리뷰를 쓰거나 좋아요를 계정에 저장할 때 필요해요.\n이메일·닉네임은 받지 않아요.'} />
           <LoginButtons onLoggedIn={load} />
         </>
       )}

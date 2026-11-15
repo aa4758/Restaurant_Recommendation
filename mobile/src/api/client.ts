@@ -193,6 +193,18 @@ export interface CreateReviewRequest {
   positions?: ReviewPosition[]; // 최대 2개: 화면 열 때·등록할 때
 }
 
+/** 좋아요 목록 항목 — docs/01 L-1 (계정 저장) */
+export interface MyLike {
+  restaurant_id: string;
+  name: string;
+  sido: string | null;
+  sigungu: string | null;
+  dong: string | null;
+  food: string | null;
+  star: number | null;
+  created_at: string;
+}
+
 export interface MyReview {
   restaurant_id: string;
   name: string;
@@ -348,6 +360,13 @@ export const api = {
 
   /** 내가 다녀온 가게 = 내 리뷰 목록(R-7) */
   myReviews: (token: string) => request<{ items: MyReview[] }>('/me/reviews', { headers: bearer(token) }),
+
+  /** 좋아요(계정 저장, docs/01 L-1) */
+  myLikes: (token: string) => request<{ items: MyLike[] }>('/me/likes', { headers: bearer(token) }),
+  addLikes: (token: string, ids: string[]) =>
+    request<void>('/me/likes', { method: 'POST', headers: bearer(token), body: JSON.stringify({ ids }) }),
+  removeLike: (token: string, id: string) =>
+    request<void>(`/me/likes/${encodeURIComponent(id)}`, { method: 'DELETE', headers: bearer(token) }),
 
   /** 로그인 시작 주소(브라우저로 엶). 서버가 공급자 로그인 후 redirect?code= 로 돌려보냄 */
   authStartUrl: (provider: AuthProvider, redirect: string, challenge: string) =>

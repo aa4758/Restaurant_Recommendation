@@ -63,6 +63,11 @@ STOP = {"근처", "주변", "맛집", "추천", "식당", "가게", "음식점",
         "경남", "제주", "땡겨", "땡기는", "당기는", "먹지", "뭐", "할", "수", "있는", "없을까", "어때", "갈만한"}
 
 
+def jibun_dong(jibun: str | None) -> str | None:
+    """지번 주소의 동·N가·읍·면(2~4번째 낱말, 세종은 시군구 없음). 예: '서울특별시 마포구 서교동 1-2' → 서교동."""
+    return next((x for x in (jibun or "").split()[1:4] if re.fullmatch(r"[가-힣0-9]+(동|가|읍|면)", x)), None)
+
+
 @cache
 def _places(db_file: str) -> dict[str, list[dict]]:
     """지명 → 후보 목록(가게 많은 순). 지번 주소의 동·가·읍·면과 시군구 이름, 가게 좌표 평균(2026-11-12).
@@ -77,8 +82,8 @@ def _places(db_file: str) -> dict[str, list[dict]]:
     for jibun, sido, sg, lat, lng in conn.execute(
         "SELECT address_jibun, sido, sigungu, lat, lng FROM restaurants"
         " WHERE status='open' AND lat IS NOT NULL AND address_jibun IS NOT NULL AND sido IS NOT NULL"):
-        toks = jibun.split()
-        dong = next((x for x in toks[2:4] if re.fullmatch(r"[가-힣0-9]{2,}(동|가|읍|면)", x)), None)
+        dong = jibun_dong(jibun)
+        dong = dong if dong and len(dong) >= 3 else None  # 지명 검색은 한 글자 동(중동 등) 제외 — 음식 낱말과 겹침
         names = []
         if dong:
             names.append(("dong", f"{sido} {sg} {dong}", dong))

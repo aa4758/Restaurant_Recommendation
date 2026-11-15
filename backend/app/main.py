@@ -16,6 +16,7 @@ from app.constants import ALCOHOL, GENRES, MOODS, PRICE_BANDS
 from app.nlparse import parse
 from app.schemas import (
     Item,
+    LikesIn,
     ParseIn,
     ParseOut,
     RecommendRequest,
@@ -271,6 +272,39 @@ def get_peers(rid: str, limit: int = Q(default=20, ge=1, le=50), offset: int = Q
 def get_my_reviews(uid: int = Depends(current_user), conn=Depends(get_conn)) -> dict:
     """내가 다녀온 가게 = 내 리뷰 목록(R-7)."""
     return {"items": reviews.my_reviews(conn, uid)}
+
+
+@app.get("/me/likes")
+def get_my_likes(uid: int = Depends(current_user), conn=Depends(get_conn)) -> dict:
+    """좋아요 목록(docs/01 L-1), 최신순. 동은 지번 주소에서."""
+    from app.nlparse import jibun_dong
+
+    rows = conn.execute(
+        "SELECT l.restaurant_id, r.name, r.sido, r.sigungu, r.address_jibun, COALESCE(r.subtype, r.genre) AS food, sc.star, l.created_at"
+        " FROM user_likes l JOIN restaurants r ON r.id=l.restaurant_id LEFT JOIN scores sc ON sc.restaurant_id=l.restaurant_id"
+        " WHERE l.user_id=? ORDER BY l.created_at DESC, l.rowid DESC", (uid,)).fetchall()
+    return {"items": [{"restaurant_id": r["restaurant_id"], "name": r["name"], "sido": r["sido"], "sigungu": r["sigungu"],
+                       "dong": jibun_dong(r["address_jibun"]), "food": r["food"], "star": r["star"], "created_at": r["created_at"]}
+                      for r in rows]}
+
+
+@app.post("/me/likes", status_code=204)
+def post_my_likes(body: LikesIn, request: Request, uid: int = Depends(current_user), conn=Depends(get_conn)) -> Response:
+    """좋아요 추가(로그인 직후 기기 좋아요 합치기 겸). 이미 있거나 없는 가게는 무시."""
+    _rate_limit("like", request, f"user{uid}")  # 계정당 분당 30회
+    now = datetime.now(timezone.utc).isoformat()
+    conn.executemany(
+        "INSERT OR IGNORE INTO user_likes(user_id,restaurant_id,created_at) SELECT ?,id,? FROM restaurants WHERE id=?",
+        [(uid, now, rid) for rid in dict.fromkeys(body.ids)])
+    conn.commit()
+    return Response(status_code=204)
+
+
+@app.delete("/me/likes/{rid}", status_code=204)
+def delete_my_like(rid: str, uid: int = Depends(current_user), conn=Depends(get_conn)) -> Response:
+    conn.execute("DELETE FROM user_likes WHERE user_id=? AND restaurant_id=?", (uid, rid))
+    conn.commit()
+    return Response(status_code=204)
 
 
 @app.post("/restaurants/{rid}/report", status_code=202)

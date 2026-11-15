@@ -212,6 +212,13 @@ CREATE TABLE IF NOT EXISTS sessions (
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     expires_at TEXT NOT NULL
 );
+-- 좋아요(계정 저장, docs/01 L-1). 개인화 전용 — 점수·순위·로테이션에 쓰지 않음
+CREATE TABLE IF NOT EXISTS user_likes (
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    restaurant_id TEXT NOT NULL REFERENCES restaurants(id),
+    created_at TEXT NOT NULL,
+    PRIMARY KEY (user_id, restaurant_id)
+);
 -- 로그인 진행 중 상태(10분): start 에서 state 생성 → callback 에서 1회용 code·user_id 기록 → /auth/token 에서 삭제
 CREATE TABLE IF NOT EXISTS auth_flows (
     state TEXT PRIMARY KEY,
