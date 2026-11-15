@@ -8,13 +8,16 @@ export interface RegionUnit {
   name: string;
   d: string; // SVG 경로
   bbox: [number, number, number, number]; // x, y, w, h
+  /** 본토와 떨어진 섬 구역: 시도 확대 화면에서 [이동 x, 이동 y, 배율] 로 옮겨 그림 */
+  inset?: [number, number, number];
 }
 
 export interface RegionData {
   scale_m: number;
   viewBox: [number, number, number, number];
   north: string;
-  sido: { name: string; bbox: [number, number, number, number] }[];
+  /** d = 시도 윤곽(전국 지도), view = 확대 화면 범위(떨어진 섬 제외) */
+  sido: { name: string; bbox: [number, number, number, number]; d: string; view: [number, number, number, number] }[];
   units: RegionUnit[];
 }
 
@@ -46,10 +49,11 @@ const SIDO_ORDER = [
 ];
 const rank = (name: string) => (SIDO_ORDER.indexOf(name) + 1 || SIDO_ORDER.length + 1);
 
-/** 시도별 (다녀온 단위 수, 전체 단위 수), 인구 많은 순 */
+/** 시도별 (다녀온 단위 수, 전체 단위 수, 저장한 가게 수), 인구 많은 순 */
 export function sidoProgress(visited: Map<string, MyReview[]>) {
   return [...REGIONS.sido].sort((a, b) => rank(a.name) - rank(b.name)).map((s) => {
     const units = REGIONS.units.filter((u) => u.sido === s.name);
-    return { name: s.name, done: units.filter((u) => visited.has(`${u.sido}|${u.name}`)).length, total: units.length };
+    const mine = units.filter((u) => visited.has(`${u.sido}|${u.name}`));
+    return { name: s.name, done: mine.length, total: units.length, stores: mine.reduce((a, u) => a + visited.get(`${u.sido}|${u.name}`)!.length, 0) };
   });
 }

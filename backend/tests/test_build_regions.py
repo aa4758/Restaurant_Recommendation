@@ -48,3 +48,23 @@ def test_build_outputs_paths_and_bbox():
     assert out["viewBox"] == [0, 0, 20, 10] and [s["name"] for s in out["sido"]] == ["서울특별시"]
     u = {u["name"]: u for u in out["units"]}
     assert u["중구"]["d"].startswith("M0 ") and u["중구"]["d"].endswith("z") and u["종로구"]["bbox"] == [10, 0, 10, 10]
+
+
+def test_enrich_sido_outline_labels_inset():
+    """지도 화면 보강(2026-11-12): 시도 윤곽·확대 범위, 떨어진 섬 구역은 범위에서 빼고 빈 모서리로 이동."""
+    from app.ingest.build_regions import _parse_path, enrich
+
+    def path(x, y, w, h):
+        return f"M{x} {y}l{w} 0l0 {h}l{-w} 0z"
+
+    units = [{"sido": "A", "name": f"u{i}", "d": path(i * 100, 0, 100, 100), "bbox": [i * 100, 0, 100, 100]} for i in range(3)]
+    units.append({"sido": "A", "name": "섬", "d": path(900, 0, 20, 20), "bbox": [900, 0, 20, 20]})  # 멀리 떨어짐
+    d = enrich({"sido": [{"name": "A", "bbox": [0, 0, 920, 100]}], "units": units, "viewBox": [0, 0, 920, 100], "north": ""})
+    s = d["sido"][0]
+    assert s["view"] == [0, 0, 300, 100]  # 섬 제외
+    outline = _parse_path(s["d"])
+    assert abs(outline.area - 30400) < 1500 and len(outline.geoms) == 2  # 3칸은 한 덩어리(내부 경계 없음) + 섬
+    island = d["units"][3]
+    dx, dy, k = island["inset"]
+    x, y = 900 * k + dx, 0 * k + dy
+    assert 0 <= x <= 300 and 0 <= y <= 100  # 확대 범위 안으로 옮겨짐

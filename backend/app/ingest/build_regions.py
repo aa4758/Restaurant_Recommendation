@@ -166,14 +166,90 @@ def build(units: dict[str, list], north) -> dict:
     every = union_all(list(merged.values()) + ([north] if north is not None else []))
     x0, y0, x1, y1 = every.bounds
     ox, oy = x0, y1
-    return {
+    return enrich({
         "scale_m": SCALE_M,
         "viewBox": [0, 0, round((x1 - x0) / SCALE_M), round((y1 - y0) / SCALE_M)],
         "north": to_path(north.simplify(SIMPLIFY_M * 4), ox, oy) if north is not None else "",
         "sido": [{"name": s, "bbox": bbox(union_all(gs), ox, oy)} for s, gs in sorted(sidos.items())],
         "units": [{"sido": k.split("|")[0], "name": k.split("|")[1], "d": to_path(g, ox, oy), "bbox": bbox(g, ox, oy)}
                   for k, g in sorted(merged.items())],
-    }
+    })
+
+
+def _parse_path(d: str):
+    """to_path 출력(M x y + l dx dy … z) → shapely (Multi)Polygon (지도 좌표)."""
+    from shapely.geometry import MultiPolygon, Polygon
+
+    polys = []
+    for part in re.findall(r"M[^Mz]*z", d):
+        nums = list(map(int, re.findall(r"-?\d+", part)))
+        x, y = nums[0], nums[1]
+        pts = [(x, y)]
+        for dx, dy in zip(nums[2::2], nums[3::2]):
+            x, y = x + dx, y + dy
+            pts.append((x, y))
+        if len(pts) >= 3:
+            polys.append(Polygon(pts).buffer(0))
+    return MultiPolygon([g for p in polys for g in getattr(p, "geoms", [p])])
+
+
+def _vb_path(geom) -> str:
+    """지도 좌표 폴리곤 → SVG 경로(to_path 와 같은 형식, y 뒤집지 않음)."""
+    out = []
+    for p in getattr(geom, "geoms", [geom]):
+        pts = [(round(px), round(py)) for px, py in p.exterior.coords]
+        dedup = [pts[0]] + [b for a, b in zip(pts, pts[1:]) if a != b]
+        if len(dedup) >= 4:
+            out.append(f"M{dedup[0][0]} {dedup[0][1]}" + "".join(f"l{b[0] - a[0]} {b[1] - a[1]}" for a, b in zip(dedup, dedup[1:-1])) + "z")
+    return "".join(out)
+
+
+def enrich(data: dict) -> dict:
+    """지도 화면용 보강(2026-11-12): 시도 윤곽(전국 지도는 시도 경계만),
+    시도 확대 화면 범위(view) — 본토와 떨어진 섬 구역(울릉군)은 본토 범위 오른쪽 위에 끼워 넣기(inset 이동량)."""
+    from shapely import affinity, union_all
+    from shapely.geometry import box
+
+    geoms = {(u["sido"], u["name"]): _parse_path(u["d"]) for u in data["units"]}
+    for u in data["units"]:
+        u.pop("inset", None)
+        u.pop("c", None)
+    for s in data["sido"]:
+        mine = [u for u in data["units"] if u["sido"] == s["name"]]
+        whole = union_all([geoms[(u["sido"], u["name"])] for u in mine]).buffer(3).buffer(-3)  # 단순화 틈 메우기
+        s["d"] = _vb_path(whole.simplify(4))
+        s.pop("c", None)
+        # 떨어진 섬 구역: 다른 구역들의 범위(10% 여유)와 안 겹치거나(울릉군),
+        # 범위가 나머지 전체 범위의 2배 넘게 넓게 흩어진 구역(옹진군) → 확대 화면 범위에서 빼고 inset
+        far, spread_out = [], []
+        for u in mine:
+            rest = [geoms[(v["sido"], v["name"])] for v in mine if v is not u]
+            if rest:
+                x0, y0, x1, y1 = union_all(rest).bounds
+                m = max(x1 - x0, y1 - y0) * 0.1
+                bb = u["bbox"][2] * u["bbox"][3]
+                spread = bb > 2 * (x1 - x0) * (y1 - y0) and geoms[(u["sido"], u["name"])].area < 0.15 * bb  # 섬이 듬성듬성
+                if not geoms[(u["sido"], u["name"])].intersects(box(x0 - m, y0 - m, x1 + m, y1 + m)):
+                    far.append(u)  # 떨어진 섬 → 빈 모서리에 옮겨 그림
+                elif spread:
+                    spread_out.append(u)  # 제자리에 두고 처음 화면 범위에서만 뺌(축소하면 보임)
+        land = union_all([geoms[(u["sido"], u["name"])] for u in mine if u not in far and u not in spread_out])
+        x0, y0, x1, y1 = land.bounds
+        s["view"] = [round(x0), round(y0), round(x1 - x0), round(y1 - y0)]
+        for u in far:  # 본토 범위 안 빈 모서리(바다)에 끼워 넣기 — inset = [이동 x, 이동 y, 배율]. 실제 모양으로 겹침 검사
+            g = geoms[(u["sido"], u["name"])]
+            gx0, gy0, gx1, gy1 = g.bounds
+            spots = []
+            for k in (1, 0.75, 0.5):
+                w, h = (gx1 - gx0) * k, (gy1 - gy0) * k
+                spots += [(k, cx, cy) for cx, cy in ((x1 - w, y0), (x1 - w, y1 - h), (x0, y1 - h), (x0, y0))]
+
+            def moved(k, cx, cy):
+                return affinity.translate(affinity.scale(g, k, k, origin=(0, 0)), cx - gx0 * k, cy - gy0 * k)
+
+            k, cx, cy = next((sp for sp in spots if not land.buffer(30).intersects(moved(*sp).buffer(30))), spots[-1])
+            u["inset"] = [round(cx - gx0 * k), round(cy - gy0 * k), k]
+    return data
 
 
 def north_korea():
@@ -193,7 +269,13 @@ def main() -> None:
     ap.add_argument("--year", type=int)
     ap.add_argument("--db", default=str(Path(__file__).resolve().parents[2] / "data" / "jjinmat.db"))
     ap.add_argument("--out", default=str(Path(__file__).resolve().parents[3] / "mobile" / "assets" / "regions.json"))
+    ap.add_argument("--enrich-only", action="store_true", help="기존 --out 파일에 지도 화면용 보강만 다시 계산(SGIS 불필요)")
     a = ap.parse_args()
+    if a.enrich_only:
+        p = Path(a.out)
+        p.write_text(json.dumps(enrich(json.loads(p.read_text(encoding="utf-8"))), ensure_ascii=False, separators=(",", ":")),
+                     encoding="utf-8")
+        return print(f"[regions] 보강 완료: {p}")
     token = sgis_token()
     year = a.year or latest_year(token, date.today().year)
     print(f"[regions] SGIS 경계 {year}년")
