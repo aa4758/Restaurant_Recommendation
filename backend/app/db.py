@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 import os
+import re
 import sqlite3
+import unicodedata
 from pathlib import Path
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent
@@ -212,6 +214,13 @@ CREATE TABLE IF NOT EXISTS sessions (
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     expires_at TEXT NOT NULL
 );
+-- 가게 이름 검색(2026-11-15): 이름 속 낱말 → 가게. '돈카츠 희옥' 을 '희옥' 으로도 찾음. fill_name_keys 가 채움
+CREATE TABLE IF NOT EXISTS restaurant_name_words (
+    word TEXT NOT NULL,
+    restaurant_id TEXT NOT NULL,
+    PRIMARY KEY (word, restaurant_id)
+) WITHOUT ROWID;
+CREATE INDEX IF NOT EXISTS idx_name_words_restaurant ON restaurant_name_words(restaurant_id);
 -- 좋아요(계정 저장, docs/01 L-1). 개인화 전용 — 점수·순위·로테이션에 쓰지 않음
 CREATE TABLE IF NOT EXISTS user_likes (
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -264,7 +273,8 @@ MIGRATIONS = {
     # price_src·moods_src = 'review' 면 리뷰 집계값(app/reviews.py), 집계 미달 시 비움
     "restaurants": (("alcohol_src", "TEXT"), ("sbiz_category", "TEXT"), ("subtype", "TEXT"), ("subtype_src", "TEXT"),
                     ("price_src", "TEXT"), ("moods_src", "TEXT"),
-                    ("exclude_reason", "TEXT")),  # app/exclude.py: cafeteria | corporate → 점수·추천 제외
+                    ("exclude_reason", "TEXT"),  # app/exclude.py: cafeteria | corporate → 점수·추천 제외
+                    ("name_key", "TEXT")),  # 가게 이름 검색 키(name_key(), 2026-11-15)
 }
 
 # 컬럼 마이그레이션 후에 만들어야 하는 인덱스(구 DB 에는 SCHEMA 실행 시점에 컬럼이 없음)
@@ -278,6 +288,11 @@ POST_MIGRATION_INDEXES = (
     # 같은 지역·같은 음식 순위(service.peer_*, 2026-11-12)
     "CREATE INDEX IF NOT EXISTS idx_restaurants_peer_sub ON restaurants(sigungu_code, subtype)",
     "CREATE INDEX IF NOT EXISTS idx_restaurants_peer_genre ON restaurants(sigungu_code, genre)",
+    # 가게 이름 검색(nlparse.name_hits, 2026-11-15): 공백·대소문자 무시 키의 식 색인 → 앞부분 일치를 범위 조회로
+    "CREATE INDEX IF NOT EXISTS idx_restaurants_name_key ON restaurants(name_key)",
+    # 이름이 바뀌면 검색 키를 비움 → 다음 연결에서 fill_name_keys 가 다시 채움
+    "CREATE TRIGGER IF NOT EXISTS trg_restaurants_name_key AFTER UPDATE OF name ON restaurants"
+    " BEGIN UPDATE restaurants SET name_key = NULL WHERE id = NEW.id; END",
 )
 
 
@@ -291,6 +306,29 @@ def _migrate(conn: sqlite3.Connection) -> set[str]:
                 conn.execute(f"ALTER TABLE {table} ADD COLUMN {name} {typ}")
                 changed.add(table)
     return changed
+
+
+def name_key(name: str | None) -> str:
+    """가게 이름 검색 키: NFKC·소문자, 한글·영문·숫자만(공백·괄호·기호 제거). '오젠(OZEN)' → '오젠ozen'."""
+    return re.sub(r"[^가-힣a-z0-9]", "", unicodedata.normalize("NFKC", name or "").lower())
+
+
+def name_words(name: str | None) -> set[str]:
+    """이름 속 낱말(2글자 이상, 이름 전체 키와 같은 것 제외). '돈카츠 희옥' → {돈카츠, 희옥}."""
+    whole = name_key(name)
+    return {w for w in re.findall(r"[가-힣a-z0-9]{2,}", unicodedata.normalize("NFKC", name or "").lower()) if w != whole}
+
+
+def fill_name_keys(conn: sqlite3.Connection) -> int:
+    """name_key 가 빈 가게(새 적재·이름 변경)의 검색 키·낱말 채움. 반환: 갱신 수. 첫 실행은 전체(약 65만, 수십 초)."""
+    rows = conn.execute("SELECT id, name FROM restaurants WHERE name_key IS NULL").fetchall()
+    if not rows:
+        return 0
+    conn.executemany("DELETE FROM restaurant_name_words WHERE restaurant_id=?", [(r[0],) for r in rows])
+    conn.executemany("INSERT OR IGNORE INTO restaurant_name_words(word, restaurant_id) VALUES(?,?)",
+                     [(w, r[0]) for r in rows for w in name_words(r[1])])
+    conn.executemany("UPDATE restaurants SET name_key=? WHERE id=?", [(name_key(r[1]), r[0]) for r in rows])
+    return len(rows)
 
 
 def backfill_ad_disclosed(conn: sqlite3.Connection) -> int:
@@ -388,6 +426,7 @@ def init_schema(conn: sqlite3.Connection) -> None:
     for ddl in POST_MIGRATION_INDEXES:
         conn.execute(ddl)
     backfill_ad_disclosed(conn)  # 부분 인덱스로 미계산 행만 조회
+    fill_name_keys(conn)  # 새로 적재·이름 바뀐 가게만(name_key IS NULL, 색인 조회)
     _dedupe_signals(conn)
     conn.commit()
     done = conn.execute("PRAGMA user_version").fetchone()[0] >= SCHEMA_VERSION

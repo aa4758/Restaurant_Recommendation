@@ -17,6 +17,8 @@ class RecommendRequest(BaseModel):
     limit: int = Field(default=3, ge=1, le=20)  # 한 번에 받을 개수(2026-11-02: 목록 이어 보기, 최대 20)
     offset: int = Field(default=0, ge=0, le=5000)  # 이어 받기 시작 위치
     exclude_ids: list[Annotated[str, Field(max_length=64)]] = Field(default=[], max_length=200)  # 싫어요 숨김
+    name: Optional[str] = Field(default=None, max_length=40)  # 가게 이름 검색어(2026-11-15) — 이름 맞는 가게를 가까운 순 먼저
+    name_only: bool = False  # True 면 이름 맞는 가게만(맞는 가게가 없으면 평소 추천)
 
 
 class Item(BaseModel):
@@ -42,6 +44,7 @@ class Item(BaseModel):
     subtype: Optional[str] = None  # 세부 분류(미분류 null)
     food: Optional[str] = None  # 같은 지역 비교 기준 음식(세부 분류, 없으면 장르) (2026-11-12)
     food_percentile: Optional[int] = None  # 이 지역 {food} 중 상위 N%
+    name_match: bool = False  # 가게 이름 검색으로 들어온 가게(2026-11-15)
 
 
 class ParseIn(BaseModel):
@@ -64,6 +67,8 @@ class ParsedFilters(BaseModel):
     alcohol: Literal["any", "yes", "no"] = "any"
     radius_m: Optional[int] = None
     place: Optional[Place] = None  # 문장 속 지명(2026-11-12) — 있으면 앱이 이 좌표로 추천
+    name: Optional[str] = None  # 가게 이름으로도 읽힌 낱말(2026-11-15)
+    name_only: bool = False  # 음식·지명으로는 안 읽힘 → 이름 맞는 가게만
 
 
 class ParseOut(BaseModel):

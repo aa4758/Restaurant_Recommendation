@@ -109,14 +109,48 @@ def post_filters_parse(body: ParseIn, conn=Depends(get_conn)) -> dict:
 
 @app.post("/recommend", response_model=RecommendResponse)
 def post_recommend(req: RecommendRequest, conn=Depends(get_conn), day: date = Depends(today)) -> dict:
-    q = Query(**req.model_dump(exclude={"exclude_ids"}))
+    q = Query(**req.model_dump(exclude={"exclude_ids", "name", "name_only"}))
+    excl = set(req.exclude_ids)
+    named = _name_matches(conn, req, q, excl)  # 이름 맞는 가게(가까운 순) → 맨 앞, 이어서 평소 추천
+    head = named[req.offset: req.offset + req.limit]
+    if named and req.name_only:
+        return {"items": head, "relaxed": [], "total": len(named)}
     # 완화 시 반경이 DISTANCE_RELAX_FACTOR 배까지 늘어나므로 그만큼 조회
     cands = candidates_near(conn, q.lat, q.lng, q.radius_m * DISTANCE_RELAX_FACTOR)
-    if req.exclude_ids:  # 싫어요 숨김: 후보에서 먼저 빼고 기존 선정·완화·로테이션 그대로
-        excl = set(req.exclude_ids)
-        cands = [c for c in cands if c.id not in excl]
+    skip = excl | {d["id"] for d in named}
+    if skip:  # 싫어요 숨김·이름 결과: 후보에서 먼저 빼고 기존 선정·완화·로테이션 그대로
+        cands = [c for c in cands if c.id not in skip]
+    q.offset = max(0, req.offset - len(named))
     items, relaxed, total = recommend(cands, q, day=day, with_total=True)
-    return {"items": [_with_peer(conn, _item_dict(s)) for s in items], "relaxed": relaxed, "total": total}
+    rest = [_with_peer(conn, _item_dict(s)) for s in items[: req.limit - len(head)]]
+    return {"items": head + rest, "relaxed": relaxed, "total": len(named) + total}
+
+
+NAME_NEAREST = 10  # 이름 검색 결과 최대 개수(가까운 순). ponytail: 체인점은 가까운 10곳만 — 더 필요하면 이어 받기로
+NAME_NEAR_M = 20000  # 이름 + 음식·지명으로 함께 읽힐 때 이름 결과 거리 한도
+
+
+def _name_matches(conn, req: RecommendRequest, q: Query, excl: set) -> list[dict]:
+    """가게 이름 검색(2026-11-15, docs/01 '가게 이름 검색'): 전국에서 이름 맞는 가게를 기준 위치에서 가까운 순으로. 조건 필터는 안 걸고 표시만."""
+    from app.nlparse import _db_file, name_hits
+    from app.scoring.recommend import haversine_m
+
+    if not req.name:
+        return []
+    # 일치 단계(전체 → 앞부분 → 낱말) 다음 가까운 순
+    hits = sorted((tier, haversine_m(q.lat, q.lng, lat, lng), rid)
+                  for rid, lat, lng, tier in name_hits(_db_file(conn), req.name) if rid not in excl)
+    if not req.name_only:  # 음식·지명으로도 읽힘 → 먼 동명 가게(부산의 '국밥')는 빼고 가까운 것만. 이름으로만 읽히면 전국
+        hits = [h for h in hits if h[1] <= NAME_NEAR_M]
+    out = []
+    for _, dist, rid in hits[:NAME_NEAREST]:
+        found = get_scored(conn, rid)
+        if found is None:
+            continue
+        s = RecScored(found[0], dist, found[0].star)
+        s.reasons = make_reasons(s, q)
+        out.append({**_with_peer(conn, _item_dict(s)), "name_match": True})
+    return out
 
 
 def _with_peer(conn, d: dict) -> dict:
