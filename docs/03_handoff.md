@@ -1,7 +1,7 @@
-# 인수인계 — 로컬 Claude Code (2026-11-07 기준)
+# 인수인계 — 로컬 Claude Code (2026-11-15 기준)
 
 로컬 경로 `C:\Restaurant_Recommendation` · 원격 `aa4758/Restaurant_Recommendation`
-작업 브랜치 `master`(PR #29 까지 병합, 열린 PR 없음) · 백엔드 테스트 358개 통과
+작업 브랜치 `master`(PR #36 까지 병합, 열린 PR 없음) · 백엔드 테스트 371개 통과
 
 ---
 
@@ -19,7 +19,7 @@ git checkout master; git pull
 cd C:\Restaurant_Recommendation\backend
 python -m venv .venv; .venv\Scripts\activate
 pip install -r requirements-dev.txt          # pytest 포함 (pyproj 등은 requirements.txt)
-python -m pytest -q                          # 358개 통과가 정상
+python -m pytest -q                          # 371개 통과가 정상
 
 cd ..\mobile
 npm install                                  # expo install 이 403 이면 npm install 로
@@ -43,8 +43,8 @@ claude
 |---|---|---|
 | 0 브리프 · 1 기획 결정 | ✅ | `docs/00_brief.md`, `docs/01_planning_decision.md` |
 | 2 백엔드·점수 엔진 / 디자인 | ✅ | `backend/`, `docs/design/screens.md` |
-| 3 모바일(5화면) · 3-B 릴스형 추천 | ✅ (**실기기 미확인**) | `mobile/`, `docs/qa/report_reels.md`, 디자인 시스템 `docs/design/` (#25~27) |
-| 8 로그인·리뷰 신뢰 | ✅ 코드 (실기기 로그인은 배포 후) | 소셜 로그인 #19, 리뷰 개편 #20, 리뷰 지도 #21·#28 |
+| 3 모바일(5화면) · 3-B 릴스형 추천 | ✅ (실기기 일부 확인 2026-11-12 → 피드백 #33~#36 반영, 전체 확인 남음) | `mobile/`, `docs/qa/report_reels.md`, 디자인 시스템 `docs/design/` (#25~27) |
+| 8 로그인·리뷰 신뢰 | ✅ 코드 (실기기 로그인은 배포 후) | 소셜 로그인 #19, 리뷰 개편 #20, 리뷰 지도 #21·#28·#36 |
 | 4 QA · 5 운영 준비 | ✅ | `docs/qa/`, `ops/runbook.md`, `.github/workflows/`, `mobile/eas.json` |
 | 6 배포 | 👤 미착수 | 계정·호스팅 필요(`docs/02_roadmap.md` 하단) |
 | 7 실데이터 | 🔄 | 아래 2-3 |
@@ -70,14 +70,22 @@ claude
 | #24 | Expo SDK 57 → 58 |
 | #25~#27 | 디자인 시스템 문서 + P0~P2 수정(대비 등) |
 | #29 | 상세 응답에 지정 태그 |
+| #30 | 인수인계 11-07 + 테스트에서 실제 카카오 키 차단(`conftest.py`) |
+| #31 | 전국 업무추진비 적재 매칭 보강(동명 상한 30·기관 소재 시군구) |
+| #32 | 안심식당 전국 오픈API 수집·적재(`--fetch-mafra`, `MAFRA_API_KEY`) |
+| #33 | 음주 미확인(`alcohol: bool \| null`, 확인된 값만 필터) · 릴스 카드 전체 탭 → 상세 · 리뷰 작성 개편 |
+| #34 | 같은 음식 순위·목록(`GET /restaurants/{id}/peers`) · 조건 일치 우선 정렬 · 세부 분류 이름 정리 · 업무추진비 배지 릴스 줄임말 · 리뷰 키워드 5묶음 · 검색 탭 개편 |
+| #35 | 지명 검색: 문장 속 동·시군구(DB 주소 색인)·역·랜드마크(카카오) → `filters.place` 중심 추천, 같은 이름 선택지 |
+| #36 | 리뷰 지도: 시도 윤곽·본토 확대·+/− 확대·이동·섬 inset·저장 가게 수 목록 |
 
 ### 2-3. 로컬 DB 상태 (`backend\data\jjinmat.db`, git 제외)
 - 기존 v1 DB 는 `data\jjinmat_v1_backup.db` 로 백업(가상 샘플 48곳 포함 — 실서비스에 쓰지 말 것).
-- **전국 일반음식점 647,634곳** 적재(인허가 기반 `L{관리번호}`), 점수 계산 완료, 평균 별점 ≈ 2.47.
+- **전국 일반음식점 647,634곳** 적재(인허가 기반 `L{관리번호}`), 점수 계산 완료, 평균 별점 ≈ 2.49(안심식당 적재 후 2.491).
 - 지역 256곳(이름 키 `N:<시도> <시군구>` — 상가정보 적재 시 공식 코드로 자동 치환). 지역 없음 0.
 - 휴게음식점 파일 적재 완료(신규 생성 없음, 매칭 가게 판별용) — 영업 중 일반 가게를 덮어쓰지 않음 확인.
 - 미매칭 약 2.1만 곳(주로 좌표 없음) → `data\out\unmatched_license.csv`.
 - 별점 근거: 업력(거의 전부, evidence=mid) + 2026-10-26 지정목록 적재 — 모범음식점 3,941(서울 25개 구 2,860 + 경기 1,081, 경기는 상호+시군 유일 매칭) · 원산지표시 우수 193 · 백년가게 489 · 착한가격업소 6,939(메뉴 13,878) · 경기도 으뜸맛집 78(125행 중). 적재 전 백업 `data\jjinmat_before_signals.db`. 검수 `docs/qa/report_signals_load.md`.
+- 2026-11-07 추가: 안심식당 30,875곳(백업 `data\jjinmat_before_safe.db`) · 업무추진비 전국 111,187건 / 16,232곳(백업 `data\jjinmat_before_gov_nation.db`).
 
 ### 2-4. 원본 데이터 파일 위치 (git 제외)
 | 폴더 | 내용 |
@@ -106,7 +114,7 @@ claude
    - ✅ 2026-11-07 전국 산출 적재: `python -m app.ingest.load_gov_expense ..\expense_collector\data\output\gov_expense_for_jjinmat.csv`
      (수집기 열 그대로 읽음, 목적 원문 버림). 65,362건 / 12,004곳 매칭(동명 상한 30·기관 소재 시군구), DB 전체 111,187건 / 16,232곳.
      미매칭 61,895건 → 다음 후보: 수집기에서 주소 열 추출, 상가정보 상호로 보조 매칭. 검수 `docs/qa/report_signals_load.md`.
-5. **앱 실기기 확인** — 서버 + Expo Go 로 실데이터 추천·릴스 덱·리뷰 시트 동작 확인(4-4).
+5. **앱 실기기 확인** — 2026-11-12 일부 확인, 피드백은 #33~#36 에 반영. 남은 것: 지명 검색(#35)·리뷰 지도 확대(#36)·같은 음식 목록(#34) 화면 확인(4-4).
    소셜 로그인 키(카카오·구글·`AUTH_SECRET`)는 Windows 사용자 환경변수에 설정 완료. 실기기 로그인용 `PUBLIC_BASE_URL`·리디렉트 URI 등록은
    배포 후로 미룸(2026-11-07 결정, 구글은 사설 IP 리디렉트 불가) → 8번 배포의 `ops/deploy_railway.md` 2절·4-1절에서 처리. 로컬 로그인 확인은 PC 브라우저(localhost)로.
 6. **미매칭 2.1만 곳** — 주소→좌표 지오코딩(예: 브이월드 API, 키 필요).
@@ -153,7 +161,7 @@ name,address,lat,lng,kind,base_date,source
 ```powershell
 # 서버
 cd C:\Restaurant_Recommendation\backend
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 # 앱 (다른 창) — EXPO_PUBLIC_API_URL 에 PC 의 LAN IP
 cd C:\Restaurant_Recommendation\mobile
 $env:EXPO_PUBLIC_API_URL = "http://<PC_LAN_IP>:8000"
