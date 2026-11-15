@@ -226,6 +226,27 @@ def _model() -> Model | None:
     return Model.load()
 
 
+@cache
+def _food_words() -> frozenset[str]:
+    return frozenset([w for w, *_ in _vocab()] + list(GENRE_SYN) + [t for t, _ in PATTERNS])
+
+
+def name_hits(db_file: str, term: str) -> list[tuple[str, float, float]]:
+    """가게 이름 검색(2026-11-15): 영업 중·좌표 있는 가게의 (id, lat, lng). 공백·대소문자 무시(식 색인 idx_restaurants_name_key).
+    음식 낱말 그 자체(국밥)는 이름 전체 일치만, 아니면 이름 앞부분 일치(교촌치킨 → 교촌치킨 시청점)."""
+    term = _norm(term).replace(" ", "")
+    if not db_file or len(term) < 2:
+        return []
+    key = "REPLACE(LOWER(name),' ','')"
+    where, args = (f"{key} = ?", (term,)) if term in _food_words() else (f"{key} >= ? AND {key} < ?", (term, term + "\U0010ffff"))
+    conn = sqlite3.connect(db_file)
+    try:
+        return [tuple(r) for r in conn.execute(
+            f"SELECT id, lat, lng FROM restaurants WHERE {where} AND status='open' AND lat IS NOT NULL", args)]
+    finally:
+        conn.close()
+
+
 def _strip(tok: str) -> str:
     for p in PARTICLES:
         if tok.endswith(p) and len(tok) - len(p) >= 2:
@@ -257,11 +278,15 @@ def parse(text: str, conn: sqlite3.Connection | None = None, use_model: bool = T
         t = re.sub(pattern, " ", t)
 
     raw = t
+    # 가게 이름(2026-11-15): 낱말 하나뿐이고 그 이름의 가게가 있으면 이름으로 — 그 낱말의 조각은 지명으로 보지 않음(명동교자 → 명동 X)
+    db = _db_file(conn)
+    toks = [x for x in map(_strip, re.findall(r"[가-힣a-z0-9]{2,}", t)) if x not in STOP]
+    name = toks[0] if len(toks) == 1 and name_hits(db, toks[0]) else None
     places: list[dict] = []  # 지역 + 음식 검색(2026-11-12): 지명을 먼저 떼어 다른 규칙에 안 걸리게
     if conn is not None:
         idx = _places(_db_file(conn))
         for m in PLACE_RE.finditer(t):
-            if m.group(0) in idx:
+            if m.group(0) in idx and (name is None or m.group(0) == name):
                 places = _narrow(idx[m.group(0)], raw)
                 t = t[: m.start()] + " " + t[m.end():]
                 break
@@ -315,12 +340,18 @@ def parse(text: str, conn: sqlite3.Connection | None = None, use_model: bool = T
                 add("subtype", sub)
                 continue
         unknown.append(tok)
+    # 이름의 조각(을지면옥 → 음식 '면옥' 떼고 남은 '을지')은 지명으로 찾지 않음. 이름과 음식·지명이 함께 읽히면 둘 다(name_only=False)
+    if name:
+        unknown = [u for u in unknown if not (u in name and u != name)]
     if not places:  # 주소에 없는 역·랜드마크 → 카카오(남은 낱말 앞 2개만)
         for tok in unknown[:2]:
             if found := _kakao_places(tok):
                 places = _narrow(list(found), raw)
                 unknown.remove(tok)
                 break
+    if name is None:  # 여러 낱말: 지명·음식으로 못 읽은 낱말 중 처음 맞는 가게 이름(홍대 미미네 → 미미네)
+        name = next((u for u in unknown if name_hits(db, u)), None)
+    unknown = [u for u in unknown if u != name]
     if conn is not None and unknown:
         _record_unknown(conn, unknown)
     out = {k: v for k, v in f.items() if v and v != "any"}
@@ -333,7 +364,10 @@ def parse(text: str, conn: sqlite3.Connection | None = None, use_model: bool = T
         out["place"] = places[0]
     out["price"] = [b for b in PRICE_BANDS if b in out.get("price", [])] or out.pop("price", None) or []
     out["mood"] = [m for m in MOODS if m in out.get("mood", [])]
-    res = {"filters": {k: v for k, v in out.items() if v or k == "alcohol"}, "unknown": list(dict.fromkeys(unknown))}
+    if name:
+        out["name"] = name
+        out["name_only"] = not (places or any(out.get(k) for k in ("genre", "subtype", "mood", "price")))
+    res = {"filters": {k: v for k, v in out.items() if v or k in ("alcohol", "name_only")}, "unknown": list(dict.fromkeys(unknown))}
     if len(places) > 1:  # 같은 이름이 여러 곳 → 앱이 먼저 고르게(2026-11-12)
         res["place_options"] = places[:8]
     return res

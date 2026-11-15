@@ -11,6 +11,8 @@ export interface Conditions {
   alcohol?: AlcoholFilter;
   radius_m?: number | null;
   place?: Place | null;
+  name?: string | null;
+  name_only?: boolean;
 }
 
 const some = (v?: string[]) => (v && v.length ? v : undefined);
@@ -28,6 +30,7 @@ export function goRecommend(router: ReturnType<typeof useRouter>, loc: LocationS
     subtype: some(c.subtype),
     mood: some(c.mood),
     alcohol: c.alcohol ?? 'any',
+    ...(c.name ? { name: c.name, name_only: !!c.name_only } : {}),
   };
-  router.push({ pathname: '/recommendations', params: { q: JSON.stringify(req), fallback: fallback ? '1' : '', place: p ? (p.kind === 'landmark' ? p.name : p.label) : '' } });
+  router.push({ pathname: '/recommendations', params: { q: JSON.stringify(req), fallback: fallback ? '1' : '', name: c.name ?? '', place: p ? (p.kind === 'landmark' ? p.name : p.label) : '' } });
 }

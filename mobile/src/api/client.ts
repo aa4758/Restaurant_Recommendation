@@ -57,6 +57,9 @@ export interface ParseResponse {
     radius_m?: number | null;
     /** 문장 속 지명 — 있으면 내 위치 대신 이 좌표로 추천(2026-11-12) */
     place?: Place | null;
+    /** 가게 이름으로도 읽힌 낱말(2026-11-15) · name_only = 음식·지명으로는 안 읽힘 */
+    name?: string | null;
+    name_only?: boolean;
   };
   /** 못 알아들은 낱말(적용 안 됨) */
   unknown: string[];
@@ -78,6 +81,9 @@ export interface RecommendRequest {
   offset?: number;
   /** 싫어요로 숨긴 가게 id (최대 200) */
   exclude_ids?: string[];
+  /** 가게 이름 검색어 — 이름 맞는 가게를 가까운 순 맨 앞에(2026-11-15) */
+  name?: string;
+  name_only?: boolean;
 }
 
 /** GET /restaurants/{id}/peers — 같은 시군구·같은 음식, 별점 내림차순 */
@@ -116,6 +122,8 @@ export interface RestaurantItem {
   food?: string | null;
   /** 이 지역 {food} 중 상위 N% */
   food_percentile?: number | null;
+  /** 가게 이름 검색으로 들어온 가게(2026-11-15) */
+  name_match?: boolean;
   review_count: number;
   gov_visits: number;
   gov_source?: string | null;

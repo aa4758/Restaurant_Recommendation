@@ -83,6 +83,7 @@ ReelCard  (배경 colors.background, 상하 safe area 준수)
 │  ├─ FoodRank            "이 지역 {음식} 상위 N%" (food_percentile, 2026-11-12. 좋음/평범 배지 삭제)
 │  └─ PeersLink           "주변 다른 {음식} 음식점 보러가기 ›" → 별점순 목록(PeersList, GET /restaurants/{id}/peers)
 ├─ (위 묶음은 상단 정렬) / (아래, 기준선 = 덱 높이 50%) RestaurantName   이름 줄 윗면 = ActionRail 하트 윗면(같은 기준선, 2026-11-12). 지도 버튼은 가게 정보 바로 아래         굵게 2줄 말줄임
+├─ NameMatchTag           (name_match 일 때만, 이름 바로 위) 돋보기 + "'{검색어}' 이름으로 찾은 가게" — surfaceAlt 둥근 태그, captionStrong (2026-11-15, docs/01 N-5)
 ├─ MetaLine               "{장르} · {가격대} · {거리}"  (예: "한식 · 1~2만 · 320m")
 ├─ ReasonList             ReasonLine x3 (각 1~2줄, 불릿 없이 줄 간격 넉넉히)
 └─ BadgeRow               EvidenceBadge · GovBudgetBadge · RelaxedBadge (줄바꿈 허용)

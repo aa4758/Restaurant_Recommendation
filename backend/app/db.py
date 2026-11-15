@@ -278,6 +278,8 @@ POST_MIGRATION_INDEXES = (
     # 같은 지역·같은 음식 순위(service.peer_*, 2026-11-12)
     "CREATE INDEX IF NOT EXISTS idx_restaurants_peer_sub ON restaurants(sigungu_code, subtype)",
     "CREATE INDEX IF NOT EXISTS idx_restaurants_peer_genre ON restaurants(sigungu_code, genre)",
+    # 가게 이름 검색(nlparse.name_hits, 2026-11-15): 공백·대소문자 무시 키의 식 색인 → 앞부분 일치를 범위 조회로
+    "CREATE INDEX IF NOT EXISTS idx_restaurants_name_key ON restaurants(REPLACE(LOWER(name),' ',''))",
 )
 
 

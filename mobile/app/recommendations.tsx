@@ -92,7 +92,18 @@ function EvidenceBadge({ item }: { item: RestaurantItem }) {
 /** 이름 줄·좋아요 하트를 같은 높이에 두는 기준선(덱 높이 대비, 2026-11-12). 위 = 히어로, 아래 = 가게 정보 */
 const anchorOf = (h: number) => Math.round(h * 0.5);
 
-function ReelCard({ item, height, bottomInset, onPress, onPeers }: { item: RestaurantItem; height: number; bottomInset: number; onPress: () => void; onPeers: () => void }) {
+function NameMatchTag({ query }: { query?: string }) {
+  const t = useTheme();
+  return (
+    <View style={{ alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: t.colors.surfaceAlt,
+      borderRadius: t.radius.pill, paddingVertical: 2, paddingHorizontal: t.spacing.sm }}>
+      <Ionicons name="search" size={13} color={t.colors.textPrimary} />
+      <Text style={[t.typography.captionStrong, { color: t.colors.textPrimary }]}>{query ? `'${query}' 이름으로 찾은 가게` : '이름으로 찾은 가게'}</Text>
+    </View>
+  );
+}
+
+function ReelCard({ item, height, bottomInset, onPress, onPeers, query }: { item: RestaurantItem; height: number; bottomInset: number; onPress: () => void; onPeers: () => void; query?: string }) {
   const t = useTheme();
   const food = item.food ?? item.subtype ?? item.genre;
   const pct = item.food_percentile ?? item.percentile;
@@ -119,10 +130,12 @@ function ReelCard({ item, height, bottomInset, onPress, onPeers }: { item: Resta
       <Pressable
         onPress={onPress}
         accessibilityRole="button"
-        accessibilityLabel={`${item.name}, 별점 ${item.star.toFixed(1)}, 이 지역 ${food} 상위 ${pct}퍼센트. 상세 보기`}
+        accessibilityLabel={`${item.name_match ? `이름으로 찾은 가게, ` : ''}${item.name}, 별점 ${item.star.toFixed(1)}, 이 지역 ${food} 상위 ${pct}퍼센트. 상세 보기`}
         style={{ flexShrink: 1 }}
       >
         <ScrollView contentContainerStyle={{ gap: t.spacing.md }}>
+          {/* 이름 검색으로 들어온 가게는 별점순 추천과 구분(2026-11-15) */}
+          {item.name_match ? <NameMatchTag query={query} /> : null}
           <Text numberOfLines={2} style={[t.typography.display, { color: t.colors.textPrimary }]}>{item.name}</Text>
           <Text style={[t.typography.body, { color: t.colors.textSecondary }]}>{meta}</Text>
           <ReasonList reasons={item.reasons.slice(0, 3)} />
@@ -252,7 +265,7 @@ export default function RecommendationDeck() {
   const t = useTheme();
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { q, fallback, place } = useLocalSearchParams<{ q: string; fallback?: string; place?: string }>();
+  const { q, fallback, place, name } = useLocalSearchParams<{ q: string; fallback?: string; place?: string; name?: string }>();
   const [items, setItems] = useState<RestaurantItem[] | null>(null);
   const [total, setTotal] = useState(0);
   const fetched = useRef(0); // 서버에서 받은 개수(싫어요로 화면에서 뺀 것 포함) = 다음 offset
@@ -487,7 +500,7 @@ export default function RecommendationDeck() {
             ) : (
               <View>
                 <ReelCard item={d} height={deckH} bottomInset={insets.bottom} onPress={() => router.push(`/restaurant/${d.id}`)}
-                  onPeers={() => router.push(`/peers/${d.id}`)} />
+                  onPeers={() => router.push(`/peers/${d.id}`)} query={name || undefined} />
               </View>
             )
           }

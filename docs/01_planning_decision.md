@@ -173,6 +173,7 @@ v1(외부 평점 base 기반)은 폐기. 업무추진비 배지 문구·크롤�
 - `GET /meta/filters` → `{"price":["~1만","1~2만","2~4만","4만+"],"genre":[...],"subtype":{"<장르>":[str]},"mood":[...],"alcohol":["any","yes"]}` (2026-10-29: `subtype` 추가. 2026-11-12: 비주류 확인 가게 0곳이라 `no` 숨김 — `/recommend` 는 계속 받음, `/filters/parse` 는 "술 안 마셔" 를 무시)
 - `POST /filters/parse` body `{"text":str (최대 200자)}` → `{"filters":{"price":[str],"genre":[str],"subtype":[str],"mood":[str],"alcohol":"any|yes|no","radius_m":int?,"place":Place?},"unknown":[str],"place_options":[Place]}`, `Place = {"name","kind":"dong|sigungu|landmark","label","lat","lng"}` (2026-11-12: 문장 속 지명 — ① 지번 주소의 동·N가·읍·면(가게 20곳 이상)과 시군구, 가게 좌표 평균 ② 없으면 남은 낱말 앞 2개를 카카오 로컬 키워드 검색(공식 API, 검색어만 전송)해 역·관광명소·학교·문화시설·공공기관(또는 분류 '여행 > 관광'·'교통', 숙박·휴게소 제외)이면서 이름이나 주소에 검색어가 들어간 곳만 인정(홍대 → 홍대입구역, '데이트' → CGV 아님). 같은 이름이 여러 곳이면 `place` 대신 `place_options`(가게 많은 순, 최대 8, 카카오는 도시별 1개) → 앱이 먼저 고르게 함. 문장에 시도 이름(서울·부산…)이 있으면 그 시도로 좁힘. 반경 미지정 시 동·랜드마크 1km·시군구 3km, 앱은 내 위치 대신 이 좌표로 `/recommend`. 2026-10-29 신규. 규칙 기반, 결과는 `/recommend` 에 그대로 넣을 수 있음)
 - `POST /recommend` body `{"lat":float,"lng":float,"radius_m":int=1000,"price":[str]?,"genre":[str]?,"subtype":[str]?,"mood":[str]?,"alcohol":"any|yes|no","limit":int=3 (최대 20, 2026-11-02),"offset":int=0 (2026-11-02),"exclude_ids":[str]? (최대 200, 싫어요 숨김)}` (2026-10-29: `subtype` 추가)
+- 가게 이름 검색(2026-11-15, 아래 '가게 이름 검색'): `/filters/parse` 의 `filters` 에 `"name":str?,"name_only":bool` · `/recommend` body 에 `"name":str?(최대 40),"name_only":bool=false` · 항목에 `"name_match":bool`. 이름 맞는 가게(전국, 기준 위치에서 가까운 순 최대 10)를 맨 앞에, 이어서 평소 추천(이름 결과 제외). `name_only` 이고 맞는 가게가 있으면 이름 결과만. `total` 은 둘을 합친 수, `offset` 은 합친 목록 기준
   → `{"items":[{"id","name","genre","subtype":str?,"price_band","moods":[str],"alcohol":bool|null (2026-11-12: null = 미확인. `alcohol=no` 는 false 만, `yes` 는 true 만 — 미확인은 둘 다 제외),"lat","lng","distance_m","star":float,"percentile":int,"review_count":int,"gov_visits":int,"gov_source":str?,"reasons":[str],"updated_at":str,"address":str?,"evidence":"low|mid|high"?,"relaxed":[str] (이 가게가 원래 조건 중 충족 못한 항목)}],"relaxed":[str],"total":int (2026-11-02, 표시 별점 내림차순 전체 수)}`
 - `GET /restaurants/{id}` → 위 item + `"score_breakdown":{"prior_star","user_mean","n","k","gov_bonus","ad_penalty","components":{"tenure","gov","hygiene","designation","reputation","sanction","ad"},"evidence":"low|mid|high"}` (v2: components·evidence 추가, 기존 키 유지. v2.1: components 의 `partner` → `reputation`(외부 평판)으로 변경). item `moods` 에는 착한가격업소면 `가성비` 가 조회 시 합성됨. `"designations":[str]` (2026-11-05, 상세만): 지정목록 표시명 — 모범음식점·안심식당·원산지표시 우수·백년가게 순, 점수와 별개의 표시용(가이드 선정은 reasons)
 - `POST /restaurants/{id}/reviews` **헤더 `Authorization: Bearer <token>` 필수(2026-11-02, 없거나 만료면 401)** body `{"stars":0.5~5 (0.5단위),"text":str,"tags":[str],"device_id":str? (무시, 하위 호환)}` → 201 `{"id","final_star"}`
@@ -253,6 +254,15 @@ v1(외부 평점 base 기반)은 폐기. 업무추진비 배지 문구·크롤�
 | L-3 | 단순화 | 좋아요가 있는 지역만, 개수 표시(많은 순). 하위 지역이 하나뿐이면 그 단계 건너뜀. 맨 위 "전체 N곳"(최신순) |
 | L-4 | 플레이리스트(사용자 그룹) | **보류.** 필요해지면 상세 화면 "모음에 추가"로 — 좋아요 1탭은 유지 |
 | L-5 | 내 리뷰 목록 | 지도와 함께 빠짐. `GET /me/reviews` 는 유지(리뷰 작성 화면이 사용) |
+
+### 가게 이름 검색 (2026-11-15, 사용자 결정)
+| # | 안건 | 결정 |
+|---|---|---|
+| N-1 | 판단 | 검색어(지명 뗀 뒤 낱말 하나)로 시작하는 이름의 영업 중 가게가 있으면 **가게 이름**으로도 읽음. 여러 낱말이면 음식·지명으로 못 읽은 낱말 중 처음 맞는 것(홍대 미미네 → 미미네). 공백·대소문자 무시 |
+| N-2 | 음식 낱말 | 검색어가 음식 낱말 그 자체(국밥·치킨)면 **이름 전체 일치**만(국밥 → '○○국밥' 수천 곳이 이름 결과로 섞이지 않게). '교촌치킨'·'을지면옥'처럼 음식 낱말을 품은 이름은 앞부분 일치 |
+| N-3 | 불명확 | 이름과 음식·지명으로 **함께 읽히면 둘 다**: 이름 맞는 가게(가까운 순 최대 10) 먼저, 이어서 그 조건의 평소 추천. 이름으로만 읽히면 이름 결과만. 맞는 가게가 없으면 평소대로 |
+| N-4 | 조각 | 이름으로 읽힌 낱말의 조각은 지명으로 찾지 않음(명동교자 → '명동' X, 을지면옥 → '을지' X) |
+| N-5 | 표시 | 이름 검색으로 들어온 가게는 릴스 카드 이름 위에 **"'{검색어}' 이름으로 찾은 가게"** 태그. 조건 필터·별점 순서와 무관하게 들어온 가게임을 구분. 점수 무관 |
 
 ### ~~리뷰 지도~~ (I-3, 2026-11-02 — 2026-11-15 L-2 로 폐기)
 | # | 안건 | 결정 |
