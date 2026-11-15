@@ -340,9 +340,10 @@ def parse(text: str, conn: sqlite3.Connection | None = None, use_model: bool = T
                 add("subtype", sub)
                 continue
         unknown.append(tok)
-    # 이름의 조각(을지면옥 → 음식 '면옥' 떼고 남은 '을지')은 지명으로 찾지 않음. 이름과 음식·지명이 함께 읽히면 둘 다(name_only=False)
+    # 이름 낱말과 그 조각(을지면옥 → 음식 '면옥' 떼고 남은 '을지')은 카카오 지명으로 찾지 않음(희옥 → 진도 '희옥들' X).
+    # 이름과 음식·주소 지명이 함께 읽히면 둘 다(name_only=False)
     if name:
-        unknown = [u for u in unknown if not (u in name and u != name)]
+        unknown = [u for u in unknown if u not in name]
     if not places:  # 주소에 없는 역·랜드마크 → 카카오(남은 낱말 앞 2개만)
         for tok in unknown[:2]:
             if found := _kakao_places(tok):

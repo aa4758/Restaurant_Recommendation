@@ -53,3 +53,12 @@ def test_recommend_name_first_and_marked(client):
     # 싫어요 숨김은 이름 결과에도 적용, 이름만인데 맞는 가게가 없으면 평소 추천
     hid = client.post("/recommend", json={**CITY_HALL, "name": "부민옥", "name_only": True, "exclude_ids": [only["items"][0]["id"]]}).json()
     assert hid["items"] and not any(i["name_match"] for i in hid["items"])
+
+
+def test_name_not_sent_to_kakao_place(client, monkeypatch):
+    """가게 이름으로 읽힌 낱말은 카카오 지명으로 찾지 않음(2026-11-15: '희옥' → 진도 '희옥들' 로 이동하던 결함)."""
+    from app import nlparse
+    far = {"name": "희옥들", "kind": "landmark", "label": "희옥들 (전남 진도군)", "lat": 34.44, "lng": 126.29}
+    monkeypatch.setattr(nlparse, "_kakao_places", lambda tok: (far,) if tok == "부민옥" else ())
+    f = _f(client, "부민옥")
+    assert f["name"] == "부민옥" and f["name_only"] is True and f["place"] is None
