@@ -79,6 +79,11 @@ export function setLiked(id: string, liked: boolean): Promise<string[]> {
   });
 }
 
+/** 기기 사본을 계정 좋아요 목록으로 덮음(docs/01 L-1, 오래된 것 먼저) */
+export function replaceLikes(ids: string[]): Promise<void> {
+  return mutate<string[], void>(K_LIKES, [], () => ({ next: ids, result: undefined }));
+}
+
 /** id -> 만료 시각(ms) */
 function pruneHidden(raw: Record<string, number>): Record<string, number> {
   const now = Date.now();

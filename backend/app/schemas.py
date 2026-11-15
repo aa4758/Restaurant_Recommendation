@@ -173,6 +173,11 @@ class ReviewPage(BaseModel):
     next_cursor: Optional[str] = None
 
 
+class LikesIn(BaseModel):
+    """좋아요 추가(docs/01 L-1). 로그인 직후 기기 좋아요를 한 번에 합칠 때 여러 개."""
+    ids: list[Annotated[str, Field(min_length=1, max_length=64)]] = Field(min_length=1, max_length=500)
+
+
 class ReactionIn(BaseModel):
     """기기·가게당 1행. 공개 점수·순위에 반영하지 않음(개인화 전용)."""
     device_id: DeviceId

@@ -32,17 +32,8 @@ python -m app.exclude --dry-run   # 건수만
 python -m app.exclude
 ```
 
-## 리뷰 지도 경계 (I-3, app/ingest/build_regions.py)
-- 결과물 `mobile/assets/regions.json`(git 포함, 약 160KB). 행정구역이 바뀌거나(구 신설·통합) 가게 DB 를 새로 적재했을 때 다시 만듦.
-- 키: SGIS 개발지원센터 인증키 → 사용자 환경변수 `SGIS_CONSUMER_KEY`, `SGIS_CONSUMER_SECRET`.
-```powershell
-cd backend
-python -m app.ingest.build_regions            # 최신 연도 자동(2026-11 기준 2025년)
-```
-- 경계 연도와 가게 행정구역이 달라도 **가게 좌표로 연결**. 출력의 '분할 배정'(예: 인천 중구 → 영종구·제물포구)·'이름 불일치' 줄을 확인하고, 단위 수가 가게 DB 지도 단위 수와 같은지 본다(2026-11: 230).
-
 ## 데이터 갱신 (업무추진비·리뷰 통계·카카오)
-> ⚠️ `python -m app.ingest.load_seed` 는 **DB 파일을 삭제 후 재생성** 한다 → `user_reviews`, `reports` 소실.
+> ⚠️ `python -m app.ingest.load_seed` 는 **DB 파일을 삭제 후 재생성** 한다 → `user_reviews`, `user_likes`, `reports` 소실.
 1. 백업: `docker cp <컨테이너>:/data/jjinmat.db ./backup-$(date +%F).db`
 2. 새 CSV를 `backend/data/seed/` 형식에 맞춰 교체 (업무추진비 CSV는 **개인정보 컬럼 제거 후**).
 3. 새 DB를 별도 경로에 적재: `python -m app.ingest.load_seed --db new.db`
