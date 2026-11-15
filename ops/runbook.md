@@ -33,6 +33,7 @@ python -m app.exclude
 ```
 
 ## 데이터 갱신 (업무추진비·리뷰 통계·카카오)
+> 가게 이름 검색 키(`restaurants.name_key`·`restaurant_name_words`)는 새로 적재·이름 바뀐 가게만 다음 DB 연결 때 자동으로 채움. 전국 첫 적재 직후 첫 연결은 약 30초 걸림 → 적재 후 서버 재시작 전에 `python -c "from app.db import connect, init_schema; init_schema(connect())"` 로 미리 채우면 첫 요청이 느리지 않음.
 > ⚠️ `python -m app.ingest.load_seed` 는 **DB 파일을 삭제 후 재생성** 한다 → `user_reviews`, `user_likes`, `reports` 소실.
 1. 백업: `docker cp <컨테이너>:/data/jjinmat.db ./backup-$(date +%F).db`
 2. 새 CSV를 `backend/data/seed/` 형식에 맞춰 교체 (업무추진비 CSV는 **개인정보 컬럼 제거 후**).

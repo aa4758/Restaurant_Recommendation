@@ -137,11 +137,13 @@ def _name_matches(conn, req: RecommendRequest, q: Query, excl: set) -> list[dict
 
     if not req.name:
         return []
-    hits = sorted((haversine_m(q.lat, q.lng, lat, lng), rid) for rid, lat, lng in name_hits(_db_file(conn), req.name) if rid not in excl)
+    # 일치 단계(전체 → 앞부분 → 낱말) 다음 가까운 순
+    hits = sorted((tier, haversine_m(q.lat, q.lng, lat, lng), rid)
+                  for rid, lat, lng, tier in name_hits(_db_file(conn), req.name) if rid not in excl)
     if not req.name_only:  # 음식·지명으로도 읽힘 → 먼 동명 가게(부산의 '국밥')는 빼고 가까운 것만. 이름으로만 읽히면 전국
-        hits = [h for h in hits if h[0] <= NAME_NEAR_M]
+        hits = [h for h in hits if h[1] <= NAME_NEAR_M]
     out = []
-    for dist, rid in hits[:NAME_NEAREST]:
+    for _, dist, rid in hits[:NAME_NEAREST]:
         found = get_scored(conn, rid)
         if found is None:
             continue

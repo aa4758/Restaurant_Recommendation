@@ -105,6 +105,7 @@ def _places(db_file: str) -> dict[str, list[dict]]:
 KAKAO_KEYWORD = "https://dapi.kakao.com/v2/local/search/keyword.json"
 # 역·관광명소·학교·문화시설·공공기관만 지명으로 인정(음식점·카페 등 가게 이름은 제외)
 KAKAO_PLACE_CATS = {"SW8", "AT4", "SC4", "CT1", "PO3"}
+KAKAO_STORE_CATS = {"FD6", "CE7"}  # 음식점·카페(2026-11-15)
 
 
 @cache
@@ -126,13 +127,15 @@ def _kakao_places(token: str) -> tuple[dict, ...]:
             docs = json.load(resp).get("documents", [])
     except Exception:  # 403(콘솔에서 지도/로컬 미사용)·타임아웃 등
         return ()
+    if docs and docs[0].get("category_group_code") in KAKAO_STORE_CATS:
+        return ()  # 검색 1위가 음식점·카페 → 가게 이름(희옥 → 진도 '희옥들' X, 우래옥 → 주차장 X)
     seen: dict[str, dict] = {}
     for d in docs:
         # 분류(그룹 코드 또는 "여행 > 관광"·"교통" 분류, 숙박 제외) + 이름이나 주소에 검색어 포함
         # (홍대 → 홍대입구역 O·홍익대 세종캠퍼스 X, 잠실 → 잠실동 명소 O, '데이트' → CGV X)
         cat = d.get("category_name") or ""
         place_ok = (d.get("category_group_code") in KAKAO_PLACE_CATS or cat.startswith(("여행 > 관광", "교통"))) and "휴게소" not in cat
-        named = token in (d.get("place_name") or "").replace(" ", "") or token in (d.get("address_name") or "")
+        named = (d.get("place_name") or "").replace(" ", "").startswith(token) or token in (d.get("address_name") or "")
         if not (place_ok and named):
             continue
         city = " ".join((d.get("address_name") or "").split()[:2])
@@ -231,20 +234,56 @@ def _food_words() -> frozenset[str]:
     return frozenset([w for w, *_ in _vocab()] + list(GENRE_SYN) + [t for t, _ in PATTERNS])
 
 
-def name_hits(db_file: str, term: str) -> list[tuple[str, float, float]]:
-    """가게 이름 검색(2026-11-15): 영업 중·좌표 있는 가게의 (id, lat, lng). 공백·대소문자 무시(식 색인 idx_restaurants_name_key).
-    음식 낱말 그 자체(국밥)는 이름 전체 일치만, 아니면 이름 앞부분 일치(교촌치킨 → 교촌치킨 시청점)."""
-    term = _norm(term).replace(" ", "")
-    if not db_file or len(term) < 2:
+def name_hits(db_file: str, term: str) -> list[tuple[str, float, float, int]]:
+    """가게 이름 검색(2026-11-15, docs/01 N-1·N-2): 영업 중·좌표 있음·제외 아님 가게의 (id, lat, lng, 일치 단계).
+    일치 단계 0 = 이름 전체, 1 = 이름 앞부분, 2 = 이름 속 낱말(돈카츠 희옥 ← 희옥). 키는 db.name_key(공백·기호 무시).
+    음식 낱말 그 자체(국밥)는 이름 전체 일치만."""
+    from app.db import name_key
+
+    k = name_key(term)
+    if not db_file or len(k) < 2:
         return []
-    key = "REPLACE(LOWER(name),' ','')"
-    where, args = (f"{key} = ?", (term,)) if term in _food_words() else (f"{key} >= ? AND {key} < ?", (term, term + "\U0010ffff"))
+    ok = "r.status='open' AND r.lat IS NOT NULL AND r.exclude_reason IS NULL"
+    if k in _food_words():
+        sql, args = f"SELECT r.id, r.lat, r.lng, 0 FROM restaurants r WHERE r.name_key = ? AND {ok}", (k,)
+    else:
+        sql = (f"SELECT r.id, r.lat, r.lng, r.name_key != ? FROM restaurants r WHERE r.name_key >= ? AND r.name_key < ? AND {ok}"
+               f" UNION ALL SELECT r.id, r.lat, r.lng, 2 FROM restaurant_name_words w JOIN restaurants r ON r.id = w.restaurant_id"
+               f" WHERE w.word = ? AND {ok}")
+        args = (k, k, k + "\U0010ffff", k)
     conn = sqlite3.connect(db_file)
     try:
-        return [tuple(r) for r in conn.execute(
-            f"SELECT id, lat, lng FROM restaurants WHERE {where} AND status='open' AND lat IS NOT NULL", args)]
+        best: dict[str, tuple] = {}
+        for rid, lat, lng, tier in conn.execute(sql, args):
+            if rid not in best or tier < best[rid][3]:
+                best[rid] = (rid, lat, lng, int(tier))
+        return list(best.values())
     finally:
         conn.close()
+
+
+def _strong(hits: list) -> bool:
+    """이름 전체·이름 속 낱말 일치가 있으면 강함(앞부분만 맞으면 약함 — 홍대 → '홍대곱창')."""
+    return any(h[3] != 1 for h in hits)
+
+
+def _find_name(db: str, text: str, skip: frozenset = frozenset()) -> tuple[str | None, bool]:
+    """문장에서 가게 이름 부분(2026-11-15, docs/01 N-1): 이어진 낱말 묶음을 긴 것부터 이름으로 확인.
+    같은 길이면 강한 일치 먼저. skip = 지명으로 쓰인 낱말(이름 후보에서 뺌). 반환 (이름 원문, 강함)."""
+    toks = [x for x in text.split() if re.search(r"[가-힣a-z0-9]{2,}", x) and _strip(x) not in STOP and _strip(x) not in skip]
+    for n in range(len(toks), 0, -1):
+        weak = None
+        for i in range(len(toks) - n + 1):
+            span = toks[i:i + n]
+            for cand in dict.fromkeys([" ".join(span), " ".join(span[:-1] + [_strip(span[-1])])]):
+                hits = name_hits(db, cand)
+                if hits and _strong(hits):
+                    return cand, True
+                if hits and weak is None:
+                    weak = cand
+        if weak:
+            return weak, False
+    return None, False
 
 
 def _strip(tok: str) -> str:
@@ -278,15 +317,19 @@ def parse(text: str, conn: sqlite3.Connection | None = None, use_model: bool = T
         t = re.sub(pattern, " ", t)
 
     raw = t
-    # 가게 이름(2026-11-15): 낱말 하나뿐이고 그 이름의 가게가 있으면 이름으로 — 그 낱말의 조각은 지명으로 보지 않음(명동교자 → 명동 X)
-    db = _db_file(conn)
-    toks = [x for x in map(_strip, re.findall(r"[가-힣a-z0-9]{2,}", t)) if x not in STOP]
-    name = toks[0] if len(toks) == 1 and name_hits(db, toks[0]) else None
+    # 가게 이름(2026-11-15, docs/01 N-1~N-4): 음식·지명보다 먼저 확인. 이름 부분은 지우지 않고 음식으로도 읽음(둘 다).
+    # 이름 낱말의 조각은 지명으로 보지 않음(명동교자 → 명동 X), 이름 낱말은 오타 교정·메뉴 모델에 안 넣음(하우스 → 조개 X)
+    db, text0 = _db_file(conn), t
+    name, strong = _find_name(db, t)
+    name_toks = [_strip(x) for x in name.split()] if name else []
+    inside = lambda w: any(w in x for x in name_toks)  # noqa: E731
+    used_as_place: set[str] = set()
     places: list[dict] = []  # 지역 + 음식 검색(2026-11-12): 지명을 먼저 떼어 다른 규칙에 안 걸리게
     if conn is not None:
         idx = _places(_db_file(conn))
         for m in PLACE_RE.finditer(t):
-            if m.group(0) in idx and (name is None or m.group(0) == name):
+            if m.group(0) in idx and not any(m.group(0) in x and m.group(0) != x for x in name_toks):
+                used_as_place.add(m.group(0))
                 places = _narrow(idx[m.group(0)], raw)
                 t = t[: m.start()] + " " + t[m.end():]
                 break
@@ -326,6 +369,9 @@ def parse(text: str, conn: sqlite3.Connection | None = None, use_model: bool = T
         tok = _strip(tok)
         if tok in STOP or len(tok) < 2:
             continue
+        if inside(tok) or strong:  # 이름 낱말·강한 이름 검색: 오타 교정·메뉴 모델로 음식을 지어내지 않음(하우스 → 조개 X)
+            unknown.append(tok)
+            continue
         j = _jamo(tok)
         hit = next(((fl, v) for w, wj, fl, v in _vocab() if len(w) >= 2 and _within1(j, wj)), None)
         if hit:
@@ -340,19 +386,21 @@ def parse(text: str, conn: sqlite3.Connection | None = None, use_model: bool = T
                 add("subtype", sub)
                 continue
         unknown.append(tok)
-    # 이름 낱말과 그 조각(을지면옥 → 음식 '면옥' 떼고 남은 '을지')은 카카오 지명으로 찾지 않음(희옥 → 진도 '희옥들' X).
-    # 이름과 음식·주소 지명이 함께 읽히면 둘 다(name_only=False)
-    if name:
-        unknown = [u for u in unknown if u not in name]
+    # 카카오 지명 후보: 여러 낱말 이름의 낱말(호식이 두마리 치킨)·이름 낱말의 조각(을지면옥 → '을지')은 안 보냄.
+    # 한 낱말 이름은 보냄 — 카카오 검색 1위가 음식점이면 지명 아님(_kakao_places), 지명이면 지명으로(해운대·강남역)
+    ask = [u for u in unknown if not (len(name_toks) > 1 and inside(u)) and not any(u in x and u != x for x in name_toks)]
     if not places:  # 주소에 없는 역·랜드마크 → 카카오(남은 낱말 앞 2개만)
-        for tok in unknown[:2]:
+        for tok in ask[:2]:
             if found := _kakao_places(tok):
                 places = _narrow(list(found), raw)
                 unknown.remove(tok)
+                used_as_place.add(tok)
                 break
-    if name is None:  # 여러 낱말: 지명·음식으로 못 읽은 낱말 중 처음 맞는 가게 이름(홍대 미미네 → 미미네)
-        name = next((u for u in unknown if name_hits(db, u)), None)
-    unknown = [u for u in unknown if u != name]
+    # 지명으로 쓰인 낱말은 이름이 아님 → 나머지 낱말로 다시(홍대 미미네 → 미미네, 강남역 → 이름 없음). 여러 낱말 이름은 유지(명동 칼국수)
+    if name and len(name_toks) == 1 and name_toks[0] in used_as_place:
+        name, strong = _find_name(db, text0, frozenset(used_as_place))
+        name_toks = [_strip(x) for x in name.split()] if name else []
+    unknown = [u for u in unknown if not inside(u)] if name else unknown
     if conn is not None and unknown:
         _record_unknown(conn, unknown)
     out = {k: v for k, v in f.items() if v and v != "any"}
